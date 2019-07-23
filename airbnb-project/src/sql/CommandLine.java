@@ -18,7 +18,7 @@ public class CommandLine {
 	private SQLController sqlMngr = null;
     // 'sc' is needed in order to scan the inputs provided by the user
 	private Scanner sc = null;
-	private static final List<String> usersColumns = Arrays.asList("email", "first_name", "last_name", "dob", "address", "occupation", "sin", "password", "cc");
+	private static final String[] usersColumns = new String [] {"email", "first_name", "last_name", "dob", "address", "occupation", "sin", "password", "cc"};
 	
 	//Public functions - CommandLine State Functions
 	

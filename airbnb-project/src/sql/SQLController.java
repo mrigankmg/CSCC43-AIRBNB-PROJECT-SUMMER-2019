@@ -110,11 +110,11 @@ public class SQLController {
 	
     //Controls the execution of an insert query.
     //Functionality: "1. Insert a record."
-	public void insert(String table, List<String> columns, String[] vals) {
+	public void insert(String table, String[] columns, String[] vals) {
 		String query = "INSERT INTO " + table + "("; 
-		for (int counter = 0; counter < columns.size(); counter++) {
-			query = query.concat(columns.get(counter));
-			if (counter < columns.size() - 1) {
+		for (int counter = 0; counter < columns.length; counter++) {
+			query = query.concat(columns[counter]);
+			if (counter < columns.length - 1) {
 				query = query.concat(",");
 			}
 		}
