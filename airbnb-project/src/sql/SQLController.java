@@ -3,6 +3,7 @@ package sql;
 import java.security.interfaces.RSAKey;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 /*
  * This class acts as the medium between our CommandLine interface
@@ -91,18 +92,20 @@ public class SQLController {
 	
     //Controls the execution of a select query.
     //Functionality: "2. Select a record."
-	public ResultSet selectOp(String query) {
-		ResultSet rs = null;
+	public List<String> selectOp(String table, String resultColumn, String checkColumn, String value) {
+		String query = "SELECT " + resultColumn + " FROM " + table + " WHERE " + checkColumn + " IN ('" + value + "');";
+		List<String> result = new ArrayList<String>();
 		try {
-			rs = st.executeQuery(query);
-			//ResultSetMetaData rsmd = rs.getMetaData();
-			//int colNum = rsmd.getColumnCount();
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				result.add(rs.getString(resultColumn));
+			}
 			rs.close();
 		} catch (SQLException e) {
 			System.err.println("Exception triggered during select execution!");
 			e.printStackTrace();
 		}
-		return rs;
+		return result;
 	}
 	
     //Controls the execution of an insert query.

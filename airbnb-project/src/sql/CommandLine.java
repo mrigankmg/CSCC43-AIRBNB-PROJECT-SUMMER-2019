@@ -69,43 +69,47 @@ public class CommandLine {
 			System.out.println("****************************");
 			System.out.println("***CONNECTION ESTABLISHED***");
 			System.out.println("****************************");
+			menu();
 			
-			String input = "";
-			int choice = -1;
-			do {
-				System.out.println("");
-				System.out.println("=========LOGIN/SIGN-UP=========");
-				System.out.println("0. Exit");
-				System.out.println("1. Login");
-				System.out.println("2. Sign-Up");
-				System.out.print("Choose one of the options [0-2]: ");
-				input = sc.nextLine();
-				try {
-					choice = Integer.parseInt(input);
-					switch (choice) { //Activate the desired functionality
-					case 0:
-						break;
-					case 1:
-						login();
-						break;
-					case 2:
-						signUpMenu();
-						break;
-					default:
-						invalidOption();
-						break;
-					}
-				} catch (NumberFormatException e) {
-					input = "-1";
-				}
-			} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0);
-			if (input.compareTo("0") == 0) {
-				endSession();
-			}
 		} else {
 			System.out.println("");
 			System.out.println("Connection could not been established!");
 			System.out.println("");
+		}
+	}
+	
+	private void menu() throws SQLException {
+		String input = "";
+		int choice = -1;
+		do {
+			System.out.println("");
+			System.out.println("=========LOGIN/SIGN-UP=========");
+			System.out.println("0. Exit");
+			System.out.println("1. Login");
+			System.out.println("2. Sign-Up");
+			System.out.print("Choose one of the options [0-2]: ");
+			input = sc.nextLine();
+			try {
+				choice = Integer.parseInt(input);
+				switch (choice) { //Activate the desired functionality
+				case 0:
+					break;
+				case 1:
+					login();
+					break;
+				case 2:
+					signUpMenu();
+					break;
+				default:
+					invalidOption();
+					break;
+				}
+			} catch (NumberFormatException e) {
+				input = "-1";
+			}
+		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0);
+		if (input.compareTo("0") == 0) {
+			endSession();
 		}
 	}
 	
@@ -204,7 +208,7 @@ public class CommandLine {
 		insertUser("Users", cred);
 		System.out.println("");
 		System.out.println("You have successfully signed up!");
-		signUpMenu();
+		menu();
 	}
 	
 	public boolean isValidDateFormat(String value) {
@@ -282,7 +286,7 @@ public class CommandLine {
 	
     // Function that handles the feature: "3. Print schema."
 	private void printSchema() {
-		ArrayList<String> schema = sqlMngr.getSchema();
+		List<String> schema = sqlMngr.getSchema();
 		
 		System.out.println("");
 		System.out.println("------------");
@@ -312,7 +316,7 @@ public class CommandLine {
 //	}
 
 	private boolean checkExistingAccount(String table, String column, String value) throws SQLException {
-		if (select(table, column, column, value).size() > 0) {
+		if (sqlMngr.selectOp(table, column, column, value).size() > 0) {
 			System.out.println("");
 			System.out.println("Account with this " + column + " already exists.");
 			System.out.println("");
@@ -322,7 +326,7 @@ public class CommandLine {
 	}
 	
 	private boolean checkLoginCredentials(String email, String password) throws SQLException {
-		ArrayList<String> vals = select("Users", "password", "email", email);
+		List<String> vals = sqlMngr.selectOp("Users", "password", "email", email);
 		boolean userExists = vals.size() == 1 && vals.get(0).equals(password);
 		if (!userExists) {
 			System.out.println("");
@@ -330,17 +334,6 @@ public class CommandLine {
 			System.out.println("");
 		}
 		return userExists;
-	}
-
-    // Function that handles the feature: "2. Select a record."
-	private ArrayList<String> select(String table, String resultColumn, String checkColumn, String value) throws SQLException {
-		String query = "SELECT " + resultColumn + " FROM " + table + " WHERE " + checkColumn + " IN ('" + value + "');";
-		ArrayList<String> result = new ArrayList<String>();
-		ResultSet rs = sqlMngr.selectOp(query);
-		while(rs.next()) {
-			result.add(rs.getString(resultColumn));
-		}
-		return result;
 	}
 
     // Function that handles the feature: "1. Insert a record."
