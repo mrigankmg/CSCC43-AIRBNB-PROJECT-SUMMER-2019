@@ -14,7 +14,7 @@ public class SQLController {
 	private static final String dbClassName = "com.mysql.jdbc.Driver";
 	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/airbnb";
 	private static final String sqlUser = "root";
-	private static final String sqlPass = "pass";
+	private static final String sqlPass = "irw1rgi5";
     //Object that establishes and keeps the state of our application's
     //connection with the MySQL backend.
 	private Connection conn = null;
@@ -92,7 +92,7 @@ public class SQLController {
 	
     //Controls the execution of a select query.
     //Functionality: "2. Select a record."
-	public List<String> selectOp(String table, String resultColumn, String checkColumn, String value) {
+	public List<String> select(String table, String resultColumn, String checkColumn, String value) {
 		String query = "SELECT " + resultColumn + " FROM " + table + " WHERE " + checkColumn + " IN ('" + value + "');";
 		List<String> result = new ArrayList<String>();
 		try {
@@ -110,15 +110,33 @@ public class SQLController {
 	
     //Controls the execution of an insert query.
     //Functionality: "1. Insert a record."
-	public int insertOp(String query) {
-		int rows = 0; 
+	public void insert(String table, List<String> columns, String[] vals) {
+		String query = "INSERT INTO " + table + "("; 
+		for (int counter = 0; counter < columns.size(); counter++) {
+			query = query.concat(columns.get(counter));
+			if (counter < columns.size() - 1) {
+				query = query.concat(",");
+			}
+		}
+		query = query.concat(") VALUES(");
+		for (int counter = 0; counter < vals.length; counter++) {
+			if (vals[counter] == null) {
+				query = query.concat("NULL");
+			} else {
+				query = query.concat("'" + vals[counter] + "'");
+			}
+			if (counter < vals.length - 1) {
+				query = query.concat(",");
+			} else {
+				query = query.concat(");");
+			}
+		}
 		try {
-			rows = st.executeUpdate(query);
+			st.executeUpdate(query);
 		} catch (SQLException e) {
 			System.err.println("Exception triggered during insert execution!");
 			e.printStackTrace();
 		}
-		return rows;
 	}
 
 }

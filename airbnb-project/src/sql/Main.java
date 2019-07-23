@@ -3,7 +3,6 @@ package sql;
 import java.sql.SQLException;
 
 public class Main {
-
     /* Here starts the execution of our program.
      * We create a CommandLine object and in order to interact
      * with the user first of all we initialize it (startSession),
@@ -21,5 +20,4 @@ public class Main {
 			}
 		}
 	}
-
 }

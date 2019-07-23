@@ -1,6 +1,5 @@
 package sql;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,6 +18,7 @@ public class CommandLine {
 	private SQLController sqlMngr = null;
     // 'sc' is needed in order to scan the inputs provided by the user
 	private Scanner sc = null;
+	private static final List<String> usersColumns = Arrays.asList("email", "first_name", "last_name", "dob", "address", "occupation", "sin", "password", "cc");
 	
 	//Public functions - CommandLine State Functions
 	
@@ -176,7 +176,7 @@ public class CommandLine {
 		do {
 			System.out.print("Email: ");
 			cred[0] = sc.nextLine().trim();
-		} while (checkExistingAccount("Users", "email", cred[0]));
+		} while (checkExistingAccount("users", "email", cred[0]));
 		System.out.print("First Name: ");
 		cred[1] = sc.nextLine().trim();
 		System.out.print("Last Name: ");
@@ -192,7 +192,7 @@ public class CommandLine {
 		do {
 			System.out.print("SIN: ");
 			cred[6] = sc.nextLine().trim();
-		} while (!isInteger(cred[6], 10) && checkExistingAccount("Users", "sin", cred[6]));
+		} while (!isInteger(cred[6], 10) && checkExistingAccount("users", "sin", cred[6]));
 		System.out.print("Password: ");
 		cred[7] = sc.nextLine();
 		if (renterSignUp) {
@@ -205,7 +205,7 @@ public class CommandLine {
 		} else {
 			cred[8] = null;
 		}
-		insertUser("Users", cred);
+		sqlMngr.insert("users", usersColumns, cred);
 		System.out.println("");
 		System.out.println("You have successfully signed up!");
 		menu();
@@ -316,7 +316,7 @@ public class CommandLine {
 //	}
 
 	private boolean checkExistingAccount(String table, String column, String value) throws SQLException {
-		if (sqlMngr.selectOp(table, column, column, value).size() > 0) {
+		if (sqlMngr.select(table, column, column, value).size() > 0) {
 			System.out.println("");
 			System.out.println("Account with this " + column + " already exists.");
 			System.out.println("");
@@ -326,7 +326,7 @@ public class CommandLine {
 	}
 	
 	private boolean checkLoginCredentials(String email, String password) throws SQLException {
-		List<String> vals = sqlMngr.selectOp("Users", "password", "email", email);
+		List<String> vals = sqlMngr.select("users", "password", "email", email);
 		boolean userExists = vals.size() == 1 && vals.get(0).equals(password);
 		if (!userExists) {
 			System.out.println("");
@@ -334,25 +334,6 @@ public class CommandLine {
 			System.out.println("");
 		}
 		return userExists;
-	}
-
-    // Function that handles the feature: "1. Insert a record."
-	private void insertUser(String table, String[] vals) {
-		String query = "";
-		query = "INSERT INTO Users (email, first_name, last_name, dob, address, occupation, sin, password, cc) VALUES("; 
-		for (int counter = 0; counter < vals.length; counter++) {
-			if (vals[counter] == null) {
-				query = query.concat("NULL");
-			} else {
-				query = query.concat("'" + vals[counter] + "'");
-			}
-			if (counter < vals.length - 1) {
-				query = query.concat(",");
-			} else {
-				query = query.concat(");");
-			}
-		}
-		sqlMngr.insertOp(query);
 	}
 
 }
