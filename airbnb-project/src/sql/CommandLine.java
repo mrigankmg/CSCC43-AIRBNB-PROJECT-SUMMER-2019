@@ -1,5 +1,6 @@
 package sql;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -85,9 +86,11 @@ public class CommandLine {
 					case 0:
 						break;
 					case 1:
+						login();
 						break;
 					case 2:
 						signUpMenu();
+						break;
 					default:
 						invalidOption();
 						break;
@@ -106,9 +109,6 @@ public class CommandLine {
 		}
 	}
 	
-	//Private functions
-	
-	//Print menu options
 	private void signUpMenu() throws SQLException {
 		String input = "";
 		int choice = -1;
@@ -143,8 +143,19 @@ public class CommandLine {
 			endSession();
 		}
 	}
-
 	
+	private void login() throws SQLException {
+		System.out.println("");
+		System.out.println("=========LOGIN=========");
+		String[] cred = new String[2];
+		do {
+			System.out.print("Email: ");
+			cred[0] = sc.nextLine().trim();
+			System.out.print("Password: ");
+			cred[1] = sc.nextLine();
+		} while (!checkLoginCredentials(cred[0], cred[1]));
+	}
+
 	//Print menu options
 	private void invalidOption() {
 		System.out.println("");
@@ -283,26 +294,25 @@ public class CommandLine {
 		System.out.println("");
 	}
 	
-    // Function that handles the feature: "4. Print table schema."
-	private void printColSchema() {
-		System.out.print("Table Name: ");
-		String tableName = sc.nextLine();
-		ArrayList<String> result = sqlMngr.colSchema(tableName);
-		System.out.println("");
-		System.out.println("------------");
-		System.out.println("Total number of fields: " + result.size()/2);
-		for (int i = 0; i < result.size(); i+=2) {
-			System.out.println("-");
-			System.out.println("Field Name: " + result.get(i));
-			System.out.println("Field Type: " + result.get(i+1));
-		}
-		System.out.println("------------");
-		System.out.println("");
-	}
+//    // Function that handles the feature: "4. Print table schema."
+//	private void printColSchema() {
+//		System.out.print("Table Name: ");
+//		String tableName = sc.nextLine();
+//		ArrayList<String> result = sqlMngr.colSchema(tableName);
+//		System.out.println("");
+//		System.out.println("------------");
+//		System.out.println("Total number of fields: " + result.size()/2);
+//		for (int i = 0; i < result.size(); i+=2) {
+//			System.out.println("-");
+//			System.out.println("Field Name: " + result.get(i));
+//			System.out.println("Field Type: " + result.get(i+1));
+//		}
+//		System.out.println("------------");
+//		System.out.println("");
+//	}
 
 	private boolean checkExistingAccount(String table, String column, String value) throws SQLException {
-		int numColumns = select(table, column, value);
-		if (numColumns > 0) {
+		if (select(table, column, column, value).size() > 0) {
 			System.out.println("");
 			System.out.println("Account with this " + column + " already exists.");
 			System.out.println("");
@@ -310,11 +320,27 @@ public class CommandLine {
 		}
 		return false;
 	}
+	
+	private boolean checkLoginCredentials(String email, String password) throws SQLException {
+		ArrayList<String> vals = select("Users", "password", "email", email);
+		boolean userExists = vals.size() == 1 && vals.get(0).equals(password);
+		if (!userExists) {
+			System.out.println("");
+			System.out.println("Invalid email or password.");
+			System.out.println("");
+		}
+		return userExists;
+	}
 
     // Function that handles the feature: "2. Select a record."
-	private int select(String table, String column, String value) throws SQLException {
-		String query = "SELECT " + column + " FROM " + table + " WHERE " + column + " IN ('" + value + "');";
-		return sqlMngr.selectOp(query).getMetaData().getColumnCount();
+	private ArrayList<String> select(String table, String resultColumn, String checkColumn, String value) throws SQLException {
+		String query = "SELECT " + resultColumn + " FROM " + table + " WHERE " + checkColumn + " IN ('" + value + "');";
+		ArrayList<String> result = new ArrayList<String>();
+		ResultSet rs = sqlMngr.selectOp(query);
+		while(rs.next()) {
+			result.add(rs.getString(resultColumn));
+		}
+		return result;
 	}
 
     // Function that handles the feature: "1. Insert a record."

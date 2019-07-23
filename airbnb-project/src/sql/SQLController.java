@@ -72,14 +72,13 @@ public class SQLController {
 	}
 	
     // Controls the execution of functionality: "4. Print table schema."
-	public ArrayList<String> colSchema(String tableName) {
+	public ArrayList<String> colValues(String tableName, String columnName) {
 		ArrayList<String> result = new ArrayList<String>();
 		try {
 			DatabaseMetaData meta = conn.getMetaData();
-			ResultSet rs = meta.getColumns(null, null, tableName, null);
+			ResultSet rs = meta.getColumns(null, null, tableName, columnName);
 			while(rs.next()) {
-				result.add(rs.getString(4));
-				result.add(rs.getString(6));
+				result.add(rs.getString(1));
 			}
 			rs.close();
 		} catch (SQLException e) {
