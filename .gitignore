@@ -1,0 +1,6 @@
+*.classpath
+*.project
+./airbnb-project/.settings/
+./airbnb-project/bin/
+*.DS_Store
+*.class
