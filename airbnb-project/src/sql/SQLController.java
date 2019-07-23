@@ -92,28 +92,18 @@ public class SQLController {
 	
     //Controls the execution of a select query.
     //Functionality: "2. Select a record."
-	public void selectOp(String query) {
+	public ResultSet selectOp(String query) {
+		ResultSet rs = null;
 		try {
-			ResultSet rs = st.executeQuery(query);
-			ResultSetMetaData rsmd = rs.getMetaData();
-			int colNum = rsmd.getColumnCount();
-			System.out.println("");
-			for (int i = 0; i < colNum; i++) {
-				System.out.print(rsmd.getColumnLabel(i+1) + "\t");
-			}
-			System.out.println("");
-			while(rs.next()) {
-				for (int i = 0; i < colNum; i++) {
-					System.out.print(rs.getString(i+1) + "\t");
-				}
-				System.out.println("");
-			}
+			rs = st.executeQuery(query);
+			//ResultSetMetaData rsmd = rs.getMetaData();
+			//int colNum = rsmd.getColumnCount();
 			rs.close();
 		} catch (SQLException e) {
-			System.err.println("Exception triggered during Select execution!");
+			System.err.println("Exception triggered during select execution!");
 			e.printStackTrace();
 		}
-		System.out.println();
+		return rs;
 	}
 	
     //Controls the execution of an insert query.
@@ -123,7 +113,7 @@ public class SQLController {
 		try {
 			rows = st.executeUpdate(query);
 		} catch (SQLException e) {
-			System.err.println("Exception triggered during Insert execution!");
+			System.err.println("Exception triggered during insert execution!");
 			e.printStackTrace();
 		}
 		return rows;

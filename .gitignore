@@ -4,3 +4,4 @@
 ./airbnb-project/bin/
 *.DS_Store
 *.class
+/.metadata/

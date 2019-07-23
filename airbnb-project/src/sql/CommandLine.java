@@ -1,5 +1,6 @@
 package sql;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -61,7 +62,7 @@ public class CommandLine {
      * functionality according to user's choice. At each time it also outputs
      * the menu of core functionalities supported from our application.
      */
-	public void execute() {
+	public void execute() throws SQLException {
 		if (sc != null && sqlMngr != null) {
 			System.out.println("");
 			System.out.println("****************************");
@@ -108,7 +109,7 @@ public class CommandLine {
 	//Private functions
 	
 	//Print menu options
-	private void signUpMenu() {
+	private void signUpMenu() throws SQLException {
 		String input = "";
 		int choice = -1;
 		do {
@@ -153,37 +154,43 @@ public class CommandLine {
     // Called during the initialization of an instance of the current class
     // in order to retrieve from the user the credentials with which our program
     // is going to establish a connection with MySQL
-	private void signUpForm(boolean renterSignUp) {
+	private void signUpForm(boolean renterSignUp) throws SQLException {
 		System.out.println("");
 		System.out.println("=========SIGN UP FORM=========");
-		String[] cred = new String[10];
-		System.out.print("Email: ");
-		cred[0] = sc.nextLine();
-		System.out.print("Name: ");
-		cred[1] = sc.nextLine();
+		String[] cred = new String[9];
+		do {
+			System.out.print("Email: ");
+			cred[0] = sc.nextLine().trim();
+		} while (checkExistingAccount("Users", "email", cred[0]));
+		System.out.print("First Name: ");
+		cred[1] = sc.nextLine().trim();
+		System.out.print("Last Name: ");
+		cred[2] = sc.nextLine().trim();
 		do {
 			System.out.print("DOB (dd/mm/yyyy): ");
-			cred[2] = sc.nextLine();
-		} while(!isValidDateFormat(cred[2]));
+			cred[3] = sc.nextLine();
+		} while(!isValidDateFormat(cred[3]));
 		System.out.print("Address: ");
-		cred[3] = sc.nextLine();
+		cred[4] = sc.nextLine().trim();
 		System.out.print("Occupation: ");
-		cred[4] = sc.nextLine();
+		cred[5] = sc.nextLine().trim();
 		do {
 			System.out.print("SIN: ");
-			cred[5] = sc.nextLine();
-		} while (!isInteger(cred[5], 10));
+			cred[6] = sc.nextLine().trim();
+		} while (!isInteger(cred[6], 10) && checkExistingAccount("Users", "sin", cred[6]));
 		System.out.print("Password: ");
-		cred[6] = sc.nextLine();
+		cred[7] = sc.nextLine();
 		if (renterSignUp) {
 			do {
 				System.out.print("Credit Card No.: ");
-				cred[7] = sc.nextLine();
-			} while (!isInteger(cred[5], 10));
-			//insert("Renters", cred);
+				cred[8] = sc.nextLine().trim();
+			} while (!isInteger(cred[8], 10));
+			//String[] rentersArray = new String[] {cred[5], cred[7]};
+			//insert("Renters", rentersArray);
 		} else {
-			//insert("Hosts", cred);
+			cred[8] = null;
 		}
+		insertUser("Users", cred);
 		System.out.println("");
 		System.out.println("You have successfully signed up!");
 		signUpMenu();
@@ -292,30 +299,40 @@ public class CommandLine {
 		System.out.println("------------");
 		System.out.println("");
 	}
-	
+
+	private boolean checkExistingAccount(String table, String column, String value) throws SQLException {
+		int numColumns = select(table, column, value);
+		if (numColumns > 0) {
+			System.out.println("");
+			System.out.println("Account with this " + column + " already exists.");
+			System.out.println("");
+			return true;
+		}
+		return false;
+	}
+
     // Function that handles the feature: "2. Select a record."
-	private void selectOperator() {
-		String query = "";
-		System.out.print("Issue the Select Query: ");
-		query = sc.nextLine();
-		query.trim();
-		if (query.substring(0, 6).compareToIgnoreCase("select") == 0)
-			sqlMngr.selectOp(query);
-		else
-			System.err.println("No select statement provided!");
+	private int select(String table, String column, String value) throws SQLException {
+		String query = "SELECT " + column + " FROM " + table + " WHERE " + column + " IN ('" + value + "');";
+		return sqlMngr.selectOp(query).getMetaData().getColumnCount();
 	}
 
     // Function that handles the feature: "1. Insert a record."
-	private void insert(String table, String[] vals) {
-		int counter = 0;
+	private void insertUser(String table, String[] vals) {
 		String query = "";
-		List cols = new ArrayList(); //need to get all column headers in given table
-        //transform the user input into a valid SQL insert statement
-		query = "INSERT INTO " + table + " (" + cols + ") VALUES("; 
-		for (counter = 0; counter < vals.length - 1; counter++) {
-			query = query.concat("'" + vals[counter] + "',");
+		query = "INSERT INTO Users (email, first_name, last_name, dob, address, occupation, sin, password, cc) VALUES("; 
+		for (int counter = 0; counter < vals.length; counter++) {
+			if (vals[counter] == null) {
+				query = query.concat("NULL");
+			} else {
+				query = query.concat("'" + vals[counter] + "'");
+			}
+			if (counter < vals.length - 1) {
+				query = query.concat(",");
+			} else {
+				query = query.concat(");");
+			}
 		}
-		query = query.concat("'" + vals[counter] + "');");
 		sqlMngr.insertOp(query);
 	}
 
