@@ -1,15 +1,13 @@
 package sql;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.time.Period;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Scanner;
 
 import users.*;
@@ -195,13 +193,13 @@ public class CommandLine {
 		do {
 			System.out.print("DOB (dd/mm/yyyy): ");
 			cred[3] = sc.nextLine();
-		} while(!isValidDateFormat(cred[3]));
+		} while(!isValidDate(cred[3]));
 		System.out.print("Address: ");
 		cred[4] = sc.nextLine().trim();
 		System.out.print("Occupation: ");
 		cred[5] = sc.nextLine().trim();
 		do {
-			System.out.print("SIN (123456789): ");
+			System.out.print("SIN (9 digits): ");
 			cred[6] = sc.nextLine().trim();
 		} while (!isValidSin(cred[6]) || checkExistingAccount("users", "sin", cred[6], false));
 		System.out.print("Password: ");
@@ -219,7 +217,7 @@ public class CommandLine {
 		System.out.println("You have successfully signed up!");
 		mainMenu();
 	}
-	
+
 	private void deleteUser() throws SQLException {
 		System.out.println("");
 		System.out.println("=========DELETE USER=========");
@@ -239,52 +237,43 @@ public class CommandLine {
 		System.out.println("");
 		System.out.println("Not a valid option! Please try again.");
 	}
-	
-	public boolean isValidDateFormat(String value) {
-	    LocalDateTime ldt = null;
-	    DateTimeFormatter fomatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
-	    try {
-	        ldt = LocalDateTime.parse(value, fomatter);
-	        String result = ldt.format(fomatter);
-	        return result.equals(value);
-	    } catch (DateTimeParseException e) {
-	        try {
-	            LocalDate ld = LocalDate.parse(value, fomatter);
-	            String result = ld.format(fomatter);
-	            if (!result.equals(value)) {
-	            	System.out.println("");
-	            	System.out.println("Date does not match required format. Please enter again.");
-	            	System.out.println("");
-	            	return false;
-	            }
-	            else {
-	            	return true;
-	            }
-	        } catch (DateTimeParseException exp) {
-	            try {
-	                LocalTime lt = LocalTime.parse(value, fomatter);
-	                String result = lt.format(fomatter);
-		            if (!result.equals(value)) {
-		            	System.out.println("");
-		            	System.out.println("Date does not match required format. Please enter again.");
-		            	System.out.println("");
-		            	return false;
-		            }
-		            else {
-		            	return true;
-		            }
-	            } catch (DateTimeParseException e2) {
-	                // Debugging purposes
-	                //e2.printStackTrace();
-	            }
-	        }
-	    }
-    	System.out.println("");
-    	System.out.println("Date does not match required format. Please enter again.");
-    	System.out.println("");
-	    return false;
+
+	public boolean isValidDate(String date) {
+		if (date.equals("")) {
+	    	System.out.println("");
+	    	System.out.println("Date does not match required format. Please enter again.");
+	    	System.out.println("");
+		    return false;
+		} else {
+		    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		    sdf.setLenient(false);
+		    try {
+		        Date dob = sdf.parse(date); 
+		        Calendar c = Calendar.getInstance();
+		        c.setTime(dob);
+		        int y = c.get(Calendar.YEAR);
+		        int m = c.get(Calendar.MONTH) + 1;
+		        int d = c.get(Calendar.DATE);
+		        LocalDate ld = LocalDate.of(y, m, d);
+		        LocalDate now = LocalDate.now();
+		        Period diff = Period.between(ld, now);
+		        if(diff.getYears() >= 18) {
+		        	return true;
+		        } else {
+			    	System.out.println("");
+			    	System.out.println("Not over 18 years of age. Please enter again.");
+			    	System.out.println("");
+		        	return false;
+		        }
+		    } catch (ParseException e) {
+		    	System.out.println("");
+		    	System.out.println("Date does not match required format. Please enter again.");
+		    	System.out.println("");
+		        return false;
+		    }
+		}
 	}
-	
+
 	public boolean isValidSin(String s) {
 		boolean result = s.length() == 9 && isInteger(s,10); 
 		if (!result) {
