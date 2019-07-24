@@ -48,19 +48,19 @@ UNLOCK TABLES;
 Drop table if exists `location`;
 
 create table `location` (
-`Listing Number` int NOT NUll auto_increment,
-`Suite Number` varchar(256) ,
-`House Number` varchar(256) Not Null,
-`Street Name` varchar(256) Not Null,
-`Postal Code` varchar(10) Not Null,
-`City` varchar(256) Not Null,
-`Country` varchar(256) Not Null,
-`Latitude` decimal(30) Not Null,
-`Longitude` decimal(30) Not Null,
-primary key(`Listing Number`)
+`listing_num` int NOT NUll auto_increment,
+`suite_num` varchar(256) ,
+`house_num` varchar(256) Not Null,
+`street_name` varchar(256) Not Null,
+`postal_code` varchar(10) Not Null,
+`city` varchar(256) Not Null,
+`country` varchar(256) Not Null,
+`latitude` decimal(30) Not Null,
+`longitude` decimal(30) Not Null,
+primary key(`listing_num`)
 )ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-insert into `location`(`Suite Number`,`House Number`, `Street Name`,`Postal Code`, `City`, `Country`, `Latitude`, `Longitude`)values
+insert into `location`(`suite_num`,`house_num`, `street_name`,`postal_code`, `city`, `country`, `latitude`, `longitude`)values
 ('512','505','Cummer Ave','M2k2L8', 'Toronto', 'Canada',43.651890, -79.381706),
 ('600','60','Cummer Ave','M2k2L8', 'Toronto', 'Canada',43.651890, -79.381706),
 (Null,'861','Redhead cres','M3V3B3', 'Scarborough', 'Country',43.651890, -79.381706),
@@ -73,15 +73,15 @@ insert into `location`(`Suite Number`,`House Number`, `Street Name`,`Postal Code
 DROP TABLE IF EXISTS `availability`;
 
 create table `availability` (
-`Listing Number` int NOT NUll ,
-`Start Date` varchar(10) Not null,
-`End Date` varchar(10) Not Null,
-`Cost per day` decimal(30,2) Not Null,
-primary key(`Listing Number`, `Start Date`, `End Date`)
+`listing_num` int NOT NUll ,
+`start_date` varchar(10) Not null,
+`end_date` varchar(10) Not Null,
+`cost_per_day` decimal(30,2) Not Null,
+primary key(`listing_num`, `start_date`, `end_date`)
 
 )ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-insert into `availability`(`Listing Number`,`Start Date`, `End Date`,`Cost per day`)values
+insert into `availability`(`listing_num`,`start_date`, `end_date`,`cost_per_day`)values
 (1,'1/03/2019', '10/03/2019', 80.00),
 (4,'18/10/2019', '2/11/2019', 17.74),
 (4,'7/6/2019', '7/7/2019', 27.23),
@@ -97,22 +97,22 @@ insert into `availability`(`Listing Number`,`Start Date`, `End Date`,`Cost per d
 Drop table if exists `booking`;
 
 create table `booking` (
-`Listing Number` int NOT NUll ,
-`Start Date` varchar(10) Not null,
-`End Date` varchar(10) Not Null,
-`Cost Per Day` decimal(30,2) Not Null,
-`Renter sin` int(10) Not Null,
-`Renter Comment on listing` varchar(3000),
-`Renter comment on Host` varchar(3000),
-`Host comment on Renter` varchar(3000),
- `Rate listing` int(1),
- `Rate Host` int(1),
- `Rate Renter` int(1),
+`listing_num` int NOT NUll ,
+`start_date` varchar(10) Not null,
+`end_date` varchar(10) Not Null,
+`cost_per_day` decimal(30,2) Not Null,
+`renter_sin` int(10) Not Null,
+`renter_comment_on_listing` varchar(3000),
+`renter_comment_on_host` varchar(3000),
+`host_comment_on_renter` varchar(3000),
+ `listing_rating` int(1),
+ `host_rating` int(1),
+ `renter_rating` int(1),
 
-primary key(`Listing Number`,`Start Date`, `End Date`)
+primary key(`listing_num`,`start_date`, `end_date`)
 );
 
-insert into `booking`(`Listing Number`,`Start Date`, `End Date`,`Cost Per Day`, `Renter Sin`,`Renter Comment on listing`,`Renter comment on Host`,`Host comment on Renter`, `Rate listing`, `Rate Host`, `Rate Renter`)values
+insert into `booking`(`listing_num`,`start_date`, `end_date`,`cost_per_day`, `renter_sin`,`renter_comment_on_listing`,`renter_comment_on_host`,`host_comment_on_renter`, `listing_rating`, `host_rating`, `renter_rating`)values
 (1,'2/04/2021', '3/10/2021', 40.00,12121213, null, null, null, null, null, null),
 (4,'18/10/2020', '2/11/2020', 47.74, 147785321 , null, null, null, null, null, null),
 (4,'8/8/2019', '18/8/2019', 55.23,123123123, null, null, null, null, null, null),
@@ -127,11 +127,11 @@ insert into `booking`(`Listing Number`,`Start Date`, `End Date`,`Cost Per Day`, 
 DROP TABLE IF EXISTS `host`;
 
 create table `host` (
-`Listing Number` int NOT NUll ,
-`Host SIN` int Not null,
-primary key(`Listing Number`)
+`listing_num` int NOT NUll ,
+`host_sin` int Not null,
+primary key(`listing_num`)
 );
-insert into `host`(`Listing Number`,`Host SIN`)values
+insert into `host`(`listing_num`,`host_sin`)values
 (1,123123231),
 (2,78756231),
 (3,27457531),
