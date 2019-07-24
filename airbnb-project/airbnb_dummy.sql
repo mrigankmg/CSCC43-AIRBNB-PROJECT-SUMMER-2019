@@ -142,6 +142,21 @@ insert into `host`(`listing_num`,`host_sin`)values
 (7,123123231),
 (8,123123231);
 
+DROP TABLE IF EXISTS `Ammenities`;
+
+create table `Ammenities` (
+`listing_num` varchar(256) not null,
+`toilet_paper_included` varchar(1) not null,
+`wifi_included` varchar(1) not null,
+`towels_included` varchar(1) not null,
+`iron_included` varchar(1) not null,
+`pool_included` varchar(1) not null,
+`a/c_included` varchar(1) not null,
+`fireplace_included` varchar(1) not null,
+primary key(`listing_num`)
+)ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
