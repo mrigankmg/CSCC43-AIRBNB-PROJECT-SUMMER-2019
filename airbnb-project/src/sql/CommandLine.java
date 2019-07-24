@@ -9,6 +9,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
 
 import users.*;
 
@@ -591,5 +593,136 @@ public class CommandLine {
 	private void createListing(String[] form) {
 		
 	}
+	private void bookings() {
+		int selection;
+		System.out.println("Book by:");
+		System.out.println("1: Date");
+		System.out.println("2: Location");
+		System.out.println("0: Back");
+		selection = sc.nextInt();
+		if(selection == 1) {
+			bookByDate();
+		}
+		else if(selection ==2) {
+			bookByCity();
+		}
+		else if(selection == 0) {
+			goBack();
+		}
+		else {
+			System.out.println("incorrect slection, try again");
+		}
+		
+	}
+	private void bookByDate() {
+		String startDate;
+		Date startInDate;
+		String endDate;
+		Date endInDate;
+		System.out.println("Enter start date(dd/mm/yyyy)");
+		startDate = sc.nextLine();
+		
+		startInDate = isValidDate(startDate);
+		if(startInDate != null ) {
+			System.out.println("Enter start date(dd/mm/yyyy)");
+			endDate = sc.nextLine();
+			endInDate = isValidDate(endDate);
+			if (endInDate != null) {
+			//	displayDates(startInDate, endInDate);
+				startBookingByListingNumber();
+	
+			}
+			else {
+				System.out.println("The end date is not valid");
+			}
+		}
+		else {
+			System.out.println("The date you entered is not valid ");
+			
+		}
+		
+	}
+	private void displayDates(String startDate, String endDate) {
+		
+		
+	}
+	private void bookByCity() {
+		String country;
+		String city;
+		System.out.println("Enter Country:");
+		country = sc.nextLine();
+		System.out.println("Enter City");
+		city = sc.nextLine();
+		//displayByCity(country, city);
+		startBookingByListingNumber();
+		
+	}
+	
+	private void bookByPostalCode() {
+		String postalCode;
+		System.out.println("Enter Postal Code:");
+		postalCode = sc.nextLine();
+		//displayByPostalCode(postalCode);
+		startBookingByListingNumber();
+	}
+	private void goBack() {
+		
+	}
+	private boolean bookByListingNumber(String listingNumber, User CurrUser) {
+		
+		boolean toReturn = false;
+		double listingPerDayCost = 1;
+		int numberOfDays = 1;
+		String startDate;
+		Date start;
+		Date stop;
+		String endDate;
+		
+		System.out.println("Please enter the date you want to book it from");
+		startDate = sc.nextLine();
+		System.out.println("Please enter the date you want to end the booking at");
+		endDate = sc.nextLine() ;
+		if(checkIfFree(startDate, endDate, listingNumber)) {
+			start = isValidDate(startDate);
+			stop = isValidDate(endDate);
+			//numberOfDays = ChronoUnit.DAYS.between(start, stop);
+			invoice(user, numberOfDays, listingPerDayCost);
+			
+			updateAvailability(startDate, endDate, listingNumber);
+			addBooking(listingNumber,startDate, endDate );
+			toReturn = true;
+		}
+		else {
+			System.out.println("The lisitng you chose is not free on the following dates");
+	
+		}
+		return toReturn;
+	}
+	private void invoice(User currUser, int numbDays, double cost) {
+		double total = cost*numbDays;
+		System.out.print("Dear "+ user.getLastName() + " " + user.getFirstName() +"," + total + " has been deducted from your account");
+	}
+	private void startBookingByListingNumber() {
+		String listingNumber;
+		System.out.println("Enter Listing number to book");
+		listingNumber = sc.nextLine();
+		if(bookByListingNumber(listingNumber, user)) {
+			System.out.println("Your booking has been made");
+		}
+		else {
+			System.out.println("This booking was not successful.");
+		}
+	}
+	private boolean checkIfFree(String startDate, String endDate, String listingnumber) {
+		return true;
+		
+	}
+	private void updateAvailability(String startDate,String endDate, String listingNumber) {
+		
+	}
+	public void addBooking(String listing, String startDate, String endDate)  {
+		
+	}
+
 
 }
