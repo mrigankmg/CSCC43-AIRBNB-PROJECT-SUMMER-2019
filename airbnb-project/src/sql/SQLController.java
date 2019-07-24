@@ -163,4 +163,32 @@ public class SQLController {
 		return result;
 	}
 
+	public void deleteUser(String email) {
+		List<String> deleteQueries = deleteQueryGenerator(email);
+		try {
+			for(String query : deleteQueries) {
+				st.executeUpdate(query);
+			}
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during delete execution!");
+			e.printStackTrace();
+		}
+	}
+
+	public List<String> deleteQueryGenerator(String email) {
+		String query = "SELECT CONCAT(\"DELETE FROM \",TABLE_NAME,\" WHERE email = '" + email + "';\") comd FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'airbnb' AND COLUMN_NAME ='email';";
+		List<String> deleteQueries = new ArrayList<String>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				deleteQueries.add(rs.getString("comd"));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered!");
+			e.printStackTrace();
+		}
+		return deleteQueries;
+	}
+
 }

@@ -71,7 +71,7 @@ public class CommandLine {
 			System.out.println("****************************");
 			System.out.println("***CONNECTION ESTABLISHED***");
 			System.out.println("****************************");
-			menu();
+			mainMenu();
 			
 		} else {
 			System.out.println("");
@@ -80,7 +80,7 @@ public class CommandLine {
 		}
 	}
 	
-	private void menu() throws SQLException {
+	private void mainMenu() throws SQLException {
 		String input = "";
 		int choice = -1;
 		do {
@@ -89,7 +89,8 @@ public class CommandLine {
 			System.out.println("0. Exit");
 			System.out.println("1. Login");
 			System.out.println("2. Sign-Up");
-			System.out.print("Choose one of the options [0-2]: ");
+			System.out.println("3. Delete User");
+			System.out.print("Choose one of the options [0-3]: ");
 			input = sc.nextLine();
 			try {
 				choice = Integer.parseInt(input);
@@ -102,6 +103,9 @@ public class CommandLine {
 				case 2:
 					signUpMenu();
 					break;
+				case 3:
+					deleteUser();
+					break;
 				default:
 					invalidOption();
 					break;
@@ -109,10 +113,36 @@ public class CommandLine {
 			} catch (NumberFormatException e) {
 				input = "-1";
 			}
-		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0);
+		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0);
 		if (input.compareTo("0") == 0) {
 			endSession();
 		}
+	}
+	
+	private void login() throws SQLException {
+		System.out.println("");
+		System.out.println("=========LOGIN=========");
+		String[] cred = new String[2];
+		do {
+			System.out.print("Email: ");
+			cred[0] = sc.nextLine().trim();
+			System.out.print("Password: ");
+			cred[1] = sc.nextLine();
+		} while (!checkLoginCredentials(cred[0], cred[1]));
+		List<String> userInfo = sqlMngr.getUserInfo(cred[0]);
+		User user;
+		if (isHost(userInfo)) {
+			user = new Host(userInfo.get(0), userInfo.get(1), userInfo.get(2), userInfo.get(3), userInfo.get(4), userInfo.get(5), userInfo.get(6), userInfo.get(7));
+		} else {
+			user = new Renter(userInfo.get(0), userInfo.get(1), userInfo.get(2), userInfo.get(3), userInfo.get(4), userInfo.get(5), userInfo.get(6), userInfo.get(7), userInfo.get(8));
+		}
+		home(user);
+	}
+	
+	private void home(User user) {
+		System.out.println("");
+		System.out.println("=========HOME=========");
+		System.out.println("Welcome " + user.getFirstName() + "!");
 	}
 	
 	private void signUpMenu() throws SQLException {
@@ -150,41 +180,6 @@ public class CommandLine {
 		}
 	}
 	
-	private void login() throws SQLException {
-		System.out.println("");
-		System.out.println("=========LOGIN=========");
-		String[] cred = new String[2];
-		do {
-			System.out.print("Email: ");
-			cred[0] = sc.nextLine().trim();
-			System.out.print("Password: ");
-			cred[1] = sc.nextLine();
-		} while (!checkLoginCredentials(cred[0], cred[1]));
-		List<String> userInfo = sqlMngr.getUserInfo(cred[0]);
-		User user;
-		if (isHost(userInfo)) {
-			user = new Host(userInfo.get(0), userInfo.get(1), userInfo.get(2), userInfo.get(3), userInfo.get(4), userInfo.get(5), userInfo.get(6), userInfo.get(7));
-		} else {
-			user = new Renter(userInfo.get(0), userInfo.get(1), userInfo.get(2), userInfo.get(3), userInfo.get(4), userInfo.get(5), userInfo.get(6), userInfo.get(7), userInfo.get(8));
-		}
-		home(user);
-	}
-	
-	private void home(User user) {
-		System.out.println("");
-		System.out.println("=========HOME=========");
-		System.out.println("Welcome " + user.getFirstName() + "!");
-	}
-
-	//Print menu options
-	private void invalidOption() {
-		System.out.println("");
-		System.out.println("Not a valid option! Please try again.");
-	}
-	
-    // Called during the initialization of an instance of the current class
-    // in order to retrieve from the user the credentials with which our program
-    // is going to establish a connection with MySQL
 	private void signUpForm(boolean renterSignUp) throws SQLException {
 		System.out.println("");
 		System.out.println("=========SIGN UP FORM=========");
@@ -192,7 +187,7 @@ public class CommandLine {
 		do {
 			System.out.print("Email: ");
 			cred[0] = sc.nextLine().trim();
-		} while (checkExistingAccount("users", "email", cred[0]));
+		} while (checkExistingAccount("users", "email", cred[0], false));
 		System.out.print("First Name: ");
 		cred[1] = sc.nextLine().trim();
 		System.out.print("Last Name: ");
@@ -208,7 +203,7 @@ public class CommandLine {
 		do {
 			System.out.print("SIN (123456789): ");
 			cred[6] = sc.nextLine().trim();
-		} while (!isValidSin(cred[6]) || checkExistingAccount("users", "sin", cred[6]));
+		} while (!isValidSin(cred[6]) || checkExistingAccount("users", "sin", cred[6], false));
 		System.out.print("Password: ");
 		cred[7] = sc.nextLine();
 		if (renterSignUp) {
@@ -216,15 +211,33 @@ public class CommandLine {
 				System.out.print("Credit Card No. (>= 13 digits, <= 19 digits): ");
 				cred[8] = sc.nextLine().trim();
 			} while (!isValidCC(cred[8]));
-			//String[] rentersArray = new String[] {cred[5], cred[7]};
-			//insert("Renters", rentersArray);
 		} else {
 			cred[8] = null;
 		}
 		sqlMngr.insert("users", usersColumns, cred);
 		System.out.println("");
 		System.out.println("You have successfully signed up!");
-		menu();
+		mainMenu();
+	}
+	
+	private void deleteUser() throws SQLException {
+		System.out.println("");
+		System.out.println("=========DELETE USER=========");
+		String email;
+		do {
+			System.out.print("Email: ");
+			email = sc.nextLine().trim();
+		} while (!checkExistingAccount("users", "email", email, true));
+		sqlMngr.deleteUser(email);
+		System.out.println("");
+		System.out.println("User with email '" + email + "' has been deleted.");
+		mainMenu();
+	}
+
+	//Print menu options
+	private void invalidOption() {
+		System.out.println("");
+		System.out.println("Not a valid option! Please try again.");
 	}
 	
 	public boolean isValidDateFormat(String value) {
@@ -324,30 +337,20 @@ public class CommandLine {
 		System.out.println("------------");
 		System.out.println("");
 	}
-	
-//    // Function that handles the feature: "4. Print table schema."
-//	private void printColSchema() {
-//		System.out.print("Table Name: ");
-//		String tableName = sc.nextLine();
-//		ArrayList<String> result = sqlMngr.colSchema(tableName);
-//		System.out.println("");
-//		System.out.println("------------");
-//		System.out.println("Total number of fields: " + result.size()/2);
-//		for (int i = 0; i < result.size(); i+=2) {
-//			System.out.println("-");
-//			System.out.println("Field Name: " + result.get(i));
-//			System.out.println("Field Type: " + result.get(i+1));
-//		}
-//		System.out.println("------------");
-//		System.out.println("");
-//	}
 
-	private boolean checkExistingAccount(String table, String column, String value) throws SQLException {
+	private boolean checkExistingAccount(String table, String column, String value, boolean forDelete) throws SQLException {
 		if (sqlMngr.select(table, column, column, value).size() > 0) {
-			System.out.println("");
-			System.out.println("Account with this " + column + " already exists.");
-			System.out.println("");
+			if (!forDelete) {
+				System.out.println("");
+				System.out.println("Account with this " + column + " already exists.");
+				System.out.println("");
+			}
 			return true;
+		}
+		if (forDelete) {
+			System.out.println("");
+			System.out.println("Account with this " + column + " does not exist.");
+			System.out.println("");
 		}
 		return false;
 	}
