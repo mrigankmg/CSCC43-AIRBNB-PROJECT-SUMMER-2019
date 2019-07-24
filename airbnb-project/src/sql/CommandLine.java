@@ -162,7 +162,6 @@ public class CommandLine {
 		} while (!checkLoginCredentials(cred[0], cred[1]));
 		List<String> userInfo = sqlMngr.getUserInfo(cred[0]);
 		User user;
-		System.out.println(userInfo);
 		if (isHost(userInfo)) {
 			user = new Host(userInfo.get(0), userInfo.get(1), userInfo.get(2), userInfo.get(3), userInfo.get(4), userInfo.get(5), userInfo.get(6), userInfo.get(7));
 		} else {
@@ -207,16 +206,16 @@ public class CommandLine {
 		System.out.print("Occupation: ");
 		cred[5] = sc.nextLine().trim();
 		do {
-			System.out.print("SIN: ");
+			System.out.print("SIN (123456789): ");
 			cred[6] = sc.nextLine().trim();
-		} while (!isInteger(cred[6], 10) && checkExistingAccount("users", "sin", cred[6]));
+		} while (!isValidSin(cred[6]) || checkExistingAccount("users", "sin", cred[6]));
 		System.out.print("Password: ");
 		cred[7] = sc.nextLine();
 		if (renterSignUp) {
 			do {
-				System.out.print("Credit Card No.: ");
+				System.out.print("Credit Card No. (>= 13 digits, <= 19 digits): ");
 				cred[8] = sc.nextLine().trim();
-			} while (!isInteger(cred[8], 10));
+			} while (!isValidCC(cred[8]));
 			//String[] rentersArray = new String[] {cred[5], cred[7]};
 			//insert("Renters", rentersArray);
 		} else {
@@ -273,28 +272,39 @@ public class CommandLine {
 	    return false;
 	}
 	
+	public boolean isValidSin(String s) {
+		boolean result = s.length() == 9 && isInteger(s,10); 
+		if (!result) {
+	    	System.out.println("");
+	    	System.out.println("Please enter a valid SIN.");
+	    	System.out.println("");
+		}
+		return result;
+	}
+	
+	public boolean isValidCC(String s) {
+		boolean result = s.length() >= 13 && s.length() <= 19 && isInteger(s,10); 
+		if (!result) {
+	    	System.out.println("");
+	    	System.out.println("Please enter a valid CC.");
+	    	System.out.println("");
+		}
+		return result;
+	}
+	
 	public boolean isInteger(String s, int rad) {
 	    if(s.isEmpty()) {
-	    	System.out.println("");
-	    	System.out.println("Please enter a valid number.");
-	    	System.out.println("");
 	    	return false;
 	    }
 	    for(int i = 0; i < s.length(); i++) {
 	        if(i == 0 && s.charAt(i) == '-') {
 	            if(s.length() == 1) {
-	    	    	System.out.println("");
-	    	    	System.out.println("Please enter a valid number.");
-	    	    	System.out.println("");
 	            	return false;
 	            } else {
 	            	continue;
 	            }
 	        }
 	        if(Character.digit(s.charAt(i),rad) < 0) {
-		    	System.out.println("");
-		    	System.out.println("Please enter a valid number.");
-		    	System.out.println("");
 	        	return false;
 	        }
 	    }
