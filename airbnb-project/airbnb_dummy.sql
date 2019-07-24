@@ -58,8 +58,7 @@ create table `Location` (
 `Country` varchar(256) Not Null,
 `Latitude` decimal(30) Not Null,
 `Longitude` decimal(30) Not Null,
-primary key(`Latitude`, `Longitude`)
-
+primary key(`Listing Number`)
 )ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 insert into `Location`(`Suite Number`,`House Number`, `Street Name`,`Postal Code`, `City`, `Country`, `Latitude`, `Longitude`)values
@@ -107,7 +106,10 @@ create table `Bookings` (
 `Renter Comment on listing` varchar(3000),
 `Renter comment on Host` varchar(3000),
 `Host comment on Renter` varchar(3000),
-`Rating` int(1),
+ `Rate listing` int(1),
+ `Rate Host` int(1),
+ `Rate Renter` int(1),
+ 
 primary key(`Listing Number`,`Start Date`, `End Date`)
 );
 
@@ -144,18 +146,6 @@ insert into `Host`(`Listing Number`,`Host Sin number`)values
 
 
 
-create table `Credit Card` (
-`Number` int(10) not null,
-`Expiry` datetime not null,
-primary key(`Number`)
-);
-
-insert into `Credit Card`(`Number`, `Expiry`)values
-(12334553, 2/2/2020),
-(69696969, 1/2/2021),
-(12245664, 16/2/2022),
-(12333333, 5/11/2008),
-(98334543, 8/6/2024);
 
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
