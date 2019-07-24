@@ -19,6 +19,7 @@ public class CommandLine {
     // 'sc' is needed in order to scan the inputs provided by the user
 	private Scanner sc = null;
 	private static final String[] usersColumns = new String [] {"email", "first_name", "last_name", "dob", "address", "occupation", "sin", "password", "cc"};
+	private User user;
 	
 	//Public functions - CommandLine State Functions
 	
@@ -118,31 +119,129 @@ public class CommandLine {
 	}
 	
 	private void login() throws SQLException {
-		System.out.println("");
-		System.out.println("=========LOGIN=========");
 		String[] cred = new String[2];
 		do {
+			System.out.println("");
+			System.out.println("=========LOGIN=========");
 			System.out.print("Email: ");
 			cred[0] = sc.nextLine().trim();
 			System.out.print("Password: ");
 			cred[1] = sc.nextLine();
 		} while (!checkLoginCredentials(cred[0], cred[1]));
 		List<String> userInfo = sqlMngr.getUserInfo(cred[0]);
-		User user;
 		if (isHost(userInfo)) {
 			user = new Host(userInfo.get(0), userInfo.get(1), userInfo.get(2), userInfo.get(3), userInfo.get(4), userInfo.get(5), userInfo.get(6), userInfo.get(7));
+			hostHome();
 		} else {
 			user = new Renter(userInfo.get(0), userInfo.get(1), userInfo.get(2), userInfo.get(3), userInfo.get(4), userInfo.get(5), userInfo.get(6), userInfo.get(7), userInfo.get(8));
+			renterHome();
 		}
-		home(user);
-	}
-	
-	private void home(User user) {
 		System.out.println("");
-		System.out.println("=========HOME=========");
-		System.out.println("Welcome " + user.getFirstName() + "!");
+		System.out.println("Welcome " + user.getFirstName().substring(0, 1).toUpperCase() + user.getFirstName().substring(1).toLowerCase() + "!");
 	}
 	
+	private void hostHome() {
+		String input = "";
+		int choice = -1;
+		do {
+			System.out.println("");
+			System.out.println("=========HOME=========");
+			System.out.println("0. Exit");
+			System.out.println("1. Create Listing");
+			System.out.println("2. Modify Listing");
+			System.out.println("3. Delete Listing");
+			System.out.println("4. Comment/Rate Renter");
+			System.out.print("Choose one of the options [0-4]: ");
+			input = sc.nextLine();
+			try {
+				choice = Integer.parseInt(input);
+				switch (choice) { //Activate the desired functionality
+				case 0:
+					break;
+				case 1:
+					break;
+				case 2:
+					break;
+				case 3:
+					break;
+				default:
+					invalidOption();
+					break;
+				}
+			} catch (NumberFormatException e) {
+				input = "-1";
+			}
+		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0);
+		if (input.compareTo("0") == 0) {
+			endSession();
+		}
+	}
+	
+	private void renterHome() {
+		String input = "";
+		int choice = -1;
+		do {
+			System.out.println("");
+			System.out.println("=========HOME=========");
+			System.out.println("0. Exit");
+			System.out.println("1. Make Booking");
+			System.out.println("2. Cancel Booking");
+			System.out.println("3. Comment/Rate Listing & Host");
+			System.out.print("Choose one of the options [0-3]: ");
+			input = sc.nextLine();
+			try {
+				choice = Integer.parseInt(input);
+				switch (choice) { //Activate the desired functionality
+				case 0:
+					break;
+				case 1:
+					break;
+				case 2:
+					break;
+				case 3:
+					break;
+				default:
+					invalidOption();
+					break;
+				}
+			} catch (NumberFormatException e) {
+				input = "-1";
+			}
+		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0);
+		if (input.compareTo("0") == 0) {
+			endSession();
+		}
+	}
+	
+	private void createListingForm() {
+		String[] form = new String[10];
+		System.out.println("");
+		System.out.println("=========Create Listing=========");
+		do {
+			System.out.print("Listing Type (1- Apartment, 2- House, 3- Room): ");
+			form[0] = sc.nextLine().trim();
+		} while(!form[0].equals("1") && !form[0].equals("2") && !form[0].equals("3"));
+		do {
+			System.out.print("House Number: ");
+			form[1] = sc.nextLine().trim();
+		} while(!form[1].equals(""));
+		if(form[0].equals("2")) {
+			form[2] = null;
+		} else {
+			do {
+				System.out.print("Suite Number: ");
+				form[2] = sc.nextLine().trim();
+			} while(form[2].equals("") && form[0].equals("1"));
+			if (form[2].equals("")) {
+				form[2] = null;
+			}
+		}
+		do {
+			System.out.print("Street Name: ");
+			form[3] = sc.nextLine().trim();
+		} while(form[3].equals(""));
+	}
+
 	private void signUpMenu() throws SQLException {
 		String input = "";
 		int choice = -1;
@@ -185,19 +284,27 @@ public class CommandLine {
 		do {
 			System.out.print("Email: ");
 			cred[0] = sc.nextLine().trim();
-		} while (checkExistingAccount("users", "email", cred[0], false));
-		System.out.print("First Name: ");
-		cred[1] = sc.nextLine().trim();
-		System.out.print("Last Name: ");
-		cred[2] = sc.nextLine().trim();
+		} while (checkExistingAccount("users", "email", cred[0], false) || cred[0].equals(""));
+		do {
+			System.out.print("First Name: ");
+			cred[1] = sc.nextLine().trim();
+		} while (cred[1].equals(""));
+		do {
+			System.out.print("Last Name: ");
+			cred[2] = sc.nextLine().trim();
+		} while (cred[2].equals(""));
 		do {
 			System.out.print("DOB (dd/mm/yyyy): ");
 			cred[3] = sc.nextLine();
 		} while(!isValidDate(cred[3]));
-		System.out.print("Address: ");
-		cred[4] = sc.nextLine().trim();
-		System.out.print("Occupation: ");
-		cred[5] = sc.nextLine().trim();
+		do {
+			System.out.print("Address: ");
+			cred[4] = sc.nextLine().trim();
+		} while (cred[4].equals(""));
+		do {
+			System.out.print("Occupation: ");
+			cred[5] = sc.nextLine().trim();
+		} while (cred[5].equals(""));
 		do {
 			System.out.print("SIN (9 digits): ");
 			cred[6] = sc.nextLine().trim();
@@ -350,7 +457,6 @@ public class CommandLine {
 		if (!userExists) {
 			System.out.println("");
 			System.out.println("Invalid email or password.");
-			System.out.println("");
 		}
 		return userExists;
 	}
