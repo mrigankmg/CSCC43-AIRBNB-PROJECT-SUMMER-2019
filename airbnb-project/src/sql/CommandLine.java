@@ -18,7 +18,7 @@ public class CommandLine {
 	private SQLController sqlMngr = null;
     // 'sc' is needed in order to scan the inputs provided by the user
 	private Scanner sc = null;
-	private static final String[] usersColumns = new String [] {"email", "first_name", "last_name", "dob", "address", "occupation", "sin", "password", "cc"};
+	private static final String[] userColumns = new String [] {"email", "first_name", "last_name", "dob", "address", "occupation", "sin", "password", "cc"};
 	private User user;
 	
 	//Public functions - CommandLine State Functions
@@ -159,6 +159,7 @@ public class CommandLine {
 				case 0:
 					break;
 				case 1:
+					createListingForm();
 					break;
 				case 2:
 					break;
@@ -214,17 +215,17 @@ public class CommandLine {
 	}
 	
 	private void createListingForm() {
-		String[] form = new String[10];
+		String[] form = new String[19];
 		System.out.println("");
 		System.out.println("=========Create Listing=========");
 		do {
-			System.out.print("Listing Type (1- Apartment, 2- House, 3- Room): ");
+			System.out.print("Listing Type [1- Apartment, 2- House, 3- Room]: ");
 			form[0] = sc.nextLine().trim();
 		} while(!form[0].equals("1") && !form[0].equals("2") && !form[0].equals("3"));
 		do {
 			System.out.print("House Number: ");
 			form[1] = sc.nextLine().trim();
-		} while(!form[1].equals(""));
+		} while(form[1].equals(""));
 		if(form[0].equals("2")) {
 			form[2] = null;
 		} else {
@@ -240,6 +241,67 @@ public class CommandLine {
 			System.out.print("Street Name: ");
 			form[3] = sc.nextLine().trim();
 		} while(form[3].equals(""));
+		do {
+			System.out.print("Postal Code: ");
+			form[4] = sc.nextLine().trim();
+		} while(form[4].equals(""));
+		do {
+			System.out.print("City: ");
+			form[5] = sc.nextLine().trim();
+		} while(form[5].equals(""));
+		do {
+			System.out.print("Country: ");
+			form[6] = sc.nextLine().trim();
+		} while(form[6].equals(""));
+		do {
+			System.out.print("Latitude: ");
+			form[7] = sc.nextLine().trim();
+		} while(form[7].equals(""));
+		do {
+			System.out.print("Longitude: ");
+			form[8] = sc.nextLine().trim();
+		} while(form[8].equals(""));
+		do {
+			System.out.print("Availability Start Date (dd/mm/yyyy): ");
+			form[9] = sc.nextLine().trim();
+		} while(!isValidStartDate(form[9]));
+		do {
+			System.out.print("Availability End Date (dd/mm/yyyy): ");
+			form[10] = sc.nextLine().trim();
+		} while(!isValidEndDate(form[9], form[10]));
+		do {
+			System.out.print("Toilet Paper Included? (y/n): ");
+			form[11] = sc.nextLine().trim();
+		} while(!form[11].equalsIgnoreCase("y") && !form[11].equalsIgnoreCase("n"));
+		do {
+			System.out.print("WiFi Included? (y/n): ");
+			form[12] = sc.nextLine().trim();
+		} while(!form[12].equalsIgnoreCase("y") && !form[12].equalsIgnoreCase("n"));
+		do {
+			System.out.print("Towels Included? (y/n): ");
+			form[13] = sc.nextLine().trim();
+		} while(!form[13].equalsIgnoreCase("y") && !form[13].equalsIgnoreCase("n"));
+		do {
+			System.out.print("Iron Included? (y/n): ");
+			form[14] = sc.nextLine().trim();
+		} while(!form[14].equalsIgnoreCase("y") && !form[14].equalsIgnoreCase("n"));
+		do {
+			System.out.print("Pool Included? (y/n): ");
+			form[15] = sc.nextLine().trim();
+		} while(!form[15].equalsIgnoreCase("y") && !form[15].equalsIgnoreCase("n"));
+		do {
+			System.out.print("A/C Included? (y/n): ");
+			form[16] = sc.nextLine().trim();
+		} while(!form[16].equalsIgnoreCase("y") && !form[16].equalsIgnoreCase("n"));
+		do {
+			System.out.print("Fireplace Included? (y/n): ");
+			form[17] = sc.nextLine().trim();
+		} while(!form[17].equalsIgnoreCase("y") && !form[17].equalsIgnoreCase("n"));
+		do {
+			System.out.print("Cost per Day: ");
+			form[18] = sc.nextLine().trim();
+		} while(!isInteger(form[18], 10));
+		System.out.println("Listing successfully created!");
 	}
 
 	private void signUpMenu() throws SQLException {
@@ -284,7 +346,7 @@ public class CommandLine {
 		do {
 			System.out.print("Email: ");
 			cred[0] = sc.nextLine().trim();
-		} while (checkExistingAccount("users", "email", cred[0], false) || cred[0].equals(""));
+		} while (checkExistingAccount("user", "email", cred[0], false) || cred[0].equals(""));
 		do {
 			System.out.print("First Name: ");
 			cred[1] = sc.nextLine().trim();
@@ -296,7 +358,7 @@ public class CommandLine {
 		do {
 			System.out.print("DOB (dd/mm/yyyy): ");
 			cred[3] = sc.nextLine();
-		} while(!isValidDate(cred[3]));
+		} while(!isAdult(cred[3]));
 		do {
 			System.out.print("Address: ");
 			cred[4] = sc.nextLine().trim();
@@ -308,7 +370,7 @@ public class CommandLine {
 		do {
 			System.out.print("SIN (9 digits): ");
 			cred[6] = sc.nextLine().trim();
-		} while (!isValidSin(cred[6]) || checkExistingAccount("users", "sin", cred[6], false));
+		} while (!isValidSin(cred[6]) || checkExistingAccount("user", "sin", cred[6], false));
 		System.out.print("Password: ");
 		cred[7] = sc.nextLine();
 		if (renterSignUp) {
@@ -319,7 +381,7 @@ public class CommandLine {
 		} else {
 			cred[8] = null;
 		}
-		sqlMngr.insert("users", usersColumns, cred);
+		sqlMngr.insert("user", userColumns, cred);
 		System.out.println("");
 		System.out.println("You have successfully signed up!");
 		mainMenu();
@@ -332,7 +394,7 @@ public class CommandLine {
 		do {
 			System.out.print("Email: ");
 			email = sc.nextLine().trim();
-		} while (!checkExistingAccount("users", "email", email, true));
+		} while (!checkExistingAccount("user", "email", email, true));
 		sqlMngr.deleteUser(email);
 		System.out.println("");
 		System.out.println("User with email '" + email + "' has been deleted.");
@@ -344,44 +406,105 @@ public class CommandLine {
 		System.out.println("");
 		System.out.println("Not a valid option! Please try again.");
 	}
+	
+	private boolean isAdult(String date) {
+		Date dob = isValidDate(date);
+		if (dob != null) {
+			Calendar c = Calendar.getInstance();
+	        c.setTime(dob);
+	        int y = c.get(Calendar.YEAR);
+	        int m = c.get(Calendar.MONTH) + 1;
+	        int d = c.get(Calendar.DATE);
+	        LocalDate ld = LocalDate.of(y, m, d);
+	        LocalDate now = LocalDate.now();
+	        Period diff = Period.between(ld, now);
+	        if(diff.getYears() >= 18) {
+	        	return true;
+	        } else {
+		    	System.out.println("");
+		    	System.out.println("Not over 18 years of age. Please enter again.");
+		    	System.out.println("");
+	        	return false;
+	        }
+		} else {
+			return false;
+		}
+	}
+	
+	private boolean isValidStartDate(String date) {
+		Date start = isValidDate(date);
+		if (start != null) {
+			Calendar c = Calendar.getInstance();
+	        c.setTime(start);
+	        int y = c.get(Calendar.YEAR);
+	        int m = c.get(Calendar.MONTH) + 1;
+	        int d = c.get(Calendar.DATE);
+	        LocalDate ld = LocalDate.of(y, m, d);
+	        LocalDate now = LocalDate.now();
+	        if(ld.isAfter(now)) {
+	        	return true;
+	        } else {
+		    	System.out.println("");
+		    	System.out.println("Please enter a start date in the future.");
+		    	System.out.println("");
+	        	return false;
+	        }
+		} else {
+			return false;
+		}
+	}
+	
+	private boolean isValidEndDate(String startDate, String endDate) {
+		Date start = isValidDate(startDate);
+		Date end = isValidDate(endDate);
+		if (end != null) {
+			Calendar cStart = Calendar.getInstance();
+	        cStart.setTime(start);
+	        int yStart = cStart.get(Calendar.YEAR);
+	        int mStart = cStart.get(Calendar.MONTH) + 1;
+	        int dStart = cStart.get(Calendar.DATE);
+	        LocalDate ldStart = LocalDate.of(yStart, mStart, dStart);
+			Calendar cEnd = Calendar.getInstance();
+	        cEnd.setTime(end);
+	        int yEnd = cEnd.get(Calendar.YEAR);
+	        int mEnd = cEnd.get(Calendar.MONTH) + 1;
+	        int dEnd = cEnd.get(Calendar.DATE);
+	        LocalDate ldEnd = LocalDate.of(yEnd, mEnd, dEnd);
+	        if(ldEnd.isAfter(ldStart)) {
+	        	return true;
+	        } else {
+		    	System.out.println("");
+		    	System.out.println("Please enter an end date that is after the start date.");
+		    	System.out.println("");
+	        	return false;
+	        }
+		} else {
+			return false;
+		}
+	}
 
-	public boolean isValidDate(String date) {
+	private Date isValidDate(String date) {
 		if (date.equals("")) {
 	    	System.out.println("");
 	    	System.out.println("Date does not match required format. Please enter again.");
 	    	System.out.println("");
-		    return false;
+		    return null;
 		} else {
 		    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		    sdf.setLenient(false);
 		    try {
 		        Date dob = sdf.parse(date); 
-		        Calendar c = Calendar.getInstance();
-		        c.setTime(dob);
-		        int y = c.get(Calendar.YEAR);
-		        int m = c.get(Calendar.MONTH) + 1;
-		        int d = c.get(Calendar.DATE);
-		        LocalDate ld = LocalDate.of(y, m, d);
-		        LocalDate now = LocalDate.now();
-		        Period diff = Period.between(ld, now);
-		        if(diff.getYears() >= 18) {
-		        	return true;
-		        } else {
-			    	System.out.println("");
-			    	System.out.println("Not over 18 years of age. Please enter again.");
-			    	System.out.println("");
-		        	return false;
-		        }
+		        return dob;
 		    } catch (ParseException e) {
 		    	System.out.println("");
 		    	System.out.println("Date does not match required format. Please enter again.");
 		    	System.out.println("");
-		        return false;
+		        return null;
 		    }
 		}
 	}
 
-	public boolean isValidSin(String s) {
+	private boolean isValidSin(String s) {
 		boolean result = s.length() == 9 && isInteger(s,10); 
 		if (!result) {
 	    	System.out.println("");
@@ -391,7 +514,7 @@ public class CommandLine {
 		return result;
 	}
 	
-	public boolean isValidCC(String s) {
+	private boolean isValidCC(String s) {
 		boolean result = s.length() >= 13 && s.length() <= 19 && isInteger(s,10); 
 		if (!result) {
 	    	System.out.println("");
@@ -401,7 +524,7 @@ public class CommandLine {
 		return result;
 	}
 	
-	public boolean isInteger(String s, int rad) {
+	private boolean isInteger(String s, int rad) {
 	    if(s.isEmpty()) {
 	    	return false;
 	    }
@@ -452,7 +575,7 @@ public class CommandLine {
 	}
 	
 	private boolean checkLoginCredentials(String email, String password) throws SQLException {
-		List<String> vals = sqlMngr.select("users", "password", "email", email);
+		List<String> vals = sqlMngr.select("user", "password", "email", email);
 		boolean userExists = vals.size() == 1 && vals.get(0).equals(password);
 		if (!userExists) {
 			System.out.println("");
@@ -463,6 +586,10 @@ public class CommandLine {
 	
 	private boolean isHost(List<String> userInfo) {
 		return userInfo.get(userInfo.size() - 1) == null;
+	}
+	
+	private void createListing(String[] form) {
+		
 	}
 
 }

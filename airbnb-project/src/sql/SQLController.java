@@ -140,7 +140,7 @@ public class SQLController {
 	}
 	
 	public List<String> getUserInfo(String email) {
-		String query = "SELECT * FROM users WHERE email IN ('" + email + "');";
+		String query = "SELECT * FROM user WHERE email IN ('" + email + "');";
 		List<String> result = new ArrayList<String>();
 		try {
 			ResultSet rs = st.executeQuery(query);

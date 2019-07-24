@@ -16,13 +16,13 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `users`
+-- Table structure for table `user`
 --
 
-DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `users` (
+CREATE TABLE `user` (
   `email` varchar(255) DEFAULT NULL,
   `first_name` varchar(255) DEFAULT NULL,
   `last_name` varchar(255) DEFAULT NULL,
@@ -36,19 +36,18 @@ CREATE TABLE `users` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `users`
+-- Dumping data for table `user`
 --
 
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES ('a@b.c','a','b','09/10/1996','28 Golden Meadow Dr.','Student','123456789','pass','12334553');
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+LOCK TABLES `user` WRITE;
+/*!40000 ALTER TABLE `user` DISABLE KEYS */;
+INSERT INTO `user` VALUES ('a@b.c','a','b','09/10/1996','28 Golden Meadow Dr.','Student','123456789','pass','12334553');
+/*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
+Drop table if exists `location`;
 
-Drop table if exists `Location`;
-
-create table `Location` (
+create table `location` (
 `Listing Number` int NOT NUll auto_increment,
 `Suite Number` varchar(256) ,
 `House Number` varchar(256) Not Null,
@@ -61,7 +60,7 @@ create table `Location` (
 primary key(`Listing Number`)
 )ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-insert into `Location`(`Suite Number`,`House Number`, `Street Name`,`Postal Code`, `City`, `Country`, `Latitude`, `Longitude`)values
+insert into `location`(`Suite Number`,`House Number`, `Street Name`,`Postal Code`, `City`, `Country`, `Latitude`, `Longitude`)values
 ('512','505','Cummer Ave','M2k2L8', 'Toronto', 'Canada',43.651890, -79.381706),
 ('600','60','Cummer Ave','M2k2L8', 'Toronto', 'Canada',43.651890, -79.381706),
 (Null,'861','Redhead cres','M3V3B3', 'Scarborough', 'Country',43.651890, -79.381706),
@@ -70,6 +69,8 @@ insert into `Location`(`Suite Number`,`House Number`, `Street Name`,`Postal Code
 ('513','505','Cummer Ave','M2k2L8', 'Toronto', 'Canada',43.651890, -79.381706),
 (Null,'B346','Orange rd','M9KC33', 'Orangville', 'Canada',45.651890, -81.781706),
 ('22','09','Simmer St','RK74N6', 'Toronto', 'Canada',43.651890, -79.381706);
+
+DROP TABLE IF EXISTS `availability`;
 
 create table `availability` (
 `Listing Number` int NOT NUll ,
@@ -93,11 +94,9 @@ insert into `availability`(`Listing Number`,`Start Date`, `End Date`,`Cost per d
 (6,'5/2/2019', '5/2/2019', 30.56),
 (1, '1/1/2019', '3/1/2021', 30.00);
 
+Drop table if exists `booking`;
 
-
-Drop table if exists `Bookings`;
-
-create table `Bookings` (
+create table `booking` (
 `Listing Number` int NOT NUll ,
 `Start Date` varchar(10) Not null,
 `End Date` varchar(10) Not Null,
@@ -109,32 +108,30 @@ create table `Bookings` (
  `Rate listing` int(1),
  `Rate Host` int(1),
  `Rate Renter` int(1),
- 
+
 primary key(`Listing Number`,`Start Date`, `End Date`)
 );
 
-insert into `Bookings`(`Listing Number`,`Start Date`, `End Date`,`Cost Per Day`, `Renter Sin`,`Renter Comment on listing`,`Renter comment on Host`,`Host comment on Renter`, `Rate listing`, `Rate Host`, `Rate Renter`)values
-(1,'2/04/2021', '3/10/2021', 40.00,12121213, null, null, null, null),
-(4,'18/10/2020', '2/11/2020', 47.74, 147785321 , null, null, null, null),
-(4,'8/8/2019', '18/8/2019', 55.23,123123123, null, null, null, null),
-(2,'31/8/2019', '1/10/2020', 250.00,123123123, null, null, null, null),
-(5,'1/2/2019', '10/2/2019', 30.74, 123456789, null, null, null, null),
-(7,'31/8/2019', '1/10/2020', 75.00,123123123, null, null, null, null),
-(3,'1/5/2019', '10/11/2019', 82.74, 165456789, null, null, null, null),
+insert into `booking`(`Listing Number`,`Start Date`, `End Date`,`Cost Per Day`, `Renter Sin`,`Renter Comment on listing`,`Renter comment on Host`,`Host comment on Renter`, `Rate listing`, `Rate Host`, `Rate Renter`)values
+(1,'2/04/2021', '3/10/2021', 40.00,12121213, null, null, null, null, null, null),
+(4,'18/10/2020', '2/11/2020', 47.74, 147785321 , null, null, null, null, null, null),
+(4,'8/8/2019', '18/8/2019', 55.23,123123123, null, null, null, null, null, null),
+(2,'31/8/2019', '1/10/2020', 250.00,123123123, null, null, null, null, null, null),
+(5,'1/2/2019', '10/2/2019', 30.74, 123456789, null, null, null, null, null, null),
+(7,'31/8/2019', '1/10/2020', 75.00,123123123, null, null, null, null, null, null),
+(3,'1/5/2019', '10/11/2019', 82.74, 165456789, null, null, null, null, null, null),
 (8,'1/2/2014', '10/2/2014', 37.74, 123445689, "beautiful","nice guy","clean", 5,3,5),
 (6,'3/8/2017', '3/10/2017', 60.00,9953123, "mold", "unfriendly"," stubborn", 2,3,1),
 (3,'1/5/2005', '10/11/2008', 180.74, 32134789, "clean", Null, "friendly",4,Null,5);
 
+DROP TABLE IF EXISTS `host`;
 
-
-
-
-create table `Host` (
+create table `host` (
 `Listing Number` int NOT NUll ,
-`Host Sin Number` int Not null,
+`Host SIN` int Not null,
 primary key(`Listing Number`)
 );
-insert into `Host`(`Listing Number`,`Host Sin number`)values
+insert into `host`(`Listing Number`,`Host SIN`)values
 (1,123123231),
 (2,78756231),
 (3,27457531),
@@ -143,10 +140,6 @@ insert into `Host`(`Listing Number`,`Host Sin number`)values
 (6,7771772),
 (7,123123231),
 (8,123123231);
-
-
-
-
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -157,8 +150,3 @@ insert into `Host`(`Listing Number`,`Host Sin number`)values
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
-
-
-
-
