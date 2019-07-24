@@ -7,8 +7,11 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.UUID;
 
 import users.*;
 
@@ -19,8 +22,17 @@ public class CommandLine {
     // 'sc' is needed in order to scan the inputs provided by the user
 	private Scanner sc = null;
 	private static final String[] userColumns = new String [] {"email", "first_name", "last_name", "dob", "address", "occupation", "sin", "password", "cc"};
+	private static final String[] locationColumns = new String [] {"listing_num", "suite_num","house_num", "street_name","postal_code", "city", "country", "latitude", "longitude", "type"};
+	private static final String[] availabilityColumns = new String [] {"listing_num", "start_date", "end_date", "cost_per_day"};
+	private static final String[] hostColumns = new String [] {"listing_num", "host_sin"};
+	private static final String[] amenitiesColumns = new String [] {"listing_num", "toilet_paper_included", "wifi_included", "towels_included", "iron_included", "pool_included", "ac_included", "fireplace_included"};
+	private static final Map<String, String> locationTypeOptionMap = new HashMap<String, String>(){{
+	    put("1", "Apartment");
+	    put("2", "House");
+	    put("3", "Room");
+	}};
 	private User user;
-	
+
 	//Public functions - CommandLine State Functions
 	
     /* Function used for initializing an istance of current
@@ -131,13 +143,15 @@ public class CommandLine {
 		List<String> userInfo = sqlMngr.getUserInfo(cred[0]);
 		if (isHost(userInfo)) {
 			user = new Host(userInfo.get(0), userInfo.get(1), userInfo.get(2), userInfo.get(3), userInfo.get(4), userInfo.get(5), userInfo.get(6), userInfo.get(7));
+			System.out.println("");
+			System.out.println("Welcome " + user.getFirstName().substring(0, 1).toUpperCase() + user.getFirstName().substring(1).toLowerCase() + "!");
 			hostHome();
 		} else {
 			user = new Renter(userInfo.get(0), userInfo.get(1), userInfo.get(2), userInfo.get(3), userInfo.get(4), userInfo.get(5), userInfo.get(6), userInfo.get(7), userInfo.get(8));
+			System.out.println("");
+			System.out.println("Welcome " + user.getFirstName().substring(0, 1).toUpperCase() + user.getFirstName().substring(1).toLowerCase() + "!");
 			renterHome();
 		}
-		System.out.println("");
-		System.out.println("Welcome " + user.getFirstName().substring(0, 1).toUpperCase() + user.getFirstName().substring(1).toLowerCase() + "!");
 	}
 	
 	private void hostHome() {
@@ -215,93 +229,112 @@ public class CommandLine {
 	}
 	
 	private void createListingForm() {
-		String[] form = new String[19];
+		String listing_num = UUID.randomUUID().toString();
+		String[] location_vals = new String[10];
+		String[] availability_vals = new String[4];
+		String[] host_vals = new String[2];
+		String[] amenity_vals = new String[8];
+		location_vals[0] = listing_num;
+		availability_vals[0] = listing_num;
+		host_vals[0] = listing_num;
+		host_vals[1] = user.getSin();
+		amenity_vals[0] = listing_num;
 		System.out.println("");
 		System.out.println("=========Create Listing=========");
 		do {
 			System.out.print("Listing Type [1- Apartment, 2- House, 3- Room]: ");
-			form[0] = sc.nextLine().trim();
-		} while(!form[0].equals("1") && !form[0].equals("2") && !form[0].equals("3"));
+			location_vals[9] = sc.nextLine().trim();
+		} while(!location_vals[9].equals("1") && !location_vals[9].equals("2") && !location_vals[9].equals("3"));
+		location_vals[9] = locationTypeOptionMap.get(location_vals[9]);
 		do {
 			System.out.print("House Number: ");
-			form[1] = sc.nextLine().trim();
-		} while(form[1].equals(""));
-		if(form[0].equals("2")) {
-			form[2] = null;
+			location_vals[2] = sc.nextLine().trim();
+		} while(location_vals[2].equals(""));
+		if(location_vals[9].equals("2")) {
+			location_vals[1] = null;
 		} else {
 			do {
 				System.out.print("Suite Number: ");
-				form[2] = sc.nextLine().trim();
-			} while(form[2].equals("") && form[0].equals("1"));
-			if (form[2].equals("")) {
-				form[2] = null;
+				location_vals[1] = sc.nextLine().trim();
+			} while(location_vals[1].equals("") && location_vals[1].equals("1"));
+			if (location_vals[1].equals("")) {
+				location_vals[1] = null;
 			}
 		}
 		do {
 			System.out.print("Street Name: ");
-			form[3] = sc.nextLine().trim();
-		} while(form[3].equals(""));
+			location_vals[3] = sc.nextLine().trim();
+		} while(location_vals[3].equals(""));
 		do {
 			System.out.print("Postal Code: ");
-			form[4] = sc.nextLine().trim();
-		} while(form[4].equals(""));
+			location_vals[4] = sc.nextLine().trim();
+		} while(location_vals[4].equals(""));
 		do {
 			System.out.print("City: ");
-			form[5] = sc.nextLine().trim();
-		} while(form[5].equals(""));
+			location_vals[5] = sc.nextLine().trim();
+		} while(location_vals[5].equals(""));
 		do {
 			System.out.print("Country: ");
-			form[6] = sc.nextLine().trim();
-		} while(form[6].equals(""));
+			location_vals[6] = sc.nextLine().trim();
+		} while(location_vals[6].equals(""));
 		do {
 			System.out.print("Latitude: ");
-			form[7] = sc.nextLine().trim();
-		} while(form[7].equals(""));
+			location_vals[7] = sc.nextLine().trim();
+		} while(location_vals[7].equals(""));
 		do {
 			System.out.print("Longitude: ");
-			form[8] = sc.nextLine().trim();
-		} while(form[8].equals(""));
+			location_vals[8] = sc.nextLine().trim();
+		} while(location_vals[8].equals(""));
 		do {
 			System.out.print("Availability Start Date (dd/mm/yyyy): ");
-			form[9] = sc.nextLine().trim();
-		} while(!isValidStartDate(form[9]));
+			availability_vals[1] = sc.nextLine().trim();
+		} while(!isValidStartDate(availability_vals[1]) || !isNotOverlap(availability_vals[1], availability_vals[1], location_vals[1], location_vals[2], location_vals[7], location_vals[8]));
 		do {
 			System.out.print("Availability End Date (dd/mm/yyyy): ");
-			form[10] = sc.nextLine().trim();
-		} while(!isValidEndDate(form[9], form[10]));
+			availability_vals[2] = sc.nextLine().trim();
+		} while(!isValidEndDate(availability_vals[1], availability_vals[2]) || !isNotOverlap(availability_vals[1], availability_vals[2], location_vals[1], location_vals[2], location_vals[7], location_vals[8]));
 		do {
 			System.out.print("Toilet Paper Included? (y/n): ");
-			form[11] = sc.nextLine().trim();
-		} while(!form[11].equalsIgnoreCase("y") && !form[11].equalsIgnoreCase("n"));
+			amenity_vals[1] = sc.nextLine().trim();
+		} while(!amenity_vals[1].equalsIgnoreCase("y") && !amenity_vals[1].equalsIgnoreCase("n"));
 		do {
 			System.out.print("WiFi Included? (y/n): ");
-			form[12] = sc.nextLine().trim();
-		} while(!form[12].equalsIgnoreCase("y") && !form[12].equalsIgnoreCase("n"));
+			amenity_vals[2] = sc.nextLine().trim();
+		} while(!amenity_vals[2].equalsIgnoreCase("y") && !amenity_vals[2].equalsIgnoreCase("n"));
 		do {
 			System.out.print("Towels Included? (y/n): ");
-			form[13] = sc.nextLine().trim();
-		} while(!form[13].equalsIgnoreCase("y") && !form[13].equalsIgnoreCase("n"));
+			amenity_vals[3] = sc.nextLine().trim();
+		} while(!amenity_vals[3].equalsIgnoreCase("y") && !amenity_vals[3].equalsIgnoreCase("n"));
 		do {
 			System.out.print("Iron Included? (y/n): ");
-			form[14] = sc.nextLine().trim();
-		} while(!form[14].equalsIgnoreCase("y") && !form[14].equalsIgnoreCase("n"));
+			amenity_vals[4] = sc.nextLine().trim();
+		} while(!amenity_vals[4].equalsIgnoreCase("y") && !amenity_vals[4].equalsIgnoreCase("n"));
 		do {
 			System.out.print("Pool Included? (y/n): ");
-			form[15] = sc.nextLine().trim();
-		} while(!form[15].equalsIgnoreCase("y") && !form[15].equalsIgnoreCase("n"));
+			amenity_vals[5] = sc.nextLine().trim();
+		} while(!amenity_vals[5].equalsIgnoreCase("y") && !amenity_vals[5].equalsIgnoreCase("n"));
 		do {
 			System.out.print("A/C Included? (y/n): ");
-			form[16] = sc.nextLine().trim();
-		} while(!form[16].equalsIgnoreCase("y") && !form[16].equalsIgnoreCase("n"));
+			amenity_vals[6] = sc.nextLine().trim();
+		} while(!amenity_vals[6].equalsIgnoreCase("y") && !amenity_vals[6].equalsIgnoreCase("n"));
 		do {
 			System.out.print("Fireplace Included? (y/n): ");
-			form[17] = sc.nextLine().trim();
-		} while(!form[17].equalsIgnoreCase("y") && !form[17].equalsIgnoreCase("n"));
+			amenity_vals[7] = sc.nextLine().trim();
+		} while(!amenity_vals[7].equalsIgnoreCase("y") && !amenity_vals[7].equalsIgnoreCase("n"));
 		do {
 			System.out.print("Cost per Day: ");
-			form[18] = sc.nextLine().trim();
-		} while(!isInteger(form[18], 10));
+			availability_vals[3] = sc.nextLine().trim();
+		} while(!isInteger(availability_vals[3], 10));
+		sqlMngr.insert("location", locationColumns, location_vals);
+		sqlMngr.insert("availability", availabilityColumns, availability_vals);
+		sqlMngr.insert("host", hostColumns, host_vals);
+		sqlMngr.insert("amenities", amenitiesColumns, amenity_vals);
 		System.out.println("Listing successfully created!");
+		if(user.getClass() == Host.class) {
+			hostHome();
+		} else {
+			renterHome();
+		}
 	}
 
 	private void signUpMenu() throws SQLException {
@@ -558,7 +591,7 @@ public class CommandLine {
 	}
 
 	private boolean checkExistingAccount(String table, String column, String value, boolean forDelete) throws SQLException {
-		if (sqlMngr.select(table, column, column, value).size() > 0) {
+		if (sqlMngr.select(table, new String[] {column}, column, new String[] {value}).size() > 0) {
 			if (!forDelete) {
 				System.out.println("");
 				System.out.println("Account with this " + column + " already exists.");
@@ -575,8 +608,8 @@ public class CommandLine {
 	}
 	
 	private boolean checkLoginCredentials(String email, String password) throws SQLException {
-		List<String> vals = sqlMngr.select("user", "password", "email", email);
-		boolean userExists = vals.size() == 1 && vals.get(0).equals(password);
+		List<List<String>> vals = sqlMngr.select("user", new String[] {"password"}, "email", new String[] {email});
+		boolean userExists = vals.size() == 1 && vals.get(0).get(0).equals(password);
 		if (!userExists) {
 			System.out.println("");
 			System.out.println("Invalid email or password.");
@@ -588,8 +621,56 @@ public class CommandLine {
 		return userInfo.get(userInfo.size() - 1) == null;
 	}
 	
-	private void createListing(String[] form) {
-		
+	private boolean isNotOverlap(String startDateToCheck, String endDateToCheck, String suite_num, String house_num, String latitude, String longitude) {
+		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, "host_sin", new String [] {user.getSin()});
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		sdf.setLenient(false);
+		for (List<String> listing : allListings) {
+			List<List<String>> listingLocation = sqlMngr.select("location", new String[] {"suite_num", "house_num", "latitude", "longitude"}, "listing_num", new String [] {listing.get(0)});
+			if (listingLocation.get(0).get(0).equalsIgnoreCase(suite_num) && listingLocation.get(0).get(1).equalsIgnoreCase(house_num) && listingLocation.get(0).get(2).equalsIgnoreCase(latitude) && listingLocation.get(0).get(3).equalsIgnoreCase(longitude)) {
+				List<List<String>> listingDate = sqlMngr.select("availability", new String[] {"start_date", "end_date"}, "listing_num", new String [] {listing.get(0)});
+				String startDateStr = listingDate.get(0).get(0);
+				String endDateStr = listingDate.get(0).get(1);
+				try {
+					Date startDateToCheckDate = sdf.parse(startDateToCheck);
+					Date endDateToCheckDate = sdf.parse(endDateToCheck);
+			        Date startDate = sdf.parse(startDateStr); 
+			        Date endDate = sdf.parse(endDateStr);
+			        Calendar cStart = Calendar.getInstance();
+			        cStart.setTime(startDate);
+			        int yStart = cStart.get(Calendar.YEAR);
+			        int mStart = cStart.get(Calendar.MONTH) + 1;
+			        int dStart = cStart.get(Calendar.DATE);
+			        LocalDate ldStart = LocalDate.of(yStart, mStart, dStart);
+					Calendar cEnd = Calendar.getInstance();
+			        cEnd.setTime(endDate);
+			        int yEnd = cEnd.get(Calendar.YEAR);
+			        int mEnd = cEnd.get(Calendar.MONTH) + 1;
+			        int dEnd = cEnd.get(Calendar.DATE);
+			        LocalDate ldEnd = LocalDate.of(yEnd, mEnd, dEnd);
+			        Calendar cStartCheck = Calendar.getInstance();
+			        cStartCheck.setTime(startDateToCheckDate);
+			        int yStartCheck = cStartCheck.get(Calendar.YEAR);
+			        int mStartCheck = cStartCheck.get(Calendar.MONTH) + 1;
+			        int dStartCheck = cStartCheck.get(Calendar.DATE);
+			        LocalDate ldStartCheck = LocalDate.of(yStartCheck, mStartCheck, dStartCheck);
+			        Calendar cEndCheck = Calendar.getInstance();
+			        cEndCheck.setTime(endDateToCheckDate);
+			        int yEndCheck = cEndCheck.get(Calendar.YEAR);
+			        int mEndCheck = cEndCheck.get(Calendar.MONTH) + 1;
+			        int dEndCheck = cEndCheck.get(Calendar.DATE);
+			        LocalDate ldEndCheck = LocalDate.of(yEndCheck, mEndCheck, dEndCheck);
+			        if (ldStartCheck.isAfter(ldStart) && ldStartCheck.isBefore(ldEnd) || ldEndCheck.isAfter(ldStart) && ldEndCheck.isBefore(ldEnd)|| ldStartCheck.compareTo(ldStart) == 0 || ldEndCheck.compareTo(ldStart) == 0 || ldStartCheck.compareTo(ldEnd) == 0 || ldEndCheck.compareTo(ldEnd) == 0 || ldStart.isBefore(ldEndCheck) && ldEnd.isAfter(ldStartCheck)) {
+			        	System.out.println("");
+			        	System.out.println("You already have a listing that overlaps with this date!");
+			        	System.out.println("");
+			        	return false;
+			        }
+			    } catch (ParseException e) {
+			    }
+			}
+		}
+		return true;
 	}
 
 }

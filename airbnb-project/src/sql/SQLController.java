@@ -92,13 +92,32 @@ public class SQLController {
 	
     //Controls the execution of a select query.
     //Functionality: "2. Select a record."
-	public List<String> select(String table, String resultColumn, String checkColumn, String value) {
-		String query = "SELECT " + resultColumn + " FROM " + table + " WHERE " + checkColumn + " IN ('" + value + "');";
-		List<String> result = new ArrayList<String>();
+	public List<List<String>> select(String table, String[] resultColumns, String checkColumn, String[] values) {
+		String query = "SELECT ";
+		for (int counter = 0; counter < resultColumns.length; counter ++) {
+			query = query.concat(resultColumns[counter]);
+			if (counter < resultColumns.length - 1) {
+				query = query.concat(",");
+			}
+		}
+		query = query.concat(" FROM " + table + " WHERE " + checkColumn + " IN (");
+		for (int counter = 0; counter < values.length; counter++) {
+			query = query.concat("'" + values[counter] + "'");
+			if (counter < values.length - 1) {
+				query = query.concat(",");
+			} else {
+				query = query.concat(");");
+			}
+		}
+		List<List<String>> result = new ArrayList<List<String>>();
 		try {
 			ResultSet rs = st.executeQuery(query);
 			while(rs.next()) {
-				result.add(rs.getString(resultColumn));
+				List<String> curr = new ArrayList<String>();
+				for (int counter = 0; counter < resultColumns.length; counter ++) {
+					curr.add(rs.getString(resultColumns[counter]));
+				}
+				result.add(curr);
 			}
 			rs.close();
 		} catch (SQLException e) {
