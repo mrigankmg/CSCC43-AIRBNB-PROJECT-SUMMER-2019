@@ -48,27 +48,28 @@ UNLOCK TABLES;
 Drop table if exists `location`;
 
 create table `location` (
-`listing_num` int NOT NUll auto_increment,
-`suite_num` varchar(256) ,
+`listing_num` varchar(256),
+`suite_num` varchar(256),
 `house_num` varchar(256) Not Null,
 `street_name` varchar(256) Not Null,
-`postal_code` varchar(10) Not Null,
+`postal_code` varchar(256) Not Null,
 `city` varchar(256) Not Null,
 `country` varchar(256) Not Null,
 `latitude` decimal(30) Not Null,
 `longitude` decimal(30) Not Null,
+`type` varchar(256) Not Null,
 primary key(`listing_num`)
 )ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-insert into `location`(`suite_num`,`house_num`, `street_name`,`postal_code`, `city`, `country`, `latitude`, `longitude`)values
-('512','505','Cummer Ave','M2k2L8', 'Toronto', 'Canada',43.651890, -79.381706),
-('600','60','Cummer Ave','M2k2L8', 'Toronto', 'Canada',43.651890, -79.381706),
-(Null,'861','Redhead cres','M3V3B3', 'Scarborough', 'Country',43.651890, -79.381706),
-(Null,'B20','Anita Colony','302015', 'Jaipur', 'India',26.912434, 75.787270),
-('2','232','Fort street','G6123', 'Thunder Bay', 'Canada',48.380894, -89.247681),
-('513','505','Cummer Ave','M2k2L8', 'Toronto', 'Canada',43.651890, -79.381706),
-(Null,'B346','Orange rd','M9KC33', 'Orangville', 'Canada',45.651890, -81.781706),
-('22','09','Simmer St','RK74N6', 'Toronto', 'Canada',43.651890, -79.381706);
+insert into `location`(`suite_num`,`house_num`, `street_name`,`postal_code`, `city`, `country`, `latitude`, `longitude`, 'type')values
+('512','505','Cummer Ave','M2k2L8', 'Toronto', 'Canada',43.651890, -79.381706, 'Apartment'),
+('600','60','Cummer Ave','M2k2L8', 'Toronto', 'Canada',43.651890, -79.381706, 'Apartment'),
+(Null,'861','Redhead cres','M3V3B3', 'Scarborough', 'Country',43.651890, -79.381706, 'House'),
+(Null,'B20','Anita Colony','302015', 'Jaipur', 'India',26.912434, 75.787270, 'Room'),
+('2','232','Fort street','G6123', 'Thunder Bay', 'Canada',48.380894, -89.247681, 'Apartment'),
+('513','505','Cummer Ave','M2k2L8', 'Toronto', 'Canada',43.651890, -79.381706, 'Room'),
+(Null,'B346','Orange rd','M9KC33', 'Orangville', 'Canada',45.651890, -81.781706, 'House'),
+('22','09','Simmer St','RK74N6', 'Toronto', 'Canada',43.651890, -79.381706, 'Apartment');
 
 DROP TABLE IF EXISTS `availability`;
 
