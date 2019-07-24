@@ -138,5 +138,29 @@ public class SQLController {
 			e.printStackTrace();
 		}
 	}
+	
+	public List<String> getUserInfo(String email) {
+		String query = "SELECT * FROM users WHERE email IN ('" + email + "');";
+		List<String> result = new ArrayList<String>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				result.add(rs.getString("email"));
+				result.add(rs.getString("first_name"));
+				result.add(rs.getString("last_name"));
+				result.add(rs.getString("dob"));
+				result.add(rs.getString("address"));
+				result.add(rs.getString("occupation"));
+				result.add(rs.getString("sin"));
+				result.add(rs.getString("password"));
+				result.add(rs.getString("cc"));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
 
 }

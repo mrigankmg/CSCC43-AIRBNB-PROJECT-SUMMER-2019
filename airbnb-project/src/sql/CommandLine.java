@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 
+import users.*;
+
 public class CommandLine {
 
     // 'sqlMngr' is the object which interacts directly with MySQL
@@ -158,6 +160,21 @@ public class CommandLine {
 			System.out.print("Password: ");
 			cred[1] = sc.nextLine();
 		} while (!checkLoginCredentials(cred[0], cred[1]));
+		List<String> userInfo = sqlMngr.getUserInfo(cred[0]);
+		User user;
+		System.out.println(userInfo);
+		if (isHost(userInfo)) {
+			user = new Host(userInfo.get(0), userInfo.get(1), userInfo.get(2), userInfo.get(3), userInfo.get(4), userInfo.get(5), userInfo.get(6), userInfo.get(7));
+		} else {
+			user = new Renter(userInfo.get(0), userInfo.get(1), userInfo.get(2), userInfo.get(3), userInfo.get(4), userInfo.get(5), userInfo.get(6), userInfo.get(7), userInfo.get(8));
+		}
+		home(user);
+	}
+	
+	private void home(User user) {
+		System.out.println("");
+		System.out.println("=========HOME=========");
+		System.out.println("Welcome " + user.getFirstName() + "!");
 	}
 
 	//Print menu options
@@ -334,6 +351,10 @@ public class CommandLine {
 			System.out.println("");
 		}
 		return userExists;
+	}
+	
+	private boolean isHost(List<String> userInfo) {
+		return userInfo.get(userInfo.size() - 1) == null;
 	}
 
 }
