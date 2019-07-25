@@ -430,7 +430,18 @@ public class CommandLine {
 			System.out.print("Email: ");
 			email = sc.nextLine().trim();
 		} while (!checkExistingAccount("user", "email", email, true));
-		sqlMngr.deleteUser(email);
+		List<String> userInfo = sqlMngr.getUserInfo(email);
+		sqlMngr.delete("email", email);
+		if(isHost(userInfo)) {
+			List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, "sin", new String [] {userInfo.get(6)});
+			for(List<String> listing : allListings) {
+				sqlMngr.delete("listing_num", listing.get(0));
+			}
+		} else {
+			List<List<String>> allBookings = sqlMngr.select("booking", new String[] {"listing_num"}, "sin", new String [] {userInfo.get(6)});
+			sqlMngr.delete("sin", userInfo.get(6));
+			//updated listings booked by this user
+		}
 		System.out.println("");
 		System.out.println("User with email '" + email + "' has been deleted.");
 		mainMenu();

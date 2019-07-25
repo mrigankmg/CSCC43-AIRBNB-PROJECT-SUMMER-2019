@@ -182,8 +182,8 @@ public class SQLController {
 		return result;
 	}
 
-	public void deleteUser(String email) {
-		List<String> deleteQueries = deleteQueryGenerator(email);
+	public void delete(String column, String value) {
+		List<String> deleteQueries = deleteQueryGenerator(column, value);
 		try {
 			for(String query : deleteQueries) {
 				st.executeUpdate(query);
@@ -194,8 +194,8 @@ public class SQLController {
 		}
 	}
 
-	public List<String> deleteQueryGenerator(String email) {
-		String query = "SELECT CONCAT(\"DELETE FROM \",TABLE_NAME,\" WHERE email = '" + email + "';\") comd FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'airbnb' AND COLUMN_NAME ='email';";
+	public List<String> deleteQueryGenerator(String column, String value) {
+		String query = "SELECT CONCAT(\"DELETE FROM \",TABLE_NAME,\" WHERE " + column + " = '" + value + "';\") comd FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'airbnb' AND COLUMN_NAME ='" + column + "';";
 		List<String> deleteQueries = new ArrayList<String>();
 		try {
 			ResultSet rs = st.executeQuery(query);
