@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -181,6 +182,7 @@ public class CommandLine {
 					createListingForm();
 					break;
 				case 2:
+					//modifyListing();
 					break;
 				case 3:
 					deleteListing();
@@ -258,6 +260,7 @@ public class CommandLine {
 		host_vals[0] = listing_num;
 		host_vals[1] = user.getSin();
 		amenity_vals[0] = listing_num;
+		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, "sin", new String [] {user.getSin()});
 		System.out.println("");
 		System.out.println("=========Create Listing=========");
 		do {
@@ -307,11 +310,11 @@ public class CommandLine {
 		do {
 			System.out.print("Availability Start Date (dd/mm/yyyy): ");
 			availability_vals[1] = sc.nextLine().trim();
-		} while(!isValidStartDate(availability_vals[1]) || !isNotOverlap(availability_vals[1], availability_vals[1], location_vals[1], location_vals[2], location_vals[7], location_vals[8]));
+		} while(!isValidStartDate(availability_vals[1]) || !isNotOverlap(allListings, availability_vals[1], availability_vals[1], location_vals[1], location_vals[2], location_vals[7], location_vals[8]));
 		do {
 			System.out.print("Availability End Date (dd/mm/yyyy): ");
 			availability_vals[2] = sc.nextLine().trim();
-		} while(!isValidEndDate(availability_vals[1], availability_vals[2]) || !isNotOverlap(availability_vals[1], availability_vals[2], location_vals[1], location_vals[2], location_vals[7], location_vals[8]));
+		} while(!isValidEndDate(availability_vals[1], availability_vals[2]) || !isNotOverlap(allListings, availability_vals[1], availability_vals[2], location_vals[1], location_vals[2], location_vals[7], location_vals[8]));
 		do {
 			System.out.print("Toilet Paper Included? (y/n): ");
 			amenity_vals[1] = sc.nextLine().trim();
@@ -370,7 +373,7 @@ public class CommandLine {
 
 	private boolean listingInList(List<List<String>> allListings, String listing_num) {
 		for(List<String> listing : allListings) {
-			if (listing.get(0).equals(listing_num)) {
+			if (listing.get(0).equalsIgnoreCase(listing_num)) {
 				return true;
 			}
 		}
@@ -766,8 +769,7 @@ public class CommandLine {
 		return userInfo.get(userInfo.size() - 1) == null;
 	}
 
-	private boolean isNotOverlap(String startDateToCheck, String endDateToCheck, String suite_num, String house_num, String latitude, String longitude) {
-		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, "sin", new String [] {user.getSin()});
+	private boolean isNotOverlap(List<List<String>> allListings, String startDateToCheck, String endDateToCheck, String suite_num, String house_num, String latitude, String longitude) {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		sdf.setLenient(false);
 		for (List<String> listing : allListings) {
