@@ -25,8 +25,8 @@ public class CommandLine {
 	private static final String[] userColumns = new String [] {"email", "first_name", "last_name", "dob", "address", "occupation", "sin", "password", "cc"};
 	private static final String[] locationColumns = new String [] {"listing_num", "suite_num","house_num", "street_name","postal_code", "city", "country", "latitude", "longitude", "type"};
 	private static final String[] availabilityColumns = new String [] {"listing_num", "start_date", "end_date", "cost_per_day"};
-	private static final String[] hostColumns = new String [] {"listing_num", "host_sin"};
-	private static final String[] bookingColumns = new String[] {"listing_num", "startDate", "endDate", "cost_per_day","renter_sin", "renter_comment_on_listing","renter_comment_on_host","host_comment_on_renter","listing_rating","host_rating", "renter_rating"};
+	private static final String[] hostColumns = new String [] {"listing_num", "sin"};
+	private static final String[] bookingColumns = new String[] {"listing_num", "startDate", "endDate", "cost_per_day","sin", "renter_comment_on_listing","renter_comment_on_host","host_comment_on_renter","listing_rating","host_rating", "renter_rating"};
 	private static final String[] amenitiesColumns = new String [] {"listing_num", "toilet_paper_included", "wifi_included", "towels_included", "iron_included", "pool_included", "ac_included", "fireplace_included"};
 	private static final Map<String, String> locationTypeOptionMap = new HashMap<String, String>(){{
 	    put("1", "Apartment");
@@ -664,7 +664,7 @@ public class CommandLine {
 	}
 
 	private boolean isNotOverlap(String startDateToCheck, String endDateToCheck, String suite_num, String house_num, String latitude, String longitude) {
-		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, "host_sin", new String [] {user.getSin()});
+		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, "sin", new String [] {user.getSin()});
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		sdf.setLenient(false);
 		for (List<String> listing : allListings) {
