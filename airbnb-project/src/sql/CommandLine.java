@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.UUID;
-
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
 import users.*;
 
 public class CommandLine {
@@ -34,7 +35,7 @@ public class CommandLine {
 	private User user;
 
 	//Public functions - CommandLine State Functions
-	
+
     /* Function used for initializing an istance of current
      * class
      */
@@ -57,7 +58,7 @@ public class CommandLine {
 		}
 		return success;
 	}
-	
+
     /* Function that acts as destructor of an instance of this class.
      * Performs some housekeeping setting instance's private field
      * to null
@@ -72,7 +73,7 @@ public class CommandLine {
 		sc = null;
 	}
 
-    /* Function that executes an infinite loop and activates the respective 
+    /* Function that executes an infinite loop and activates the respective
      * functionality according to user's choice. At each time it also outputs
      * the menu of core functionalities supported from our application.
      */
@@ -83,14 +84,14 @@ public class CommandLine {
 			System.out.println("***CONNECTION ESTABLISHED***");
 			System.out.println("****************************");
 			mainMenu();
-			
+
 		} else {
 			System.out.println("");
 			System.out.println("Connection could not been established!");
 			System.out.println("");
 		}
 	}
-	
+
 	private void mainMenu() throws SQLException {
 		String input = "";
 		int choice = -1;
@@ -129,7 +130,7 @@ public class CommandLine {
 			endSession();
 		}
 	}
-	
+
 	private void login() throws SQLException {
 		String[] cred = new String[2];
 		do {
@@ -153,7 +154,7 @@ public class CommandLine {
 			renterHome();
 		}
 	}
-	
+
 	private void hostHome() {
 		String input = "";
 		int choice = -1;
@@ -191,7 +192,7 @@ public class CommandLine {
 			endSession();
 		}
 	}
-	
+
 	private void renterHome() {
 		String input = "";
 		int choice = -1;
@@ -227,7 +228,7 @@ public class CommandLine {
 			endSession();
 		}
 	}
-	
+
 	private void createListingForm() {
 		String listing_num = UUID.randomUUID().toString();
 		String[] location_vals = new String[10];
@@ -280,11 +281,11 @@ public class CommandLine {
 		do {
 			System.out.print("Latitude: ");
 			location_vals[7] = sc.nextLine().trim();
-		} while(location_vals[7].equals(""));
+		} while(!isValidLatitudeLongitude(location_vals[7]));
 		do {
 			System.out.print("Longitude: ");
 			location_vals[8] = sc.nextLine().trim();
-		} while(location_vals[8].equals(""));
+		} while(!isValidLatitudeLongitude(location_vals[8]));
 		do {
 			System.out.print("Availability Start Date (dd/mm/yyyy): ");
 			availability_vals[1] = sc.nextLine().trim();
@@ -324,7 +325,7 @@ public class CommandLine {
 		do {
 			System.out.print("Cost per Day: ");
 			availability_vals[3] = sc.nextLine().trim();
-		} while(!isInteger(availability_vals[3], 10));
+		} while(!isDouble(availability_vals[3]));
 		sqlMngr.insert("location", locationColumns, location_vals);
 		sqlMngr.insert("availability", availabilityColumns, availability_vals);
 		sqlMngr.insert("host", hostColumns, host_vals);
@@ -371,7 +372,7 @@ public class CommandLine {
 			endSession();
 		}
 	}
-	
+
 	private void signUpForm(boolean renterSignUp) throws SQLException {
 		System.out.println("");
 		System.out.println("=========SIGN UP FORM=========");
@@ -439,7 +440,7 @@ public class CommandLine {
 		System.out.println("");
 		System.out.println("Not a valid option! Please try again.");
 	}
-	
+
 	private boolean isAdult(String date) {
 		Date dob = isValidDate(date);
 		if (dob != null) {
@@ -463,7 +464,7 @@ public class CommandLine {
 			return false;
 		}
 	}
-	
+
 	private boolean isValidStartDate(String date) {
 		Date start = isValidDate(date);
 		if (start != null) {
@@ -486,7 +487,7 @@ public class CommandLine {
 			return false;
 		}
 	}
-	
+
 	private boolean isValidEndDate(String startDate, String endDate) {
 		Date start = isValidDate(startDate);
 		Date end = isValidDate(endDate);
@@ -526,7 +527,7 @@ public class CommandLine {
 		    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		    sdf.setLenient(false);
 		    try {
-		        Date dob = sdf.parse(date); 
+		        Date dob = sdf.parse(date);
 		        return dob;
 		    } catch (ParseException e) {
 		    	System.out.println("");
@@ -538,7 +539,7 @@ public class CommandLine {
 	}
 
 	private boolean isValidSin(String s) {
-		boolean result = s.length() == 9 && isInteger(s,10); 
+		boolean result = s.length() == 9 && isInteger(s,10);
 		if (!result) {
 	    	System.out.println("");
 	    	System.out.println("Please enter a valid SIN.");
@@ -546,9 +547,9 @@ public class CommandLine {
 		}
 		return result;
 	}
-	
+
 	private boolean isValidCC(String s) {
-		boolean result = s.length() >= 13 && s.length() <= 19 && isInteger(s,10); 
+		boolean result = s.length() >= 13 && s.length() <= 19 && isInteger(s,10);
 		if (!result) {
 	    	System.out.println("");
 	    	System.out.println("Please enter a valid CC.");
@@ -556,7 +557,7 @@ public class CommandLine {
 		}
 		return result;
 	}
-	
+
 	private boolean isInteger(String s, int rad) {
 	    if(s.isEmpty()) {
 	    	return false;
@@ -575,11 +576,37 @@ public class CommandLine {
 	    }
 	    return true;
 	}
+
+	private boolean isDouble(String s) {
+		try {
+			Double.parseDouble(s);
+			return true;
+		} catch (NumberFormatException e) {
+			System.out.println("");
+			System.out.println("Please enter a valid decimal value.");
+			System.out.println("");
+			return false;
+		}
+	}
 	
+	private boolean isValidLatitudeLongitude(String s) {
+		try {
+			Double num = Double.parseDouble(s);
+			if (num >= 0 && num <= 180) {
+				return true;
+			}
+		} catch (NumberFormatException e) {
+		}
+		System.out.println("");
+		System.out.println("Please enter a valid latitude/longitude value.");
+		System.out.println("");
+		return false;
+	}
+
     // Function that handles the feature: "3. Print schema."
 	private void printSchema() {
 		List<String> schema = sqlMngr.getSchema();
-		
+
 		System.out.println("");
 		System.out.println("------------");
 		System.out.println("Total number of tables: " + schema.size());
@@ -606,7 +633,7 @@ public class CommandLine {
 		}
 		return false;
 	}
-	
+
 	private boolean checkLoginCredentials(String email, String password) throws SQLException {
 		List<List<String>> vals = sqlMngr.select("user", new String[] {"password"}, "email", new String[] {email});
 		boolean userExists = vals.size() == 1 && vals.get(0).get(0).equals(password);
@@ -616,11 +643,11 @@ public class CommandLine {
 		}
 		return userExists;
 	}
-	
+
 	private boolean isHost(List<String> userInfo) {
 		return userInfo.get(userInfo.size() - 1) == null;
 	}
-	
+
 	private boolean isNotOverlap(String startDateToCheck, String endDateToCheck, String suite_num, String house_num, String latitude, String longitude) {
 		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, "host_sin", new String [] {user.getSin()});
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -634,7 +661,7 @@ public class CommandLine {
 				try {
 					Date startDateToCheckDate = sdf.parse(startDateToCheck);
 					Date endDateToCheckDate = sdf.parse(endDateToCheck);
-			        Date startDate = sdf.parse(startDateStr); 
+			        Date startDate = sdf.parse(startDateStr);
 			        Date endDate = sdf.parse(endDateStr);
 			        Calendar cStart = Calendar.getInstance();
 			        cStart.setTime(startDate);
@@ -672,5 +699,136 @@ public class CommandLine {
 		}
 		return true;
 	}
+	private void bookings() {
+		int selection;
+		System.out.println("Book by:");
+		System.out.println("1: Date");
+		System.out.println("2: Location");
+		System.out.println("0: Back");
+		selection = sc.nextInt();
+		if(selection == 1) {
+			bookByDate();
+		}
+		else if(selection ==2) {
+			bookByCity();
+		}
+		else if(selection == 0) {
+			goBack();
+		}
+		else {
+			System.out.println("incorrect slection, try again");
+		}
+
+	}
+	private void bookByDate() {
+		String startDate;
+		Date startInDate;
+		String endDate;
+		Date endInDate;
+		System.out.println("Enter start date(dd/mm/yyyy)");
+		startDate = sc.nextLine();
+
+		startInDate = isValidDate(startDate);
+		if(startInDate != null ) {
+			System.out.println("Enter start date(dd/mm/yyyy)");
+			endDate = sc.nextLine();
+			endInDate = isValidDate(endDate);
+			if (endInDate != null) {
+			//	displayDates(startInDate, endInDate);
+				startBookingByListingNumber();
+
+			}
+			else {
+				System.out.println("The end date is not valid");
+			}
+		}
+		else {
+			System.out.println("The date you entered is not valid ");
+
+		}
+
+	}
+	private void displayDates(String startDate, String endDate) {
+
+
+	}
+	private void bookByCity() {
+		String country;
+		String city;
+		System.out.println("Enter Country:");
+		country = sc.nextLine();
+		System.out.println("Enter City");
+		city = sc.nextLine();
+		//displayByCity(country, city);
+		startBookingByListingNumber();
+
+	}
+
+	private void bookByPostalCode() {
+		String postalCode;
+		System.out.println("Enter Postal Code:");
+		postalCode = sc.nextLine();
+		//displayByPostalCode(postalCode);
+		startBookingByListingNumber();
+	}
+	private void goBack() {
+
+	}
+	private boolean bookByListingNumber(String listingNumber, User CurrUser) {
+
+		boolean toReturn = false;
+		double listingPerDayCost = 1;
+		int numberOfDays = 1;
+		String startDate;
+		Date start;
+		Date stop;
+		String endDate;
+
+		System.out.println("Please enter the date you want to book it from");
+		startDate = sc.nextLine();
+		System.out.println("Please enter the date you want to end the booking at");
+		endDate = sc.nextLine() ;
+		if(checkIfFree(startDate, endDate, listingNumber)) {
+			start = isValidDate(startDate);
+			stop = isValidDate(endDate);
+			//numberOfDays = ChronoUnit.DAYS.between(start, stop);
+			invoice(user, numberOfDays, listingPerDayCost);
+
+			updateAvailability(startDate, endDate, listingNumber);
+			addBooking(listingNumber,startDate, endDate );
+			toReturn = true;
+		}
+		else {
+			System.out.println("The lisitng you chose is not free on the following dates");
+
+		}
+		return toReturn;
+	}
+	private void invoice(User currUser, int numbDays, double cost) {
+		double total = cost*numbDays;
+		System.out.print("Dear "+ user.getLastName() + " " + user.getFirstName() +"," + total + " has been deducted from your account");
+	}
+	private void startBookingByListingNumber() {
+		String listingNumber;
+		System.out.println("Enter Listing number to book");
+		listingNumber = sc.nextLine();
+		if(bookByListingNumber(listingNumber, user)) {
+			System.out.println("Your booking has been made");
+		}
+		else {
+			System.out.println("This booking was not successful.");
+		}
+	}
+	private boolean checkIfFree(String startDate, String endDate, String listingnumber) {
+		return true;
+
+	}
+	private void updateAvailability(String startDate,String endDate, String listingNumber) {
+
+	}
+	public void addBooking(String listing, String startDate, String endDate)  {
+
+	}
+
 
 }
