@@ -183,6 +183,7 @@ public class CommandLine {
 				case 2:
 					break;
 				case 3:
+					deleteListingForm();
 					break;
 				case 4:
 					break;
@@ -345,12 +346,36 @@ public class CommandLine {
 		sqlMngr.insert("availability", availabilityColumns, availability_vals);
 		sqlMngr.insert("host", hostColumns, host_vals);
 		sqlMngr.insert("amenities", amenitiesColumns, amenity_vals);
-		System.out.println("Listing successfully created!");
-		if(user.getClass() == Host.class) {
-			hostHome();
-		} else {
-			renterHome();
+		System.out.println("");
+		System.out.println("Listing successfully created! Listing number is '" + listing_num + "'.");
+		hostHome();
+	}
+	
+	private void deleteListingForm() throws SQLException {
+		System.out.println("");
+		System.out.println("=========DELETE LISTING=========");
+		String listing_num;
+		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, "sin", new String [] {user.getSin()});
+		do {
+			System.out.print("Listing No.: ");
+			listing_num = sc.nextLine().trim();
+		} while (!listingInList(allListings, listing_num));
+		sqlMngr.delete("listing_num", listing_num);
+		System.out.println("");
+		System.out.println("You have successfully deleted listing '" + listing_num + "'.");
+		hostHome();
+	}
+	
+	private boolean listingInList(List<List<String>> allListings, String listing_num) {
+		for(List<String> listing : allListings) {
+			if (listing.get(0).equals(listing_num)) {
+				return true;
+			}
 		}
+		System.out.println("");
+		System.out.println("You don't have any listing with the given number!");
+		System.out.println("");
+		return false;
 	}
 
 	private void signUpMenu() throws SQLException {
@@ -693,48 +718,50 @@ public class CommandLine {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		sdf.setLenient(false);
 		for (List<String> listing : allListings) {
-			List<List<String>> listingLocation = sqlMngr.select("location", new String[] {"suite_num", "house_num", "latitude", "longitude"}, "listing_num", new String [] {listing.get(0)});
-			if (listingLocation.get(0).get(0).equalsIgnoreCase(suite_num) && listingLocation.get(0).get(1).equalsIgnoreCase(house_num) && listingLocation.get(0).get(2).equalsIgnoreCase(latitude) && listingLocation.get(0).get(3).equalsIgnoreCase(longitude)) {
-				List<List<String>> listingDate = sqlMngr.select("availability", new String[] {"start_date", "end_date"}, "listing_num", new String [] {listing.get(0)});
-				String startDateStr = listingDate.get(0).get(0);
-				String endDateStr = listingDate.get(0).get(1);
-				try {
-					Date startDateToCheckDate = sdf.parse(startDateToCheck);
-					Date endDateToCheckDate = sdf.parse(endDateToCheck);
-			        Date startDate = sdf.parse(startDateStr);
-			        Date endDate = sdf.parse(endDateStr);
-			        Calendar cStart = Calendar.getInstance();
-			        cStart.setTime(startDate);
-			        int yStart = cStart.get(Calendar.YEAR);
-			        int mStart = cStart.get(Calendar.MONTH) + 1;
-			        int dStart = cStart.get(Calendar.DATE);
-			        LocalDate ldStart = LocalDate.of(yStart, mStart, dStart);
-					Calendar cEnd = Calendar.getInstance();
-			        cEnd.setTime(endDate);
-			        int yEnd = cEnd.get(Calendar.YEAR);
-			        int mEnd = cEnd.get(Calendar.MONTH) + 1;
-			        int dEnd = cEnd.get(Calendar.DATE);
-			        LocalDate ldEnd = LocalDate.of(yEnd, mEnd, dEnd);
-			        Calendar cStartCheck = Calendar.getInstance();
-			        cStartCheck.setTime(startDateToCheckDate);
-			        int yStartCheck = cStartCheck.get(Calendar.YEAR);
-			        int mStartCheck = cStartCheck.get(Calendar.MONTH) + 1;
-			        int dStartCheck = cStartCheck.get(Calendar.DATE);
-			        LocalDate ldStartCheck = LocalDate.of(yStartCheck, mStartCheck, dStartCheck);
-			        Calendar cEndCheck = Calendar.getInstance();
-			        cEndCheck.setTime(endDateToCheckDate);
-			        int yEndCheck = cEndCheck.get(Calendar.YEAR);
-			        int mEndCheck = cEndCheck.get(Calendar.MONTH) + 1;
-			        int dEndCheck = cEndCheck.get(Calendar.DATE);
-			        LocalDate ldEndCheck = LocalDate.of(yEndCheck, mEndCheck, dEndCheck);
-			        if (ldStartCheck.isAfter(ldStart) && ldStartCheck.isBefore(ldEnd) || ldEndCheck.isAfter(ldStart) && ldEndCheck.isBefore(ldEnd)|| ldStartCheck.compareTo(ldStart) == 0 || ldEndCheck.compareTo(ldStart) == 0 || ldStartCheck.compareTo(ldEnd) == 0 || ldEndCheck.compareTo(ldEnd) == 0 || ldStart.isBefore(ldEndCheck) && ldEnd.isAfter(ldStartCheck)) {
-			        	System.out.println("");
-			        	System.out.println("You already have a listing that overlaps with this date!");
-			        	System.out.println("");
-			        	return false;
-			        }
-			    } catch (ParseException e) {
-			    }
+			List<String> listingLocation = sqlMngr.select("location", new String[] {"suite_num", "house_num", "latitude", "longitude"}, "listing_num", new String [] {listing.get(0)}).get(0);
+			if (listingLocation.get(0).equalsIgnoreCase(suite_num) && listingLocation.get(1).equalsIgnoreCase(house_num) && listingLocation.get(2).equalsIgnoreCase(latitude) && listingLocation.get(3).equalsIgnoreCase(longitude)) {
+				List<List<String>> listingAvailabilities = sqlMngr.select("availability", new String[] {"start_date", "end_date"}, "listing_num", new String [] {listing.get(0)});
+				for(List<String> availability : listingAvailabilities) {
+					String startDateStr = availability.get(0);
+					String endDateStr = availability.get(1);
+					try {
+						Date startDateToCheckDate = sdf.parse(startDateToCheck);
+						Date endDateToCheckDate = sdf.parse(endDateToCheck);
+				        Date startDate = sdf.parse(startDateStr);
+				        Date endDate = sdf.parse(endDateStr);
+				        Calendar cStart = Calendar.getInstance();
+				        cStart.setTime(startDate);
+				        int yStart = cStart.get(Calendar.YEAR);
+				        int mStart = cStart.get(Calendar.MONTH) + 1;
+				        int dStart = cStart.get(Calendar.DATE);
+				        LocalDate ldStart = LocalDate.of(yStart, mStart, dStart);
+						Calendar cEnd = Calendar.getInstance();
+				        cEnd.setTime(endDate);
+				        int yEnd = cEnd.get(Calendar.YEAR);
+				        int mEnd = cEnd.get(Calendar.MONTH) + 1;
+				        int dEnd = cEnd.get(Calendar.DATE);
+				        LocalDate ldEnd = LocalDate.of(yEnd, mEnd, dEnd);
+				        Calendar cStartCheck = Calendar.getInstance();
+				        cStartCheck.setTime(startDateToCheckDate);
+				        int yStartCheck = cStartCheck.get(Calendar.YEAR);
+				        int mStartCheck = cStartCheck.get(Calendar.MONTH) + 1;
+				        int dStartCheck = cStartCheck.get(Calendar.DATE);
+				        LocalDate ldStartCheck = LocalDate.of(yStartCheck, mStartCheck, dStartCheck);
+				        Calendar cEndCheck = Calendar.getInstance();
+				        cEndCheck.setTime(endDateToCheckDate);
+				        int yEndCheck = cEndCheck.get(Calendar.YEAR);
+				        int mEndCheck = cEndCheck.get(Calendar.MONTH) + 1;
+				        int dEndCheck = cEndCheck.get(Calendar.DATE);
+				        LocalDate ldEndCheck = LocalDate.of(yEndCheck, mEndCheck, dEndCheck);
+				        if (ldStartCheck.isAfter(ldStart) && ldStartCheck.isBefore(ldEnd) || ldEndCheck.isAfter(ldStart) && ldEndCheck.isBefore(ldEnd)|| ldStartCheck.compareTo(ldStart) == 0 || ldEndCheck.compareTo(ldStart) == 0 || ldStartCheck.compareTo(ldEnd) == 0 || ldEndCheck.compareTo(ldEnd) == 0 || ldStart.isBefore(ldEndCheck) && ldEnd.isAfter(ldStartCheck)) {
+				        	System.out.println("");
+				        	System.out.println("You already have a listing that overlaps with this date!");
+				        	System.out.println("");
+				        	return false;
+				        }
+				    } catch (ParseException e) {
+				    }
+				}
 			}
 		}
 		return true;
