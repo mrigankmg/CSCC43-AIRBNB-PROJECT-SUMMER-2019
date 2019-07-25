@@ -94,6 +94,7 @@ public class CommandLine {
 	}
 
 	private void mainMenu() throws SQLException {
+		user = null;
 		String input = "";
 		int choice = -1;
 		do {
@@ -156,7 +157,7 @@ public class CommandLine {
 		}
 	}
 
-	private void hostHome() {
+	private void hostHome() throws SQLException {
 		String input = "";
 		int choice = -1;
 		do {
@@ -166,8 +167,10 @@ public class CommandLine {
 			System.out.println("1. Create Listing");
 			System.out.println("2. Modify Listing");
 			System.out.println("3. Delete Listing");
-			System.out.println("4. Comment/Rate Renter");
-			System.out.print("Choose one of the options [0-4]: ");
+			System.out.println("4. Cancel Booking");
+			System.out.println("5. Comment/Rate Renter");
+			System.out.println("6. Log Out");
+			System.out.print("Choose one of the options [0-6]: ");
 			input = sc.nextLine();
 			try {
 				choice = Integer.parseInt(input);
@@ -181,6 +184,13 @@ public class CommandLine {
 					break;
 				case 3:
 					break;
+				case 4:
+					break;
+				case 5:
+					break;
+				case 6:
+					mainMenu();
+					break;
 				default:
 					invalidOption();
 					break;
@@ -188,13 +198,13 @@ public class CommandLine {
 			} catch (NumberFormatException e) {
 				input = "-1";
 			}
-		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0);
+		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0 && input.compareTo("4") != 0 && input.compareTo("5") != 0 && input.compareTo("6") != 0);
 		if (input.compareTo("0") == 0) {
 			endSession();
 		}
 	}
 
-	private void renterHome() {
+	private void renterHome() throws SQLException {
 		String input = "";
 		int choice = -1;
 		do {
@@ -204,7 +214,8 @@ public class CommandLine {
 			System.out.println("1. Make Booking");
 			System.out.println("2. Cancel Booking");
 			System.out.println("3. Comment/Rate Listing & Host");
-			System.out.print("Choose one of the options [0-3]: ");
+			System.out.println("4. Log Out");
+			System.out.print("Choose one of the options [0-4]: ");
 			input = sc.nextLine();
 			try {
 				choice = Integer.parseInt(input);
@@ -217,6 +228,9 @@ public class CommandLine {
 					break;
 				case 3:
 					break;
+				case 4:
+					mainMenu();
+					break;
 				default:
 					invalidOption();
 					break;
@@ -224,13 +238,13 @@ public class CommandLine {
 			} catch (NumberFormatException e) {
 				input = "-1";
 			}
-		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0);
+		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0 && input.compareTo("4") != 0);
 		if (input.compareTo("0") == 0) {
 			endSession();
 		}
 	}
 
-	private void createListingForm() {
+	private void createListingForm() throws SQLException {
 		String listing_num = UUID.randomUUID().toString();
 		String[] location_vals = new String[10];
 		String[] availability_vals = new String[4];
