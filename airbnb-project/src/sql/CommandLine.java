@@ -186,6 +186,7 @@ public class CommandLine {
 					deleteListing();
 					break;
 				case 4:
+					cancelBooking(true);
 					break;
 				case 5:
 					break;
@@ -226,6 +227,7 @@ public class CommandLine {
 				case 1:
 					break;
 				case 2:
+					cancelBooking(false);
 					break;
 				case 3:
 					break;
@@ -377,6 +379,55 @@ public class CommandLine {
 		System.out.println("");
 		return false;
 	}
+	
+	private void cancelBooking(boolean host) {
+		System.out.println("");
+		System.out.println("=========CANCEL BOOKING=========");
+		String booking_num;
+		if(!host) {
+			do {
+				System.out.print("Booking No.: ");
+				booking_num = sc.nextLine().trim();
+			} while (!isValidBookingNumForRenter(booking_num));
+		} else {
+			do {
+				System.out.print("Booking No.: ");
+				booking_num = sc.nextLine().trim();
+			} while (!isValidBookingNumForHost(booking_num));
+		}
+		List<String> availInfo = sqlMngr.select("booking", new String[] {"listing_num", "start_date", "end_date", "cost_per_day"}, "booking_num", new String [] {booking_num}).get(0);
+		sqlMngr.delete("booking_num", booking_num);
+		sqlMngr.insert("availability", availabilityColumns, new String[] {availInfo.get(0), availInfo.get(1), availInfo.get(2), availInfo.get(3)});
+	}
+	
+	private boolean isValidBookingNumForRenter(String booking_num) {
+		List<List<String>> allBookings = sqlMngr.select("booking", new String[] {"booking_num"}, "sin", new String [] {user.getSin()});
+		for(List<String> booking : allBookings) {
+			if (booking.get(0).equals(booking_num)) {
+				return true;
+			}
+		}
+		System.out.println("");
+		System.out.println("You don't have a booking with the number '" + booking_num + "'!");
+		System.out.println("");
+		return false;
+	}
+	
+	private boolean isValidBookingNumForHost(String booking_num) {
+		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, "sin", new String [] {user.getSin()});
+		for(List<String> listing : allListings) {
+			List<List<String>> allBookings = sqlMngr.select("booking", new String[] {"booking_num"}, "listing_num", new String [] {listing.get(0)});
+			for(List<String> booking : allBookings) {
+				if (booking.get(0).equals(booking_num)) {
+					return true;
+				}
+			}
+		}
+		System.out.println("");
+		System.out.println("You don't have any listing booked with the booking number '" + booking_num + "'!");
+		System.out.println("");
+		return false;
+	}
 
 	private void signUpMenu() throws SQLException {
 		String input = "";
@@ -477,9 +528,11 @@ public class CommandLine {
 				sqlMngr.delete("listing_num", listing.get(0));
 			}
 		} else {
-			List<List<String>> allBookings = sqlMngr.select("booking", new String[] {"listing_num"}, "sin", new String [] {userInfo.get(6)});
-			sqlMngr.delete("sin", userInfo.get(6));
-			//updated listings booked by this user
+			List<List<String>> allBookings = sqlMngr.select("booking", new String[] {"booking_num", "listing_num", "start_date", "end_date", "cost_per_day"}, "sin", new String [] {userInfo.get(6)});
+			for(List<String> booking : allBookings) {
+				sqlMngr.delete("booking_num", booking.get(0));
+				sqlMngr.insert("availability", availabilityColumns, new String[] {booking.get(1), booking.get(2), booking.get(3), booking.get(4)});
+			}
 		}
 		System.out.println("");
 		System.out.println("User with email '" + email + "' has been deleted.");
