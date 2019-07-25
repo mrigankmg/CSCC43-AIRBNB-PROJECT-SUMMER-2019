@@ -281,11 +281,11 @@ public class CommandLine {
 		do {
 			System.out.print("Latitude: ");
 			location_vals[7] = sc.nextLine().trim();
-		} while(!isValidLatitudeLongitude(location_vals[7]));
+		} while(!isValidLatitude(location_vals[7]));
 		do {
 			System.out.print("Longitude: ");
 			location_vals[8] = sc.nextLine().trim();
-		} while(!isValidLatitudeLongitude(location_vals[8]));
+		} while(!isValidLongitude(location_vals[8]));
 		do {
 			System.out.print("Availability Start Date (dd/mm/yyyy): ");
 			availability_vals[1] = sc.nextLine().trim();
@@ -589,16 +589,30 @@ public class CommandLine {
 		}
 	}
 	
-	private boolean isValidLatitudeLongitude(String s) {
+	private boolean isValidLongitude(String s) {
 		try {
 			Double num = Double.parseDouble(s);
-			if (num >= 0 && num <= 180) {
+			if (num >= -180 && num <= 180) {
 				return true;
 			}
 		} catch (NumberFormatException e) {
 		}
 		System.out.println("");
-		System.out.println("Please enter a valid latitude/longitude value.");
+		System.out.println("Please enter a valid longitude value.");
+		System.out.println("");
+		return false;
+	}
+	
+	private boolean isValidLatitude(String s) {
+		try {
+			Double num = Double.parseDouble(s);
+			if (num >= -90 && num <= 90) {
+				return true;
+			}
+		} catch (NumberFormatException e) {
+		}
+		System.out.println("");
+		System.out.println("Please enter a valid latitude value.");
 		System.out.println("");
 		return false;
 	}
