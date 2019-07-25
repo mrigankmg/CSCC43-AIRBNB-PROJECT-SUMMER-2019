@@ -183,7 +183,7 @@ public class CommandLine {
 				case 2:
 					break;
 				case 3:
-					deleteListingForm();
+					deleteListing();
 					break;
 				case 4:
 					break;
@@ -350,8 +350,8 @@ public class CommandLine {
 		System.out.println("Listing successfully created! Listing number is '" + listing_num + "'.");
 		hostHome();
 	}
-	
-	private void deleteListingForm() throws SQLException {
+
+	private void deleteListing() throws SQLException {
 		System.out.println("");
 		System.out.println("=========DELETE LISTING=========");
 		String listing_num;
@@ -365,7 +365,7 @@ public class CommandLine {
 		System.out.println("You have successfully deleted listing '" + listing_num + "'.");
 		hostHome();
 	}
-	
+
 	private boolean listingInList(List<List<String>> allListings, String listing_num) {
 		for(List<String> listing : allListings) {
 			if (listing.get(0).equals(listing_num)) {
@@ -902,11 +902,11 @@ public class CommandLine {
 		return toReturn;
 
 	}
-	private void updateAvailability(String startDate,String endDate, String listingNumber) {
+	private void updateAvailability(String startDate, String endDate, String listingNumber) {
 
 	}
 	public void addBooking(String listing, String startDate, String endDate, double cost)  {
-		sqlMngr.insert("booking", bookingColumns,new String[] {listing, startDate, endDate, String.valueOf(cost), user.getSin(),"","","","","","" });
+		sqlMngr.insert("booking", bookingColumns,new String[] {UUID.randomUUID().toString(), listing, startDate, endDate, String.valueOf(cost), user.getSin(),null,null,null,null,null,null});
 	}
 	private boolean occursAfter(String first, String second) {
 		return true;

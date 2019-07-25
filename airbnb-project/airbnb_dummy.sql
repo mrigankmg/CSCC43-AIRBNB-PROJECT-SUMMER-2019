@@ -75,6 +75,7 @@ primary key(`listing_num`, `start_date`, `end_date`)
 Drop table if exists `booking`;
 
 create table `booking` (
+`booking_num` varchar(700) NOT NUll ,
 `listing_num` varchar(700) NOT NUll ,
 `start_date` varchar(10) Not null,
 `end_date` varchar(10) Not Null,
@@ -87,7 +88,7 @@ create table `booking` (
  `host_rating` int(1),
  `renter_rating` int(1),
 
-primary key(`listing_num`,`start_date`, `end_date`)
+primary key(`booking_num`)
 );
 
 DROP TABLE IF EXISTS `host`;
