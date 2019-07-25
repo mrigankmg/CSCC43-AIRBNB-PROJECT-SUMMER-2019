@@ -79,7 +79,7 @@ create table `booking` (
 `start_date` varchar(10) Not null,
 `end_date` varchar(10) Not Null,
 `cost_per_day` decimal(30,2) Not Null,
-`renter_sin` varchar(255) Not Null,
+`sin` varchar(255) Not Null,
 `renter_comment_on_listing` varchar(3000),
 `renter_comment_on_host` varchar(3000),
 `host_comment_on_renter` varchar(3000),
@@ -94,7 +94,7 @@ DROP TABLE IF EXISTS `host`;
 
 create table `host` (
 `listing_num` varchar(700) NOT NUll ,
-`host_sin` varchar(255) Not null,
+`sin` varchar(255) Not null,
 primary key(`listing_num`)
 );
 
