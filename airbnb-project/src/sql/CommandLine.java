@@ -192,6 +192,7 @@ public class CommandLine {
 					cancelBooking(true);
 					break;
 				case 5:
+					feedbackForRenter();
 					break;
 				case 6:
 					mainMenu();
@@ -233,6 +234,7 @@ public class CommandLine {
 					cancelBooking(false);
 					break;
 				case 3:
+					feedbackForHost();
 					break;
 				case 4:
 					mainMenu();
@@ -1184,6 +1186,22 @@ public class CommandLine {
 		}while(comment > 5);
 		
 		sqlMngr.update("booking", new String[] {"booking_number"}, new String[] {bookingNum}, new String[] {"host_rating_on_renter"} , new String[] {String.valueOf(comment)});
+	}
+	private void feedbackForRenter() {
+		String bookingNumber;
+		System.out.println("Please enter booking number to comment on");
+		bookingNumber = sc.nextLine();
+		feedBackByHost(bookingNumber);
+		
+		
+	}
+	private void feedbackForHost() {
+		String bookingNumber;
+		System.out.println("Please enter booking number to comment on");
+		bookingNumber = sc.nextLine();
+		feedBackByRenter(bookingNumber);
+		
+		
 	}
 
 
