@@ -173,6 +173,7 @@ public class SQLController {
 				result.add(rs.getString("sin"));
 				result.add(rs.getString("password"));
 				result.add(rs.getString("cc"));
+				result.add(rs.getString("num_cancellations"));
 			}
 			rs.close();
 		} catch (SQLException e) {

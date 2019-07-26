@@ -24,11 +24,11 @@ public class CommandLine {
 	private SQLController sqlMngr = null;
     // 'sc' is needed in order to scan the inputs provided by the user
 	private Scanner sc = null;
-	private static final String[] userColumns = new String [] {"email", "first_name", "last_name", "dob", "address", "occupation", "sin", "password", "cc"};
+	private static final String[] userColumns = new String [] {"email", "first_name", "last_name", "dob", "address", "occupation", "sin", "password", "cc", "num_cancellations"};
 	private static final String[] locationColumns = new String [] {"listing_num", "suite_num","house_num", "street_name","postal_code", "city", "country", "latitude", "longitude", "type"};
 	private static final String[] availabilityColumns = new String [] {"listing_num", "start_date", "end_date", "cost_per_day"};
 	private static final String[] hostColumns = new String [] {"listing_num", "sin"};
-	private static final String[] bookingColumns = new String[] {"listing_num", "startDate", "endDate", "cost_per_day","sin", "renter_comment_on_listing","renter_comment_on_host","host_comment_on_renter","listing_rating","host_rating", "renter_rating"};
+	private static final String[] bookingColumns = new String[] {"booking_num", "listing_num", "startDate", "endDate", "cost_per_day","sin", "renter_comment_on_listing","renter_comment_on_host","host_comment_on_renter","listing_rating","host_rating", "renter_rating"};
 	private static final String[] amenitiesColumns = new String [] {"listing_num", "toilet_paper_included", "wifi_included", "towels_included", "iron_included", "pool_included", "ac_included", "fireplace_included"};
 	private static final Map<String, String> locationTypeOptionMap = new HashMap<String, String>(){{
 	    put("1", "Apartment");
@@ -147,12 +147,12 @@ public class CommandLine {
 		} while (!checkLoginCredentials(cred[0], cred[1]));
 		List<String> userInfo = sqlMngr.getUserInfo(cred[0]);
 		if (isHost(userInfo)) {
-			user = new Host(userInfo.get(0), userInfo.get(1), userInfo.get(2), userInfo.get(3), userInfo.get(4), userInfo.get(5), userInfo.get(6), userInfo.get(7));
+			user = new Host(userInfo.get(0), userInfo.get(1), userInfo.get(2), userInfo.get(3), userInfo.get(4), userInfo.get(5), userInfo.get(6), userInfo.get(7), userInfo.get(9));
 			System.out.println("");
 			System.out.println("Welcome " + user.getFirstName().substring(0, 1).toUpperCase() + user.getFirstName().substring(1).toLowerCase() + "!");
 			hostHome();
 		} else {
-			user = new Renter(userInfo.get(0), userInfo.get(1), userInfo.get(2), userInfo.get(3), userInfo.get(4), userInfo.get(5), userInfo.get(6), userInfo.get(7), userInfo.get(8));
+			user = new Renter(userInfo.get(0), userInfo.get(1), userInfo.get(2), userInfo.get(3), userInfo.get(4), userInfo.get(5), userInfo.get(6), userInfo.get(7), userInfo.get(8), userInfo.get(9));
 			System.out.println("");
 			System.out.println("Welcome " + user.getFirstName().substring(0, 1).toUpperCase() + user.getFirstName().substring(1).toLowerCase() + "!");
 			renterHome();
@@ -398,9 +398,11 @@ public class CommandLine {
 				booking_num = sc.nextLine().trim();
 			} while (!isValidBookingNumForHost(booking_num));
 		}
-		List<String> availInfo = sqlMngr.select("booking", new String[] {"listing_num", "start_date", "end_date", "cost_per_day"}, "booking_num", new String [] {booking_num}).get(0);
+		List<String> availInfo = sqlMngr.select("booking", new String[] {"listing_num", "startDate", "endDate", "cost_per_day"}, "booking_num", new String [] {booking_num}).get(0);
 		sqlMngr.delete("booking_num", booking_num);
 		sqlMngr.insert("availability", availabilityColumns, new String[] {availInfo.get(0), availInfo.get(1), availInfo.get(2), availInfo.get(3)});
+		sqlMngr.update("user", new String[] {"sin"}, new String[] {user.getSin()}, new String[] {"num_cancellations"}, new String[] {Integer.toString(user.getCancellations() + 1)});
+		user.setCancellations(user.getCancellations() + 1);
 	}
 	
 	private boolean isValidBookingNumForRenter(String booking_num) {
@@ -546,7 +548,7 @@ public class CommandLine {
 	private void signUpForm(boolean renterSignUp) throws SQLException {
 		System.out.println("");
 		System.out.println("=========SIGN UP FORM=========");
-		String[] cred = new String[9];
+		String[] cred = new String[10];
 		do {
 			System.out.print("Email: ");
 			cred[0] = sc.nextLine().trim();
@@ -585,6 +587,7 @@ public class CommandLine {
 		} else {
 			cred[8] = null;
 		}
+		cred[9] = "0";
 		sqlMngr.insert("user", userColumns, cred);
 		System.out.println("");
 		System.out.println("You have successfully signed up!");

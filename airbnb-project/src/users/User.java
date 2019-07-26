@@ -10,8 +10,9 @@ public abstract class User {
 	String occupation;
 	String sin;
 	String password;
+	int cancellations;
 
-	public User(String email, String firstName, String lastName, String dob, String address, String occupation, String sin, String password) {
+	public User(String email, String firstName, String lastName, String dob, String address, String occupation, String sin, String password, String cancellations) {
 		this.email = email;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -20,6 +21,7 @@ public abstract class User {
 		this.occupation = occupation;
 		this.sin = sin;
 		this.password = password;
+		this.cancellations = Integer.parseInt(cancellations);
 	}
 
 	public String getEmail() {
@@ -83,6 +85,14 @@ public abstract class User {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	
+	public int getCancellations() {
+		return cancellations;
+	}
+
+	public void setCancellations(int cancellations) {
+		this.cancellations = cancellations;
 	}
 
 }
