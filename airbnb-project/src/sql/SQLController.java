@@ -209,5 +209,30 @@ public class SQLController {
 		}
 		return deleteQueries;
 	}
+	public void update(String table,String[] identifyField, String[] identify,String[] fields, String[] newValues){
+		int i = 0;
+		String query = "UPDATE" + table +"\n SET";
+		while(i < fields.length) {
+			
+			query = query + "\t" + fields[i] + " = " + newValues[i] + ",\n";
+			i++;
+		}
+		i = 0;
+		query = query + " [ WHERE + \n ";
+		while(i + 1< identifyField.length) {
+			query = query + "\t"+ identifyField[i] + " = " + identify[i] + " , \n";
+			
+			i++;
+			
+			
+		}
+		query = query + "\t"+ identifyField[i] + " = " + identify[i] + " ];";
+		try {
+			st.executeUpdate(query);
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during update execution!");
+			e.printStackTrace();
+		}
+	}
 
 }
