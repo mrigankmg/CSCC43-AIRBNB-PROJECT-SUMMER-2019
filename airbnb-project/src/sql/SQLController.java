@@ -344,5 +344,35 @@ public class SQLController {
 		}
 		return result;
 	}
+	
+	public Map<String, List<List<String>>> report6(boolean most) {
+		String query = "SELECT * FROM (SELECT user.first_name, user.last_name, location.country, COUNT(*) AS count FROM host NATURAL JOIN location NATURAL JOIN user GROUP BY sin, first_name, last_name, country) AS t ORDER BY count ";
+		if(most) {
+			query += "DESC;";
+		} else {
+			query += "ASC;";
+		}
+		Map<String, List<List<String>>> result = new HashMap<String, List<List<String>>>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				List<String> curr = new ArrayList<String>();
+				if (!result.containsKey(rs.getString("country"))) {
+					result.put(rs.getString("country"), new ArrayList<List<String>>());
+				}
+				if(result.get(rs.getString("country")).size() < 11) {
+					curr.add(rs.getString("first_name"));
+					curr.add(rs.getString("last_name"));
+					curr.add(rs.getString("count"));
+					result.get(rs.getString("country")).add(curr);
+				}
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
 
 }

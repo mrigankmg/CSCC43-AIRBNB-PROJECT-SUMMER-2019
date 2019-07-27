@@ -43,7 +43,9 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES ('a@b.c','a','b','09/10/1996','28 Golden Meadow Dr.','Student','123456789','pass','12334553','0');
+INSERT INTO `user` VALUES ('a@b.c','Elon','Musk','09/10/1996','28 Golden Meadow Dr.','Founder of Tesla','123456789','pass',NULL,'0');
+INSERT INTO `user` VALUES ('b@b.c','Bill','Gates','09/10/1996','28 Golden Meadow Dr.','Multi-Billionaire','123123123','pass',NULL,'0');
+INSERT INTO `user` VALUES ('c@b.c','Steph','Curry','09/10/1996','28 Golden Meadow Dr.','NBA Star','123457777','pass',NULL,'0');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -119,10 +121,16 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `host`;
 
 create table `host` (
-`listing_num` varchar(700) NOT NUll ,
-`sin` varchar(255) Not null,
+`listing_num` varchar(700) NOT NUll,
+`sin` varchar(255) NOT NULL,
 primary key(`listing_num`)
 );
+
+LOCK TABLES `host` WRITE;
+/*!40000 ALTER TABLE `host` DISABLE KEYS */;
+INSERT INTO `host` VALUES ('1','123456789'), ('2','123456789'), ('3','123123123'), ('4','123457777'), ('5','123123123'), ('6','123456789');
+/*!40000 ALTER TABLE `host` ENABLE KEYS */;
+UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `amenities`;
 

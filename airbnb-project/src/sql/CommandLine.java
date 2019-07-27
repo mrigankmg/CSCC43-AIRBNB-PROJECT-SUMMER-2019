@@ -1274,6 +1274,7 @@ public class CommandLine {
 					report5Display();
 					break;
 				case 6:
+					report6Display();
 					break;
 				case 7:
 					break;
@@ -1382,6 +1383,35 @@ public class CommandLine {
 				    System.out.println("\t\t* " + subSubEntry.getValue() + " listings in the area with zip code " + subSubEntry.getKey() + ".");
 				 });
 			 });});
+	}
+	
+	private void report6Display() throws SQLException {	
+		String order;
+		System.out.println("");
+		do {
+			System.out.print("Order (1- Most listings, 2- Least listings): ");
+			order = sc.nextLine().trim();
+		} while (order.equals("") || (!order.equals("1") && !order.equals("2")));
+		Map<String, List<List<String>>> counts;
+		System.out.println("");
+		System.out.println("=========REPORT=========");
+		if(order.equals("1")) {
+			counts = sqlMngr.report6(true);
+			counts.entrySet().forEach(entry->{
+				    System.out.println("The hosts with the most listings in the country of " + entry.getKey() + " are:");
+				    for(List<String> host : entry.getValue()) {
+				    	System.out.println("\t-> " + host.get(0) + " " + host.get(1) + " with " + host.get(2) + " listings.");
+				    }
+				 });
+		} else {
+			counts = sqlMngr.report6(false);
+			counts.entrySet().forEach(entry->{
+			    System.out.println("The hosts with the least listings in the country of " + entry.getKey() + " are:");
+			    for(List<String> host : entry.getValue()) {
+			    	System.out.println("\t-> " + host.get(0) + " " + host.get(1) + " with " + host.get(2) + " listings.");
+			    }
+			 });
+		}
 	}
 
 	private boolean occursAfter(String earlier, String later) {
