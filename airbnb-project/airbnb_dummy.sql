@@ -68,7 +68,7 @@ LOCK TABLES `location` WRITE;
 INSERT INTO `location` VALUES ('1',NULL,'28','Golden Meadow Dr.','L6E1V9','Markham','Canada','87','176','House');
 INSERT INTO `location` VALUES ('2',NULL,'28','Golden Meadow Dr.','L6E1V8','Toronto','Canada','87','176','House');
 INSERT INTO `location` VALUES ('3',NULL,'28','Golden Meadow Dr.','L6E1V8','North York','Canada','87','176','House');
-INSERT INTO `location` VALUES ('4',NULL,'28','Golden Meadow Dr.','L6E1V8','Toronto','Canada','87','176','House');
+INSERT INTO `location` VALUES ('4',NULL,'28','Golden Meadow Dr.','L6E1V7','Toronto','Canada','87','176','House');
 INSERT INTO `location` VALUES ('5',NULL,'28','Golden Meadow Dr.','L6E1V9','Brampton','Canada','87','176','House');
 /*!40000 ALTER TABLE `location` ENABLE KEYS */;
 UNLOCK TABLES;

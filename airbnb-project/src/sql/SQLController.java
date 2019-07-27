@@ -3,7 +3,9 @@ package sql;
 import java.security.interfaces.RSAKey;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /*
  * This class acts as the medium between our CommandLine interface
@@ -237,7 +239,7 @@ public class SQLController {
 		}
 	}
 
-	public List<List<String>> report1(String startDate, String endDate) {
+	public List<List<String>> report1() {
 		String query = "SELECT booking.start_date, booking.end_date, location.city\n" + 
 				"FROM booking\n" + 
 				"NATURAL JOIN location;";
@@ -259,9 +261,25 @@ public class SQLController {
 		}
 		return result;
 	}
-
-	public void report2(String postalCode) {
-		
+	
+	public Map<String, String> report2(String city) {
+		String query = "SELECT location.city, location.postal_code, COUNT(postal_code) AS count\n" + 
+				"FROM booking\n" + 
+				"NATURAL JOIN location\n" + 
+				"WHERE city = '" + city + "'\n" + 
+				"GROUP BY postal_code;";
+		Map<String, String> result = new HashMap<String, String>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				result.put(rs.getString("postal_code"), rs.getString("count"));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
 	}
 
 }

@@ -1262,6 +1262,7 @@ public class CommandLine {
 					report1Display();
 					break;
 				case 2:
+					report2Display();
 					break;
 				case 3:
 					break;
@@ -1293,7 +1294,7 @@ public class CommandLine {
 			} catch (NumberFormatException e) {
 				input = "-1";
 			}
-		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0 && input.compareTo("4") != 0 && input.compareTo("5") != 0 && input.compareTo("6") != 0 && input.compareTo("7") != 0 && input.compareTo("8") != 0 && input.compareTo("9") != 0 && input.compareTo("10") != 0 && input.compareTo("11") != 0 && input.compareTo("12") != 0 && input.compareTo("13") != 0);
+		} while (input.compareTo("0") != 0 && input.compareTo("13") != 0);
 		if (input.compareTo("0") == 0) {
 			endSession();
 		}
@@ -1310,7 +1311,7 @@ public class CommandLine {
 			System.out.print("To (dd/mm/yyy): ");
 			dates[1] = sc.nextLine().trim();
 		} while (!isValidEndDate(dates[0], dates[1]));
-		List<List<String>> bookingsWithLocations = sqlMngr.report1(dates[0], dates[1]);
+		List<List<String>> bookingsWithLocations = sqlMngr.report1();
 		Map<String, Integer> counts = new HashMap<String, Integer>();
 		for(List<String> booking : bookingsWithLocations) {
 			if((booking.get(0).equals(dates[0]) && booking.get(1).equals(dates[1])) || (booking.get(0).equals(dates[0]) && occursAfter(booking.get(1), dates[1])) || (booking.get(1).equals(dates[1]) && occursAfter(dates[0], booking.get(0))) || (occursAfter(dates[0], booking.get(0)) && occursAfter(booking.get(0), dates[1]) && occursAfter(dates[0], booking.get(1)) && occursAfter(booking.get(1), dates[1]))) {
@@ -1322,11 +1323,26 @@ public class CommandLine {
 			}
 		}
 		System.out.println("");
-		System.out.println("REPORT:");
+		System.out.println("There are a total of:");
 		counts.entrySet().forEach(entry->{
-			    System.out.println("There are a total of " + entry.getValue() + " bookings made in the city of " + entry.getKey() + ".");  
+			    System.out.println(entry.getValue() + " bookings made in the city of " + entry.getKey() + ".");  
 			 });
-		generateReports();
+	}
+	
+	private void report2Display() throws SQLException {
+		System.out.println("");
+		String city;
+		do {
+			System.out.print("City: ");
+			city = sc.nextLine().trim();
+		} while (city.equals(""));
+		Map<String, String> counts = sqlMngr.report2(city);
+		System.out.println("");
+		System.out.println("REPORT:");
+		System.out.println("In the city of " + city + " there are a total of:");
+		counts.entrySet().forEach(entry->{
+			    System.out.println(entry.getValue() + " bookings made in the area with zip code " + entry.getKey() + ".");  
+			 });
 	}
 	
 	private boolean occursAfter(String earlier, String later) {
