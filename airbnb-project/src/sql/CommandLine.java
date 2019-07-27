@@ -1265,10 +1265,13 @@ public class CommandLine {
 					report2Display();
 					break;
 				case 3:
+					report3Display();
 					break;
 				case 4:
+					report4Display();
 					break;
 				case 5:
+					report5Display();
 					break;
 				case 6:
 					break;
@@ -1299,7 +1302,7 @@ public class CommandLine {
 			endSession();
 		}
 	}
-	
+
 	private void report1Display() throws SQLException {
 		System.out.println("");
 		String[] dates = new String[2];
@@ -1323,12 +1326,13 @@ public class CommandLine {
 			}
 		}
 		System.out.println("");
+		System.out.println("=========REPORT=========");
 		System.out.println("There are a total of:");
 		counts.entrySet().forEach(entry->{
 			    System.out.println(entry.getValue() + " bookings made in the city of " + entry.getKey() + ".");  
 			 });
 	}
-	
+
 	private void report2Display() throws SQLException {
 		System.out.println("");
 		String city;
@@ -1338,13 +1342,48 @@ public class CommandLine {
 		} while (city.equals(""));
 		Map<String, String> counts = sqlMngr.report2(city);
 		System.out.println("");
-		System.out.println("REPORT:");
+		System.out.println("=========REPORT=========");
 		System.out.println("In the city of " + city + " there are a total of:");
 		counts.entrySet().forEach(entry->{
 			    System.out.println(entry.getValue() + " bookings made in the area with zip code " + entry.getKey() + ".");  
 			 });
 	}
 	
+	private void report3Display() throws SQLException {
+		Map<String, String> counts = sqlMngr.report3();
+		System.out.println("");
+		System.out.println("=========REPORT=========");
+		System.out.println("There are a total of:");
+		counts.entrySet().forEach(entry->{
+			    System.out.println(entry.getValue() + " listings in the country of " + entry.getKey() + ".");  
+			 });
+	}
+	
+	private void report4Display() throws SQLException {
+		Map<String, Map<String,String>> counts = sqlMngr.report4();
+		System.out.println("");
+		System.out.println("=========REPORT=========");
+		counts.entrySet().forEach(entry->{
+			System.out.println("In the country of " + entry.getKey() + " there are a total of:");
+			entry.getValue().entrySet().forEach(subEntry->{
+			    System.out.println("\t-> " + subEntry.getValue() + " listings in the city of " + subEntry.getKey() + ".");  
+			 });});
+	}
+
+	private void report5Display() throws SQLException {
+		Map<String, Map<String, Map<String,String>>> counts = sqlMngr.report5();
+		System.out.println("");
+		System.out.println("=========REPORT=========");
+		counts.entrySet().forEach(entry->{
+			System.out.println("In the country of " + entry.getKey() + ":");
+			entry.getValue().entrySet().forEach(subEntry->{
+			    System.out.println("\t-> In the city of " + subEntry.getKey() + " there are a total of:");
+			    subEntry.getValue().entrySet().forEach(subSubEntry->{
+				    System.out.println("\t\t* " + subSubEntry.getValue() + " listings in the area with zip code " + subSubEntry.getKey() + ".");
+				 });
+			 });});
+	}
+
 	private boolean occursAfter(String earlier, String later) {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 	    sdf.setLenient(false);

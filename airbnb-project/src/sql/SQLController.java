@@ -281,5 +281,68 @@ public class SQLController {
 		}
 		return result;
 	}
+	
+	public Map<String, String> report3() {
+		String query = "SELECT location.country, COUNT(country) AS count\n" + 
+				"FROM location\n" + 
+				"GROUP BY country;";
+		Map<String, String> result = new HashMap<String, String>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				result.put(rs.getString("country"), rs.getString("count"));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public Map<String, Map<String, String>> report4() {
+		String query = "SELECT location.country, location.city, COUNT(*) AS count\n" + 
+				"FROM location\n" + 
+				"GROUP BY country, city;";
+		Map<String, Map<String, String>> result = new HashMap<String, Map<String, String>>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				if (!result.containsKey(rs.getString("country"))) {
+					result.put(rs.getString("country"), new HashMap<String, String>());
+				}
+				result.get(rs.getString("country")).put(rs.getString("city"), rs.getString("count"));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	public Map<String, Map<String, Map<String, String>>> report5() {
+		String query = "SELECT location.country, location.city, location.postal_code, COUNT(*) AS count\n" + 
+				"FROM location\n" + 
+				"GROUP BY country, city, postal_code;";
+		Map<String, Map<String, Map<String, String>>> result = new HashMap<String, Map<String, Map<String, String>>>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				if (!result.containsKey(rs.getString("country"))) {
+					result.put(rs.getString("country"), new HashMap<String, Map<String, String>>());
+				}
+				if (!result.get(rs.getString("country")).containsKey(rs.getString("city"))) {
+					result.get(rs.getString("country")).put(rs.getString("city"), new HashMap<String, String>());
+				}
+				result.get(rs.getString("country")).get(rs.getString("city")).put(rs.getString("postal_code"), rs.getString("count"));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
 
 }
