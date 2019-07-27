@@ -210,6 +210,7 @@ public class SQLController {
 		}
 		return deleteQueries;
 	}
+
 	public void update(String table,String[] identifyField, String[] identify,String[] fields, String[] newValues){
 		int i = 0;
 		String query = "UPDATE" + table +"\n SET";
@@ -234,6 +235,33 @@ public class SQLController {
 			System.err.println("Exception triggered during update execution!");
 			e.printStackTrace();
 		}
+	}
+
+	public List<List<String>> report1(String startDate, String endDate) {
+		String query = "SELECT booking.start_date, booking.end_date, location.city\n" + 
+				"FROM booking\n" + 
+				"NATURAL JOIN location;";
+		List<List<String>> result = new ArrayList<List<String>>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			List<String> curr = new ArrayList<String>();
+			while(rs.next()) {
+				curr.add(rs.getString("start_date"));
+				curr.add(rs.getString("end_date"));
+				curr.add(rs.getString("city"));
+				result.add(curr);
+				curr = new ArrayList<String>();
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	public void report2(String postalCode) {
+		
 	}
 
 }

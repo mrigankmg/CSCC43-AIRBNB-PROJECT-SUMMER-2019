@@ -63,6 +63,16 @@ create table `location` (
 primary key(`listing_num`)
 )ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+LOCK TABLES `location` WRITE;
+/*!40000 ALTER TABLE `location` DISABLE KEYS */;
+INSERT INTO `location` VALUES ('1',NULL,'28','Golden Meadow Dr.','L6E1V9','Markham','Canada','87','176','House');
+INSERT INTO `location` VALUES ('2',NULL,'28','Golden Meadow Dr.','L6E1V8','Toronto','Canada','87','176','House');
+INSERT INTO `location` VALUES ('3',NULL,'28','Golden Meadow Dr.','L6E1V8','North York','Canada','87','176','House');
+INSERT INTO `location` VALUES ('4',NULL,'28','Golden Meadow Dr.','L6E1V8','Toronto','Canada','87','176','House');
+INSERT INTO `location` VALUES ('5',NULL,'28','Golden Meadow Dr.','L6E1V9','Brampton','Canada','87','176','House');
+/*!40000 ALTER TABLE `location` ENABLE KEYS */;
+UNLOCK TABLES;
+
 DROP TABLE IF EXISTS `availability`;
 
 create table `availability` (
@@ -91,6 +101,19 @@ create table `booking` (
 `renter_rating` varchar(5),
 primary key(`booking_num`)
 );
+
+LOCK TABLES `booking` WRITE;
+/*!40000 ALTER TABLE `booking` DISABLE KEYS */;
+INSERT INTO `booking` VALUES ('1','1','20/10/2017','20/10/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('2','1','20/12/2017','20/09/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('3','2','20/12/2017','20/09/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('4','3','20/12/2017','20/09/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('5','4','20/12/2017','20/09/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('6','4','20/12/2017','20/09/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('7','4','20/09/2017','20/09/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('8','5','20/08/2017','20/12/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
+/*!40000 ALTER TABLE `booking` ENABLE KEYS */;
+UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `host`;
 

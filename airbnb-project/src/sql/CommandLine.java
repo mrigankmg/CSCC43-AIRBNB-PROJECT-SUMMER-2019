@@ -4,7 +4,12 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Period;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -12,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.UUID;
@@ -101,11 +107,12 @@ public class CommandLine {
 		int choice = -1;
 		do {
 			System.out.println("");
-			System.out.println("=========LOGIN/SIGN-UP=========");
+			System.out.println("=========MAIN MENU=========");
 			System.out.println("0. Exit");
 			System.out.println("1. Login");
 			System.out.println("2. Sign-Up");
 			System.out.println("3. Delete User");
+			System.out.println("4. Generate Reports");
 			System.out.print("Choose one of the options [0-3]: ");
 			input = sc.nextLine();
 			try {
@@ -122,6 +129,9 @@ public class CommandLine {
 				case 3:
 					deleteUser();
 					break;
+				case 4:
+					generateReports();
+					break;
 				default:
 					invalidOption();
 					break;
@@ -129,7 +139,7 @@ public class CommandLine {
 			} catch (NumberFormatException e) {
 				input = "-1";
 			}
-		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0);
+		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0 && input.compareTo("4") != 0);
 		if (input.compareTo("0") == 0) {
 			endSession();
 		}
@@ -680,19 +690,7 @@ public class CommandLine {
 		Date start = isValidDate(startDate);
 		Date end = isValidDate(endDate);
 		if (end != null) {
-			Calendar cStart = Calendar.getInstance();
-	        cStart.setTime(start);
-	        int yStart = cStart.get(Calendar.YEAR);
-	        int mStart = cStart.get(Calendar.MONTH) + 1;
-	        int dStart = cStart.get(Calendar.DATE);
-	        LocalDate ldStart = LocalDate.of(yStart, mStart, dStart);
-			Calendar cEnd = Calendar.getInstance();
-	        cEnd.setTime(end);
-	        int yEnd = cEnd.get(Calendar.YEAR);
-	        int mEnd = cEnd.get(Calendar.MONTH) + 1;
-	        int dEnd = cEnd.get(Calendar.DATE);
-	        LocalDate ldEnd = LocalDate.of(yEnd, mEnd, dEnd);
-	        if(ldEnd.isAfter(ldStart)) {
+	        if(end.after(start)) {
 	        	return true;
 	        } else {
 		    	System.out.println("");
@@ -704,26 +702,55 @@ public class CommandLine {
 			return false;
 		}
 	}
-
-	private Date isValidDate(String date) {
-		if (date.equals("")) {
-	    	System.out.println("");
-	    	System.out.println("Date does not match required format. Please enter again.");
-	    	System.out.println("");
-		    return null;
-		} else {
-		    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-		    sdf.setLenient(false);
-		    try {
-		        Date dob = sdf.parse(date);
-		        return dob;
-		    } catch (ParseException e) {
+	
+	public Date isValidDate(String value) {
+	    LocalDateTime ldt = null;
+	    DateTimeFormatter fomatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
+	    try {
+	        ldt = LocalDateTime.parse(value, fomatter);
+	        String result = ldt.format(fomatter);
+	        if (result.equals(value)) {
+	        	return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+	        } else {
 		    	System.out.println("");
 		    	System.out.println("Date does not match required format. Please enter again.");
 		    	System.out.println("");
-		        return null;
-		    }
-		}
+	        	return null;
+	        }
+	    } catch (DateTimeParseException e) {
+	        try {
+	            LocalDate ld = LocalDate.parse(value, fomatter);
+	            String result = ld.format(fomatter);
+		        if (result.equals(value)) {
+		        	return Date.from(ld.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		        } else {
+			    	System.out.println("");
+			    	System.out.println("Date does not match required format. Please enter again.");
+			    	System.out.println("");
+		        	return null;
+		        }
+	        } catch (DateTimeParseException exp) {
+	            try {
+	                LocalTime lt = LocalTime.parse(value, fomatter);
+	                String result = lt.format(fomatter);
+	    	        if (result.equals(value)) {
+	    	        	return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+	    	        } else {
+	    		    	System.out.println("");
+	    		    	System.out.println("Date does not match required format. Please enter again.");
+	    		    	System.out.println("");
+	    	        	return null;
+	    	        }
+	            } catch (DateTimeParseException e2) {
+	                // Debugging purposes
+	                //e2.printStackTrace();
+	            }
+	        }
+	    }
+    	System.out.println("");
+    	System.out.println("Date does not match required format. Please enter again.");
+    	System.out.println("");
+	    return null;
 	}
 
 	private boolean isValidSin(String s) {
@@ -1084,9 +1111,7 @@ public class CommandLine {
 	public void addBooking(String listing, String startDate, String endDate, double cost)  {
 		sqlMngr.insert("booking", bookingColumns,new String[] {UUID.randomUUID().toString(), listing, startDate, endDate, String.valueOf(cost), user.getSin(),null,null,null,null,null,null});
 	}
-	private boolean occursAfter(String first, String second) {
-		return true;
-	}
+
 	private void feedBackByRenter(String bookingNum) {
 		int selection;
 		System.out.println("1. Comment On Listing");
@@ -1187,6 +1212,7 @@ public class CommandLine {
 		
 		sqlMngr.update("booking", new String[] {"booking_number"}, new String[] {bookingNum}, new String[] {"host_rating_on_renter"} , new String[] {String.valueOf(comment)});
 	}
+
 	private void feedbackForRenter() {
 		String bookingNumber;
 		System.out.println("Please enter booking number to comment on");
@@ -1195,6 +1221,7 @@ public class CommandLine {
 		
 		
 	}
+
 	private void feedbackForHost() {
 		String bookingNumber;
 		System.out.println("Please enter booking number to comment on");
@@ -1203,6 +1230,117 @@ public class CommandLine {
 		
 		
 	}
-
+	
+	private void generateReports() throws SQLException {
+		String input = "";
+		int choice = -1;
+		do {
+			System.out.println("");
+			System.out.println("=========GENERATE REPORTS=========");
+			System.out.println("0. Exit");
+			System.out.println("1. Total number of bookings in date range by city");
+			System.out.println("2. Total number of bookings by zip code within city");
+			System.out.println("3. Total number of listings by country");
+			System.out.println("4. Total number of listings by city within country");
+			System.out.println("5. Total number of listings by zip code within city within country");
+			System.out.println("6. Rank hosts by total number of listings within a country");
+			System.out.println("7. Rank hosts by total number of listings within a city within a country");
+			System.out.println("8. Commercial hosts");
+			System.out.println("9. Rank renters by number of bookings in date range");
+			System.out.println("10. Rank renters by number of bookings in date range in a city (at least 2 bookings)");
+			System.out.println("11. Top 10 hosts and renters with largest number of cancellations within a year");
+			System.out.println("12. Noun phrases");
+			System.out.println("13. Main Menu");
+			System.out.print("Choose one of the options [0-13]: ");
+			input = sc.nextLine();
+			try {
+				choice = Integer.parseInt(input);
+				switch (choice) { //Activate the desired functionality
+				case 0:
+					break;
+				case 1:
+					report1Display();
+					break;
+				case 2:
+					break;
+				case 3:
+					break;
+				case 4:
+					break;
+				case 5:
+					break;
+				case 6:
+					break;
+				case 7:
+					break;
+				case 8:
+					break;
+				case 9:
+					break;
+				case 10:
+					break;
+				case 11:
+					break;
+				case 12:
+					break;
+				case 13:
+					mainMenu();
+					break;
+				default:
+					invalidOption();
+					break;
+				}
+			} catch (NumberFormatException e) {
+				input = "-1";
+			}
+		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0 && input.compareTo("4") != 0 && input.compareTo("5") != 0 && input.compareTo("6") != 0 && input.compareTo("7") != 0 && input.compareTo("8") != 0 && input.compareTo("9") != 0 && input.compareTo("10") != 0 && input.compareTo("11") != 0 && input.compareTo("12") != 0 && input.compareTo("13") != 0);
+		if (input.compareTo("0") == 0) {
+			endSession();
+		}
+	}
+	
+	private void report1Display() throws SQLException {
+		System.out.println("");
+		String[] dates = new String[2];
+		do {
+			System.out.print("From (dd/mm/yyy): ");
+			dates[0] = sc.nextLine().trim();
+		} while (isValidDate(dates[0]) == null);
+		do {
+			System.out.print("To (dd/mm/yyy): ");
+			dates[1] = sc.nextLine().trim();
+		} while (!isValidEndDate(dates[0], dates[1]));
+		List<List<String>> bookingsWithLocations = sqlMngr.report1(dates[0], dates[1]);
+		Map<String, Integer> counts = new HashMap<String, Integer>();
+		for(List<String> booking : bookingsWithLocations) {
+			if((booking.get(0).equals(dates[0]) && booking.get(1).equals(dates[1])) || (booking.get(0).equals(dates[0]) && occursAfter(booking.get(1), dates[1])) || (booking.get(1).equals(dates[1]) && occursAfter(dates[0], booking.get(0))) || (occursAfter(dates[0], booking.get(0)) && occursAfter(booking.get(0), dates[1]) && occursAfter(dates[0], booking.get(1)) && occursAfter(booking.get(1), dates[1]))) {
+				if (counts.containsKey(booking.get(2))) {
+					counts.put(booking.get(2), counts.get(booking.get(2)) + 1);
+				} else {
+					counts.put(booking.get(2), 1);
+				}
+			}
+		}
+		System.out.println("");
+		System.out.println("REPORT:");
+		counts.entrySet().forEach(entry->{
+			    System.out.println("There are a total of " + entry.getValue() + " bookings made in the city of " + entry.getKey() + ".");  
+			 });
+		generateReports();
+	}
+	
+	private boolean occursAfter(String earlier, String later) {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	    sdf.setLenient(false);
+	    Date earlierDate;
+	    Date laterDate;
+		try {
+	        earlierDate = sdf.parse(earlier);
+	        laterDate = sdf.parse(later);
+	    } catch (ParseException e) {
+	        return false;
+	    }
+        return laterDate.after(earlierDate);
+	}
 
 }
