@@ -360,11 +360,44 @@ public class SQLController {
 				if (!result.containsKey(rs.getString("country"))) {
 					result.put(rs.getString("country"), new ArrayList<List<String>>());
 				}
-				if(result.get(rs.getString("country")).size() < 11) {
+				if(result.get(rs.getString("country")).size() < 10) {
 					curr.add(rs.getString("first_name"));
 					curr.add(rs.getString("last_name"));
 					curr.add(rs.getString("count"));
 					result.get(rs.getString("country")).add(curr);
+				}
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public Map<String, Map<String, List<List<String>>>> report7(boolean most) {
+		String query = "SELECT * FROM (SELECT user.first_name, user.last_name, location.country, location.city, COUNT(*) AS count FROM host NATURAL JOIN location NATURAL JOIN user GROUP BY sin, first_name, last_name, country, city) AS t ORDER BY count ";
+		if(most) {
+			query += "DESC;";
+		} else {
+			query += "ASC;";
+		}
+		Map<String, Map<String, List<List<String>>>> result = new HashMap<String, Map<String, List<List<String>>>>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				List<String> curr = new ArrayList<String>();
+				if (!result.containsKey(rs.getString("country"))) {
+					result.put(rs.getString("country"), new HashMap <String, List<List<String>>>());
+				}
+				if (!result.get(rs.getString("country")).containsKey(rs.getString("city"))) {
+					result.get(rs.getString("country")).put(rs.getString("city"), new ArrayList<List<String>>());
+				}
+				if(result.get(rs.getString("country")).get(rs.getString("city")).size() < 10) {
+					curr.add(rs.getString("first_name"));
+					curr.add(rs.getString("last_name"));
+					curr.add(rs.getString("count"));
+					result.get(rs.getString("country")).get(rs.getString("city")).add(curr);
 				}
 			}
 			rs.close();
