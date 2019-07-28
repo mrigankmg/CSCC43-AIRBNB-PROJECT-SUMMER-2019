@@ -364,6 +364,32 @@ public class CommandLine {
 			System.out.print("Availability End Date (dd/mm/yyyy): ");
 			availability_vals[2] = sc.nextLine().trim();
 		} while(!isValidEndDate(availability_vals[1], availability_vals[2]) || !isNotOverlap(availability_vals[1], availability_vals[2], location_vals[1], location_vals[2], location_vals[7], location_vals[8], false, "", ""));
+		List<List<String>> toiletPaperYes = sqlMngr.select("amenities", new String[] {"listing_num"}, new String[] {"toilet_paper_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
+		List<List<String>> wifiYes = sqlMngr.select("amenities", new String[] {"listing_num"}, new String[] {"wifi_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
+		List<List<String>> towelsYes = sqlMngr.select("amenities", new String[] {"listing_num"}, new String[] {"towels_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
+		List<List<String>> ironYes = sqlMngr.select("amenities", new String[] {"listing_num"}, new String[] {"iron_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
+		List<List<String>> poolYes = sqlMngr.select("amenities", new String[] {"listing_num"}, new String[] {"pool_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
+		List<List<String>> acYes = sqlMngr.select("amenities", new String[] {"listing_num"}, new String[] {"ac_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
+		List<List<String>> fireplaceYes = sqlMngr.select("amenities", new String[] {"listing_num"}, new String[] {"fireplace_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
+		Map<String, Integer> amenitiesCountMap = new HashMap<String, Integer>();
+		amenitiesCountMap.put("toilet paper", toiletPaperYes.size());
+		amenitiesCountMap.put("wifi", wifiYes.size());
+		amenitiesCountMap.put("towels", towelsYes.size());
+		amenitiesCountMap.put("iron", ironYes.size());
+		amenitiesCountMap.put("pool", poolYes.size());
+		amenitiesCountMap.put("ac", acYes.size());
+		amenitiesCountMap.put("fireplace", fireplaceYes.size());
+		amenitiesCountMap = amenitiesCountMap.entrySet()
+		        .stream()
+		        .sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).limit(3)
+		        .collect(
+		            Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
+		                LinkedHashMap::new));
+		System.out.println("");
+		System.out.println("Based on other similar listings in " + location_vals[5] + ", " + location_vals[6] + ", we suggest to include the following amenities: ");
+		amenitiesCountMap.entrySet().forEach(entry->{
+		    System.out.println("-> " + entry.getKey());
+		 });
 		do {
 			System.out.print("Toilet Paper Included? (y/n): ");
 			amenity_vals[1] = sc.nextLine().trim();
@@ -1053,8 +1079,12 @@ public class CommandLine {
 				params[1] = sc.nextLine().trim();
 			} while (!isValidLongitude(params[1]));
 			do {
-				System.out.print("Distance (Km): ");
+				System.out.print("Distance (Km, leaving it blank defaults to 100Km): ");
 				params[2] = sc.nextLine().trim();
+				if(params[2].equals("")) {
+					params[2] = "100";
+					break;
+				}
 			} while (!isDouble(params[2]));
 		} else if(search.equals("3")) {
 				params = new String[10];
@@ -1225,6 +1255,18 @@ public class CommandLine {
 				}
 			} while(!amenity_vals[6].equalsIgnoreCase("y") && !amenity_vals[6].equalsIgnoreCase("n"));
 		}
+		String order;
+		System.out.println("----SORT----");
+		do {
+			System.out.print("Sort by (1- Ascending, 2- Descending, leave blank for no ordering): ");
+			order = sc.nextLine().trim();
+			if (order.equals("")) {
+				break;
+			}
+			if(!order.equals("1") && !order.equals("2")) {
+				invalidEntry();
+			}
+		} while(!order.equals("1") && !order.equals("2"));
 		if(dates[0].equals("")) {
 			DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 			Date today = new Date();
@@ -1242,35 +1284,53 @@ public class CommandLine {
 		}
 		System.out.println("");
 		System.out.println("Listings: ");
+		Map<List<String>, Integer>fullyFilteredListingsCosts = new HashMap<List<String>, Integer>();
 		for(List<String> listing : filteredListings) {
-			if((dates[1].equals("") && (listing.get(0).equals(dates[0]) || occursAfter(dates[0], listing.get(0)))) || (!dates[1].equals("") && (listing.get(0).equals(dates[0]) && listing.get(1).equals(dates[1])) || (listing.get(0).equals(dates[0]) && occursAfter(listing.get(1), dates[1])) || (listing.get(1).equals(dates[1]) && occursAfter(dates[0], listing.get(0))) || (occursAfter(dates[0], listing.get(0)) && occursAfter(listing.get(0), dates[1]) && occursAfter(dates[0], listing.get(1)) && occursAfter(listing.get(1), dates[1])))) {
-				if(search.equals("1")) {
-					double lat_2 = Double.parseDouble(listing.get(2));
-					double long_2 = Double.parseDouble(listing.get(3));
-					double latDiff = Math.toRadians(lat_2-lat_1);
-					double longDiff = Math.toRadians(long_2-long_1);
-					double a = Math.pow(Math.sin(latDiff/2), 2) +
-					        Math.cos(Math.toRadians(lat_1)) * Math.cos(Math.toRadians(lat_2)) *
-					        Math.pow(Math.sin(longDiff/2), 2);
-					double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-					if ((6371000 * c)/1000 <= distance) {
-						String listingInfo = "-> Listing #: " + listing.get(4) + "; Type: " + listing.get(5) + "; Address: " + listing.get(6) + " " + listing.get(7) + ", " + listing.get(8) + ", " + listing.get(9);
-						if (listing.get(10) != null) {
-							listingInfo += ", Suite No. " + listing.get(10);
+			if(!fullyFilteredListingsCosts.containsKey(Arrays.asList("listing_num", "type", "house_num", "street_name", "city", "country", "suite_num"))) {
+				if((dates[1].equals("") && (listing.get(0).equals(dates[0]) || occursAfter(dates[0], listing.get(0)))) || (!dates[1].equals("") && (listing.get(0).equals(dates[0]) && listing.get(1).equals(dates[1])) || (listing.get(0).equals(dates[0]) && occursAfter(listing.get(1), dates[1])) || (listing.get(1).equals(dates[1]) && occursAfter(dates[0], listing.get(0))) || (occursAfter(dates[0], listing.get(0)) && occursAfter(listing.get(0), dates[1]) && occursAfter(dates[0], listing.get(1)) && occursAfter(listing.get(1), dates[1])))) {
+					if(search.equals("1")) {
+						double lat_2 = Double.parseDouble(listing.get(2));
+						double long_2 = Double.parseDouble(listing.get(3));
+						double latDiff = Math.toRadians(lat_2-lat_1);
+						double longDiff = Math.toRadians(long_2-long_1);
+						double a = Math.pow(Math.sin(latDiff/2), 2) +
+						        Math.cos(Math.toRadians(lat_1)) * Math.cos(Math.toRadians(lat_2)) *
+						        Math.pow(Math.sin(longDiff/2), 2);
+						double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+						if ((6371000 * c)/1000 <= distance) {
+							fullyFilteredListingsCosts.put(Arrays.asList(listing.get(4), listing.get(5), listing.get(6), listing.get(7), listing.get(8), listing.get(9), listing.get(10)), Integer.parseInt(listing.get(11)));
 						}
-						listingInfo += "; Cost per Day: " + listing.get(11);
-						System.out.println(listingInfo);
+					} else {
+						fullyFilteredListingsCosts.put(Arrays.asList(listing.get(4), listing.get(5), listing.get(6), listing.get(7), listing.get(8), listing.get(9), listing.get(10)), Integer.parseInt(listing.get(11)));
 					}
-				} else {
-					String listingInfo = "-> Listing #: " + listing.get(4) + "; Type: " + listing.get(5) + "; Address: " + listing.get(6) + " " + listing.get(7) + ", " + listing.get(8) + ", " + listing.get(9);
-					if (listing.get(10) != null) {
-						listingInfo += ", Suite No. " + listing.get(10);
-					}
-					listingInfo += "; Cost per Day: " + listing.get(11);
-					System.out.println(listingInfo);
 				}
 			}
 		}
+		if(order.equals("1")) {
+			fullyFilteredListingsCosts = fullyFilteredListingsCosts
+			        .entrySet()
+			        .stream()
+			        .sorted(Map.Entry.comparingByValue())
+			        .collect(
+			            Collectors.toMap(e -> e.getKey(), e -> e.getValue(), (e1, e2) -> e2,
+			                LinkedHashMap::new));
+		} else if(order.equals("2")) {
+			fullyFilteredListingsCosts = fullyFilteredListingsCosts
+			        .entrySet()
+			        .stream()
+			        .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+			        .collect(
+			            Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
+			                LinkedHashMap::new));
+		}
+		fullyFilteredListingsCosts.entrySet().forEach(entry->{
+			String listingInfo = "-> Listing #: " + entry.getKey().get(0) + "; Type: " + entry.getKey().get(1) + "; Address: " + entry.getKey().get(2) + " " + entry.getKey().get(3) + ", " + entry.getKey().get(4) + ", " + entry.getKey().get(5);
+			if (entry.getKey().get(6) != null) {
+				listingInfo += ", Suite No. " + entry.getKey().get(6);
+			}
+			listingInfo += "; Cost per Day: " + entry.getValue();
+			System.out.println(listingInfo);
+		    });
 	}
 
 	private void bookings() throws ParseException, SQLException {
@@ -1887,7 +1947,7 @@ public class CommandLine {
 			sorted = counts
 			        .entrySet()
 			        .stream()
-			        .sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).limit(10)
+			        .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
 			        .collect(
 			            Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
 			                LinkedHashMap::new));
@@ -1896,7 +1956,7 @@ public class CommandLine {
 			sorted = counts
 			        .entrySet()
 			        .stream()
-			        .sorted(Map.Entry.comparingByValue()).limit(10)
+			        .sorted(Map.Entry.comparingByValue())
 			        .collect(
 			            Collectors.toMap(e -> e.getKey(), e -> e.getValue(), (e1, e2) -> e2,
 			                LinkedHashMap::new));
