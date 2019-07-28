@@ -103,7 +103,10 @@ public class SQLController {
 				query += ",";
 			}
 		}
-		query += " FROM " + table + " WHERE ";
+		query += " FROM " + table;
+		if (checkColumn.length > 0) {
+			query += " WHERE ";
+		}
 		for(int counter = 0; counter < checkColumn.length; counter++) {
 			query += checkColumn[counter] + " = '" + values[counter] + "'";
 			if (counter < checkColumn.length - 1) {

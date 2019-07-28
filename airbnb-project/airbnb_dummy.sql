@@ -68,11 +68,11 @@ primary key(`listing_num`)
 LOCK TABLES `location` WRITE;
 /*!40000 ALTER TABLE `location` DISABLE KEYS */;
 INSERT INTO `location` VALUES ('1',NULL,'28','Golden Meadow Dr.','L6E1V9','Markham','Canada','87','176','House');
-INSERT INTO `location` VALUES ('2',NULL,'28','Golden Meadow Dr.','L6E1V8','Toronto','Canada','87','176','House');
-INSERT INTO `location` VALUES ('3',NULL,'28','Golden Meadow Dr.','L6E1V8','Alpes','Switzerland','87','176','House');
-INSERT INTO `location` VALUES ('4',NULL,'28','Golden Meadow Dr.','L6E1V7','Toronto','Canada','87','176','House');
-INSERT INTO `location` VALUES ('5',NULL,'28','Golden Meadow Dr.','L6E1V9','Brampton','Canada','87','176','House');
-INSERT INTO `location` VALUES ('6',NULL,'28','Golden Meadow Dr.','L6E1V8','Toronto','Canada','87','176','House');
+INSERT INTO `location` VALUES ('2',NULL,'12','Test Dr.','M65432','Toronto','Canada','87','176','House');
+INSERT INTO `location` VALUES ('3',NULL,'29','Golden Meadow Dr.','L6E1V8','Alpes','Switzerland','87','176','House');
+INSERT INTO `location` VALUES ('4','60','30','Golden Meadow Dr.','L6E1V8','Toronto','Canada','87','176','Apartment');
+INSERT INTO `location` VALUES ('5',NULL,'31','Golden Meadow Dr.','L6E1V8','Brampton','Canada','87','176','House');
+INSERT INTO `location` VALUES ('6',NULL,'32','Golden Meadow Dr.','L6E1V7','Toronto','Canada','25','25','Room');
 /*!40000 ALTER TABLE `location` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -86,6 +86,17 @@ create table `availability` (
 primary key(`listing_num`, `start_date`)
 
 )ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+LOCK TABLES `availability` WRITE;
+/*!40000 ALTER TABLE `availability` DISABLE KEYS */;
+INSERT INTO `availability` VALUES ('1', '20/10/2019', '20/10/2020', '123');
+INSERT INTO `availability` VALUES ('2', '20/11/2019', '20/05/2020', '12345');
+INSERT INTO `availability` VALUES ('3', '20/11/2019', '20/05/2020', '1234');
+INSERT INTO `availability` VALUES ('4', '20/10/2019', '20/10/2020', '1236');
+INSERT INTO `availability` VALUES ('5', '20/11/2019', '20/05/2020', '1237');
+INSERT INTO `availability` VALUES ('6', '20/10/2019', '20/10/2020', '1238');
+/*!40000 ALTER TABLE `availability` ENABLE KEYS */;
+UNLOCK TABLES;
 
 Drop table if exists `booking`;
 
@@ -145,6 +156,17 @@ create table `amenities` (
 `fireplace_included` varchar(1) not null,
 primary key(`listing_num`)
 )ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+LOCK TABLES `amenities` WRITE;
+/*!40000 ALTER TABLE `amenities` DISABLE KEYS */;
+INSERT INTO `amenities` VALUES ('1', 'y', 'y', 'y', 'n', 'n', 'y', 'n');
+INSERT INTO `amenities` VALUES ('2', 'y', 'n', 'y', 'n', 'n', 'y', 'n');
+INSERT INTO `amenities` VALUES ('3', 'y', 'y', 'y', 'n', 'n', 'y', 'n');
+INSERT INTO `amenities` VALUES ('4', 'y', 'y', 'y', 'n', 'n', 'y', 'n');
+INSERT INTO `amenities` VALUES ('5', 'y', 'y', 'y', 'n', 'n', 'y', 'n');
+INSERT INTO `amenities` VALUES ('6', 'y', 'y', 'y', 'n', 'n', 'y', 'n');
+/*!40000 ALTER TABLE `amenities` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

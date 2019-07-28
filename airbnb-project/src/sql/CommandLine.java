@@ -11,6 +11,8 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -985,13 +987,13 @@ public class CommandLine {
 					break;
 				case 1:
 					latLongSearch(isAdvancedSearch());
-					renterHome();
+					searchListings();
 					break;
 				case 2:
-					renterHome();
+					searchListings();
 					break;
 				case 3:
-					renterHome();
+					searchListings();
 					break;
 				case 4:
 					renterHome();
@@ -1031,22 +1033,25 @@ public class CommandLine {
 	
 	private void latLongSearch(boolean advancedSearch) {
 		System.out.println("");
-		String[] params = new String[3];
+		String[] latLong = new String[3];
 		String[] dates = new String[2];
 		dates[0] = "";
 		String[] amenity_vals = new String[7];
+		List<String> amenity_vals_final = new ArrayList<String>();
+		List<String> amenity_columns_final = new ArrayList<String>();
+		List<List<String>> filteredListings;
 		do {
 			System.out.print("Latitude: ");
-			params[0] = sc.nextLine().trim();
-		} while (!isValidLatitude(params[0]));
+			latLong[0] = sc.nextLine().trim();
+		} while (!isValidLatitude(latLong[0]));
 		do {
 			System.out.print("Longitude: ");
-			params[1] = sc.nextLine().trim();
-		} while (!isValidLongitude(params[1]));
+			latLong[1] = sc.nextLine().trim();
+		} while (!isValidLongitude(latLong[1]));
 		do {
-			System.out.print("Distance: ");
-			params[2] = sc.nextLine().trim();
-		} while (!isDouble(params[2]));
+			System.out.print("Distance (Km): ");
+			latLong[2] = sc.nextLine().trim();
+		} while (!isDouble(latLong[2]));
 		if(advancedSearch) {
 			System.out.println("----DATE FILTER----");
 			do {
@@ -1071,6 +1076,9 @@ public class CommandLine {
 				}
 				if(!amenity_vals[0].equalsIgnoreCase("y") && !amenity_vals[0].equalsIgnoreCase("n")) {
 					invalidEntry();
+				} else {
+					amenity_columns_final.add("toilet_paper_included");
+					amenity_vals_final.add(amenity_vals[0]);
 				}
 			} while(!amenity_vals[0].equalsIgnoreCase("y") && !amenity_vals[0].equalsIgnoreCase("n"));
 			do {
@@ -1081,6 +1089,9 @@ public class CommandLine {
 				}
 				if(!amenity_vals[1].equalsIgnoreCase("y") && !amenity_vals[1].equalsIgnoreCase("n")) {
 					invalidEntry();
+				} else {
+					amenity_columns_final.add("wifi_included");
+					amenity_vals_final.add(amenity_vals[1]);
 				}
 			} while(!amenity_vals[1].equalsIgnoreCase("y") && !amenity_vals[1].equalsIgnoreCase("n"));
 			do {
@@ -1091,6 +1102,9 @@ public class CommandLine {
 				}
 				if(!amenity_vals[2].equalsIgnoreCase("y") && !amenity_vals[2].equalsIgnoreCase("n")) {
 					invalidEntry();
+				} else {
+					amenity_columns_final.add("towels_included");
+					amenity_vals_final.add(amenity_vals[2]);
 				}
 			} while(!amenity_vals[2].equalsIgnoreCase("y") && !amenity_vals[2].equalsIgnoreCase("n"));
 			do {
@@ -1101,6 +1115,9 @@ public class CommandLine {
 				}
 				if(!amenity_vals[3].equalsIgnoreCase("y") && !amenity_vals[3].equalsIgnoreCase("n")) {
 					invalidEntry();
+				} else {
+					amenity_columns_final.add("iron_included");
+					amenity_vals_final.add(amenity_vals[3]);
 				}
 			} while(!amenity_vals[3].equalsIgnoreCase("y") && !amenity_vals[3].equalsIgnoreCase("n"));
 			do {
@@ -1111,6 +1128,9 @@ public class CommandLine {
 				}
 				if(!amenity_vals[4].equalsIgnoreCase("y") && !amenity_vals[4].equalsIgnoreCase("n")) {
 					invalidEntry();
+				} else {
+					amenity_columns_final.add("pool_included");
+					amenity_vals_final.add(amenity_vals[4]);
 				}
 			} while(!amenity_vals[4].equalsIgnoreCase("y") && !amenity_vals[4].equalsIgnoreCase("n"));
 			do {
@@ -1121,6 +1141,9 @@ public class CommandLine {
 				}
 				if(!amenity_vals[5].equalsIgnoreCase("y") && !amenity_vals[5].equalsIgnoreCase("n")) {
 					invalidEntry();
+				} else {
+					amenity_columns_final.add("ac_included");
+					amenity_vals_final.add(amenity_vals[5]);
 				}
 			} while(!amenity_vals[5].equalsIgnoreCase("y") && !amenity_vals[5].equalsIgnoreCase("n"));
 			do {
@@ -1131,6 +1154,9 @@ public class CommandLine {
 				}
 				if(!amenity_vals[6].equalsIgnoreCase("y") && !amenity_vals[6].equalsIgnoreCase("n")) {
 					invalidEntry();
+				} else {
+					amenity_columns_final.add("fireplace_included");
+					amenity_vals_final.add(amenity_vals[6]);
 				}
 			} while(!amenity_vals[6].equalsIgnoreCase("y") && !amenity_vals[6].equalsIgnoreCase("n"));
 		}
@@ -1139,6 +1165,32 @@ public class CommandLine {
 			Date today = new Date();
 			dates[0] = sdf.format(today);
 			dates[1] = "";
+		}
+		filteredListings = sqlMngr.select("(SELECT * FROM availability NATURAL JOIN amenities NATURAL JOIN location) AS t", new String[] {"start_date", "end_date", "latitude", "longitude", "listing_num", "type", "house_num", "street_name", "city", "country", "suite_num", "cost_per_day"}, amenity_columns_final.toArray(new String[amenity_columns_final.size()]), amenity_vals_final.toArray(new String[amenity_vals_final.size()]));
+		double lat_1 = Double.parseDouble(latLong[0]);
+		double long_1 = Double.parseDouble(latLong[1]);
+		double distance = Double.parseDouble(latLong[2]);
+		System.out.println("");
+		System.out.println("Listings: ");
+		for(List<String> listing : filteredListings) {
+			if((dates[1].equals("") && (listing.get(0).equals(dates[0]) || occursAfter(dates[0], listing.get(0)))) || (!dates[1].equals("") && (listing.get(0).equals(dates[0]) && listing.get(1).equals(dates[1])) || (listing.get(0).equals(dates[0]) && occursAfter(listing.get(1), dates[1])) || (listing.get(1).equals(dates[1]) && occursAfter(dates[0], listing.get(0))) || (occursAfter(dates[0], listing.get(0)) && occursAfter(listing.get(0), dates[1]) && occursAfter(dates[0], listing.get(1)) && occursAfter(listing.get(1), dates[1])))) {
+				double lat_2 = Double.parseDouble(listing.get(2));
+				double long_2 = Double.parseDouble(listing.get(3));
+				double latDiff = Math.toRadians(lat_2-lat_1);
+				double longDiff = Math.toRadians(long_2-long_1);
+				double a = Math.pow(Math.sin(latDiff/2), 2) +
+				        Math.cos(Math.toRadians(lat_1)) * Math.cos(Math.toRadians(lat_2)) *
+				        Math.pow(Math.sin(longDiff/2), 2);
+				double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+				if ((6371000 * c)/1000 <= distance) {
+					String listingInfo = "-> Listing #: " + listing.get(4) + "; Type: " + listing.get(5) + "; Address: " + listing.get(6) + " " + listing.get(7) + ", " + listing.get(8) + ", " + listing.get(9);
+					if (listing.get(10) != null) {
+						listingInfo += ", Suite No. " + listing.get(10);
+					}
+					listingInfo += "; Cost per Day: " + listing.get(11);
+					System.out.println(listingInfo);
+				}
+			}
 		}
 	}
 
