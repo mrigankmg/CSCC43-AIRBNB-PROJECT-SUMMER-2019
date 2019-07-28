@@ -43,7 +43,9 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES ('a@b.c','a','b','09/10/1996','28 Golden Meadow Dr.','Student','123456789','pass','12334553','0');
+INSERT INTO `user` VALUES ('a@b.c','Elon','Musk','09/10/1996','28 Golden Meadow Dr.','Founder of Tesla','123456789','pass',NULL,'0');
+INSERT INTO `user` VALUES ('b@b.c','Bill','Gates','09/10/1996','28 Golden Meadow Dr.','Multi-Billionaire','123123123','pass',NULL,'0');
+INSERT INTO `user` VALUES ('c@b.c','Steph','Curry','09/10/1996','28 Golden Meadow Dr.','NBA Star','123457777','pass',NULL,'0');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -62,6 +64,17 @@ create table `location` (
 `type` varchar(256) Not Null,
 primary key(`listing_num`)
 )ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+LOCK TABLES `location` WRITE;
+/*!40000 ALTER TABLE `location` DISABLE KEYS */;
+INSERT INTO `location` VALUES ('1',NULL,'28','Golden Meadow Dr.','L6E1V9','Markham','Canada','87','176','House');
+INSERT INTO `location` VALUES ('2',NULL,'28','Golden Meadow Dr.','L6E1V8','Toronto','Canada','87','176','House');
+INSERT INTO `location` VALUES ('3',NULL,'28','Golden Meadow Dr.','L6E1V8','Alpes','Switzerland','87','176','House');
+INSERT INTO `location` VALUES ('4',NULL,'28','Golden Meadow Dr.','L6E1V7','Toronto','Canada','87','176','House');
+INSERT INTO `location` VALUES ('5',NULL,'28','Golden Meadow Dr.','L6E1V9','Brampton','Canada','87','176','House');
+INSERT INTO `location` VALUES ('6',NULL,'28','Golden Meadow Dr.','L6E1V8','Toronto','Canada','87','176','House');
+/*!40000 ALTER TABLE `location` ENABLE KEYS */;
+UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `availability`;
 
@@ -92,13 +105,32 @@ create table `booking` (
 primary key(`booking_num`)
 );
 
+LOCK TABLES `booking` WRITE;
+/*!40000 ALTER TABLE `booking` DISABLE KEYS */;
+INSERT INTO `booking` VALUES ('1','1','20/10/2017','20/10/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('2','1','20/12/2017','20/09/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('3','2','20/12/2017','20/09/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('4','3','20/12/2017','20/09/2018','125.5','123123123',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('5','4','20/12/2017','20/09/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('6','4','20/12/2017','20/09/2018','125.5','123123123',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('7','4','20/09/2017','20/09/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('8','5','20/08/2017','20/12/2018','125.5','123457777',NULL,NULL,NULL,NULL,NULL,NULL);
+/*!40000 ALTER TABLE `booking` ENABLE KEYS */;
+UNLOCK TABLES;
+
 DROP TABLE IF EXISTS `host`;
 
 create table `host` (
-`listing_num` varchar(700) NOT NUll ,
-`sin` varchar(255) Not null,
+`listing_num` varchar(700) NOT NUll,
+`sin` varchar(255) NOT NULL,
 primary key(`listing_num`)
 );
+
+LOCK TABLES `host` WRITE;
+/*!40000 ALTER TABLE `host` DISABLE KEYS */;
+INSERT INTO `host` VALUES ('1','123456789'), ('2','123456789'), ('3','123123123'), ('4','123457777'), ('5','123123123'), ('6','123456789');
+/*!40000 ALTER TABLE `host` ENABLE KEYS */;
+UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `amenities`;
 
