@@ -43,7 +43,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES ('a@b.c','Elon','Musk','09/10/1996','28 Golden Meadow Dr.','Founder of Tesla','123456789','pass',NULL,'0');
+INSERT INTO `user` VALUES ('a@b.c','Elon','Musk','09/10/1996','28 Golden Meadow Dr.','Founder of Tesla','123456789','pass','123456789012345','0');
 INSERT INTO `user` VALUES ('b@b.c','Bill','Gates','09/10/1996','28 Golden Meadow Dr.','Multi-Billionaire','123123123','pass',NULL,'0');
 INSERT INTO `user` VALUES ('c@b.c','Steph','Curry','09/10/1996','28 Golden Meadow Dr.','NBA Star','123457777','pass',NULL,'0');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;

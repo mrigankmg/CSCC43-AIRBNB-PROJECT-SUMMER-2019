@@ -17,7 +17,7 @@ public class SQLController {
 	private static final String dbClassName = "com.mysql.jdbc.Driver";
 	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/airbnb";
 	private static final String sqlUser = "root";
-	private static final String sqlPass = "password07";
+	private static final String sqlPass = "irw1rgi5";
     //Object that establishes and keeps the state of our application's
     //connection with the MySQL backend.
 	private Connection conn = null;
@@ -95,23 +95,22 @@ public class SQLController {
 	
     //Controls the execution of a select query.
     //Functionality: "2. Select a record."
-	public List<List<String>> select(String table, String[] resultColumns, String checkColumn, String[] values) {
+	public List<List<String>> select(String table, String[] resultColumns, String[] checkColumn, String[] values) {
 		String query = "SELECT ";
 		for (int counter = 0; counter < resultColumns.length; counter ++) {
-			query = query.concat(resultColumns[counter]);
+			query += resultColumns[counter];
 			if (counter < resultColumns.length - 1) {
-				query = query.concat(",");
+				query += ",";
 			}
 		}
-		query = query.concat(" FROM " + table + " WHERE " + checkColumn + " IN (");
-		for (int counter = 0; counter < values.length; counter++) {
-			query = query.concat("'" + values[counter] + "'");
-			if (counter < values.length - 1) {
-				query = query.concat(",");
-			} else {
-				query = query.concat(");");
+		query += " FROM " + table + " WHERE ";
+		for(int counter = 0; counter < checkColumn.length; counter++) {
+			query += checkColumn[counter] + " = '" + values[counter] + "'";
+			if (counter < checkColumn.length - 1) {
+				query += " AND ";
 			}
 		}
+		query += ';';
 		List<List<String>> result = new ArrayList<List<String>>();
 		try {
 			ResultSet rs = st.executeQuery(query);

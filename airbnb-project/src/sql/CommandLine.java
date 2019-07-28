@@ -1,6 +1,7 @@
 package sql;
 
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -138,6 +139,7 @@ public class CommandLine {
 				}
 			} catch (NumberFormatException e) {
 				input = "-1";
+				invalidEntry();
 			}
 		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0 && input.compareTo("4") != 0);
 		if (input.compareTo("0") == 0) {
@@ -214,6 +216,7 @@ public class CommandLine {
 				}
 			} catch (NumberFormatException e) {
 				input = "-1";
+				invalidEntry();
 			}
 		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0 && input.compareTo("4") != 0 && input.compareTo("5") != 0 && input.compareTo("6") != 0);
 		if (input.compareTo("0") == 0) {
@@ -228,11 +231,12 @@ public class CommandLine {
 		do {
 			System.out.println("=========HOME=========");
 			System.out.println("0. Exit");
-			System.out.println("1. Make Booking");
-			System.out.println("2. Cancel Booking");
-			System.out.println("3. Comment/Rate Listing & Host");
-			System.out.println("4. Log Out");
-			System.out.print("Choose one of the options [0-4]: ");
+			System.out.println("1. Search Listings");
+			System.out.println("2. Make Booking");
+			System.out.println("3. Cancel Booking");
+			System.out.println("4. Comment/Rate Listing & Host");
+			System.out.println("5. Log Out");
+			System.out.print("Choose one of the options [0-5]: ");
 			input = sc.nextLine();
 			try {
 				choice = Integer.parseInt(input);
@@ -240,18 +244,22 @@ public class CommandLine {
 				case 0:
 					break;
 				case 1:
-					bookings();
+					searchListings();
 					renterHome();
 					break;
 				case 2:
-					cancelBooking(false);
+					bookings();
 					renterHome();
 					break;
 				case 3:
-					feedbackForHost();
+					cancelBooking(false);
 					renterHome();
 					break;
 				case 4:
+					feedbackForHost();
+					renterHome();
+					break;
+				case 5:
 					mainMenu();
 					break;
 				default:
@@ -260,8 +268,9 @@ public class CommandLine {
 				}
 			} catch (NumberFormatException e) {
 				input = "-1";
+				invalidEntry();
 			}
-		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0 && input.compareTo("4") != 0);
+		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0 && input.compareTo("4") != 0 && input.compareTo("5") != 0);
 		if (input.compareTo("0") == 0) {
 			endSession();
 		}
@@ -356,30 +365,51 @@ public class CommandLine {
 		do {
 			System.out.print("Toilet Paper Included? (y/n): ");
 			amenity_vals[1] = sc.nextLine().trim();
+			if(!amenity_vals[1].equalsIgnoreCase("y") && !amenity_vals[1].equalsIgnoreCase("n")) {
+				invalidEntry();
+			}
 		} while(!amenity_vals[1].equalsIgnoreCase("y") && !amenity_vals[1].equalsIgnoreCase("n"));
 		do {
 			System.out.print("WiFi Included? (y/n): ");
 			amenity_vals[2] = sc.nextLine().trim();
+			if(!amenity_vals[2].equalsIgnoreCase("y") && !amenity_vals[2].equalsIgnoreCase("n")) {
+				invalidEntry();
+			}
 		} while(!amenity_vals[2].equalsIgnoreCase("y") && !amenity_vals[2].equalsIgnoreCase("n"));
 		do {
 			System.out.print("Towels Included? (y/n): ");
 			amenity_vals[3] = sc.nextLine().trim();
+			if(!amenity_vals[3].equalsIgnoreCase("y") && !amenity_vals[3].equalsIgnoreCase("n")) {
+				invalidEntry();
+			}
 		} while(!amenity_vals[3].equalsIgnoreCase("y") && !amenity_vals[3].equalsIgnoreCase("n"));
 		do {
 			System.out.print("Iron Included? (y/n): ");
 			amenity_vals[4] = sc.nextLine().trim();
+			if(!amenity_vals[4].equalsIgnoreCase("y") && !amenity_vals[4].equalsIgnoreCase("n")) {
+				invalidEntry();
+			}
 		} while(!amenity_vals[4].equalsIgnoreCase("y") && !amenity_vals[4].equalsIgnoreCase("n"));
 		do {
 			System.out.print("Pool Included? (y/n): ");
 			amenity_vals[5] = sc.nextLine().trim();
+			if(!amenity_vals[5].equalsIgnoreCase("y") && !amenity_vals[5].equalsIgnoreCase("n")) {
+				invalidEntry();
+			}
 		} while(!amenity_vals[5].equalsIgnoreCase("y") && !amenity_vals[5].equalsIgnoreCase("n"));
 		do {
 			System.out.print("A/C Included? (y/n): ");
 			amenity_vals[6] = sc.nextLine().trim();
+			if(!amenity_vals[6].equalsIgnoreCase("y") && !amenity_vals[6].equalsIgnoreCase("n")) {
+				invalidEntry();
+			}
 		} while(!amenity_vals[6].equalsIgnoreCase("y") && !amenity_vals[6].equalsIgnoreCase("n"));
 		do {
 			System.out.print("Fireplace Included? (y/n): ");
 			amenity_vals[7] = sc.nextLine().trim();
+			if(!amenity_vals[7].equalsIgnoreCase("y") && !amenity_vals[7].equalsIgnoreCase("n")) {
+				invalidEntry();
+			}
 		} while(!amenity_vals[7].equalsIgnoreCase("y") && !amenity_vals[7].equalsIgnoreCase("n"));
 		do {
 			System.out.print("Cost per Day: ");
@@ -398,7 +428,7 @@ public class CommandLine {
 		System.out.println("");
 		System.out.println("=========DELETE LISTING=========");
 		String listing_num;
-		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, "sin", new String [] {user.getSin()});
+		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, new String[] {"sin"}, new String [] {user.getSin()});
 		do {
 			System.out.print("Listing No.: ");
 			listing_num = sc.nextLine().trim();
@@ -436,7 +466,7 @@ public class CommandLine {
 				booking_num = sc.nextLine().trim();
 			} while (!isValidBookingNumForHost(booking_num));
 		}
-		List<String> availInfo = sqlMngr.select("booking", new String[] {"listing_num", "start_date", "end_date", "cost_per_day"}, "booking_num", new String [] {booking_num}).get(0);
+		List<String> availInfo = sqlMngr.select("booking", new String[] {"listing_num", "start_date", "end_date", "cost_per_day"}, new String [] {"booking_num"}, new String [] {booking_num}).get(0);
 		sqlMngr.delete("booking_num", booking_num);
 		sqlMngr.insert("availability", availabilityColumns, new String[] {availInfo.get(0), availInfo.get(1), availInfo.get(2), availInfo.get(3)});
 		sqlMngr.update("user", new String[] {"sin"}, new String[] {user.getSin()}, new String[] {"num_cancellations"}, new String[] {Integer.toString(user.getCancellations() + 1)});
@@ -445,7 +475,7 @@ public class CommandLine {
 	}
 	
 	private boolean isValidBookingNumForRenter(String booking_num) {
-		List<List<String>> allBookings = sqlMngr.select("booking", new String[] {"booking_num"}, "sin", new String [] {user.getSin()});
+		List<List<String>> allBookings = sqlMngr.select("booking", new String[] {"booking_num"}, new String[] {"sin"}, new String [] {user.getSin()});
 		for(List<String> booking : allBookings) {
 			if (booking.get(0).equals(booking_num)) {
 				return true;
@@ -458,9 +488,9 @@ public class CommandLine {
 	}
 	
 	private boolean isValidBookingNumForHost(String booking_num) {
-		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, "sin", new String [] {user.getSin()});
+		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, new String[] {"sin"}, new String [] {user.getSin()});
 		for(List<String> listing : allListings) {
-			List<List<String>> allBookings = sqlMngr.select("booking", new String[] {"booking_num"}, "listing_num", new String [] {listing.get(0)});
+			List<List<String>> allBookings = sqlMngr.select("booking", new String[] {"booking_num"}, new String[] {"listing_num"}, new String [] {listing.get(0)});
 			for(List<String> booking : allBookings) {
 				if (booking.get(0).equals(booking_num)) {
 					return true;
@@ -480,7 +510,7 @@ public class CommandLine {
 		String[] newVals = new String[3];
 		String listing_num;
 		String start_date;
-		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, "sin", new String [] {user.getSin()});
+		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, new String[] {"sin"}, new String [] {user.getSin()});
 		do {
 			System.out.print("Listing No. of Listing to Modify: ");
 			listing_num = sc.nextLine().trim();
@@ -489,7 +519,7 @@ public class CommandLine {
 			System.out.print("Start Date of Listing to Modify: ");
 			start_date = sc.nextLine().trim();
 		} while (!isValidStartDate(start_date) || !isValidStartDateToBeModified(start_date, listing_num));
-		List<String> location = sqlMngr.select("location", new String[] {"suite_num", "house_num", "latitude", "longitude"}, "listing_num", new String [] {listing_num}).get(0);
+		List<String> location = sqlMngr.select("location", new String[] {"suite_num", "house_num", "latitude", "longitude"}, new String[] {"listing_num"}, new String [] {listing_num}).get(0);
 //		List<List<String>> listingsWithoutModficationListing = new ArrayList<List<String>>();
 //		List<List<String>> allAvailabilities = sqlMngr.select("availability", new String[] {"start_date"}, "listing_num", new String [] {listing_num});
 //		for(List<String> listing : allListings) {
@@ -539,7 +569,7 @@ public class CommandLine {
 	}
 	
 	private boolean isValidStartDateToBeModified(String startDate, String listingNum) {
-		List<List<String>> startDates = sqlMngr.select("availability", new String[] {"start_date"}, "listing_num", new String [] {listingNum});
+		List<List<String>> startDates = sqlMngr.select("availability", new String[] {"start_date"}, new String[] {"listing_num"}, new String [] {listingNum});
 		for(List<String> date : startDates) {
 			if (date.get(0).equals(startDate)) {
 				return true;
@@ -579,6 +609,7 @@ public class CommandLine {
 				}
 			} catch (NumberFormatException e) {
 				input = "-1";
+				invalidEntry();
 			}
 		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0);
 		if (input.compareTo("0") == 0) {
@@ -661,12 +692,12 @@ public class CommandLine {
 		List<String> userInfo = sqlMngr.getUserInfo(email);
 		sqlMngr.delete("email", email);
 		if(isHost(userInfo)) {
-			List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, "sin", new String [] {userInfo.get(6)});
+			List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, new String[] {"sin"}, new String [] {userInfo.get(6)});
 			for(List<String> listing : allListings) {
 				sqlMngr.delete("listing_num", listing.get(0));
 			}
 		} else {
-			List<List<String>> allBookings = sqlMngr.select("booking", new String[] {"booking_num", "listing_num", "start_date", "end_date", "cost_per_day"}, "sin", new String [] {userInfo.get(6)});
+			List<List<String>> allBookings = sqlMngr.select("booking", new String[] {"booking_num", "listing_num", "start_date", "end_date", "cost_per_day"}, new String[] {"sin"}, new String [] {userInfo.get(6)});
 			for(List<String> booking : allBookings) {
 				sqlMngr.delete("booking_num", booking.get(0));
 				sqlMngr.insert("availability", availabilityColumns, new String[] {booking.get(1), booking.get(2), booking.get(3), booking.get(4)});
@@ -753,8 +784,8 @@ public class CommandLine {
 	    DateTimeFormatter fomatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
 	    try {
 	        ldt = LocalDateTime.parse(value, fomatter);
-	        String result = ldt.format(fomatter);
-	        if (result.equals(value)) {
+	        String check = ldt.format(fomatter);
+	        if (check.equals(value)) {
 	        	return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
 	        } else {
 		    	System.out.println("");
@@ -765,8 +796,8 @@ public class CommandLine {
 	    } catch (DateTimeParseException e) {
 	        try {
 	            LocalDate ld = LocalDate.parse(value, fomatter);
-	            String result = ld.format(fomatter);
-		        if (result.equals(value)) {
+	            String check = ld.format(fomatter);
+		        if (check.equals(value)) {
 		        	return Date.from(ld.atStartOfDay(ZoneId.systemDefault()).toInstant());
 		        } else {
 			    	System.out.println("");
@@ -775,19 +806,19 @@ public class CommandLine {
 		        	return null;
 		        }
 	        } catch (DateTimeParseException exp) {
-	            try {
-	                LocalTime lt = LocalTime.parse(value, fomatter);
-	                String result = lt.format(fomatter);
-	    	        if (result.equals(value)) {
-	    	        	return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
-	    	        } else {
-	    		    	System.out.println("");
-	    		    	System.out.println("Date does not match required format. Please enter again.");
-	    		    	System.out.println("");
-	    	        	return null;
-	    	        }
-	            } catch (DateTimeParseException e2) {
-	            }
+//	            try {
+//	                LocalTime lt = LocalTime.parse(value, fomatter);
+//	                String check = lt.format(fomatter);
+//	    	        if (check.equals(value)) {
+//	    	        	return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+//	    	        } else {
+//	    		    	System.out.println("");
+//	    		    	System.out.println("Date does not match required format. Please enter again.");
+//	    		    	System.out.println("");
+//	    	        	return null;
+//	    	        }
+//	            } catch (DateTimeParseException e2) {
+//	            }
 	        }
 	    }
     	System.out.println("");
@@ -869,7 +900,7 @@ public class CommandLine {
 	}
 
 	private boolean checkExistingAccount(String table, String column, String value, boolean forDelete) throws SQLException {
-		if (sqlMngr.select(table, new String[] {column}, column, new String[] {value}).size() > 0) {
+		if (sqlMngr.select(table, new String[] {column}, new String[] {column}, new String[] {value}).size() > 0) {
 			if (!forDelete) {
 				System.out.println("");
 				System.out.println("Account with this " + column + " already exists.");
@@ -886,7 +917,7 @@ public class CommandLine {
 	}
 
 	private boolean checkLoginCredentials(String email, String password) throws SQLException {
-		List<List<String>> vals = sqlMngr.select("user", new String[] {"password"}, "email", new String[] {email});
+		List<List<String>> vals = sqlMngr.select("user", new String[] {"password"}, new String[] {"email"}, new String[] {email});
 		boolean userExists = vals.size() == 1 && vals.get(0).get(0).equals(password);
 		if (!userExists) {
 			System.out.println("");
@@ -901,14 +932,14 @@ public class CommandLine {
 	}
 
 	private boolean isNotOverlap(String startDateToCheck, String endDateToCheck, String suite_num, String house_num, String latitude, String longitude, boolean modify, String modifyDate, String modifyListingNum) {
-		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, "sin", new String [] {user.getSin()});
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		List<List<String>> allListings = sqlMngr.select("host", new String[] {"listing_num"}, new String [] {"sin"}, new String [] {user.getSin()});
+		DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		sdf.setLenient(false);
 		for (List<String> listing : allListings) {
-			List<String> listingLocation = sqlMngr.select("location", new String[] {"suite_num", "house_num", "latitude", "longitude"}, "listing_num", new String [] {listing.get(0)}).get(0);
+			List<String> listingLocation = sqlMngr.select("location", new String[] {"suite_num", "house_num", "latitude", "longitude"}, new String[] {"listing_num"}, new String [] {listing.get(0)}).get(0);
 
 			if ((listingLocation.get(0) == null || listingLocation.get(0).equalsIgnoreCase(suite_num)) && listingLocation.get(1).equalsIgnoreCase(house_num) && listingLocation.get(2).equalsIgnoreCase(latitude) && listingLocation.get(3).equalsIgnoreCase(longitude)) {
-				List<List<String>> listingAvailabilities = sqlMngr.select("availability", new String[] {"start_date", "end_date"}, "listing_num", new String [] {listing.get(0)});
+				List<List<String>> listingAvailabilities = sqlMngr.select("availability", new String[] {"start_date", "end_date"}, new String[] {"listing_num"}, new String [] {listing.get(0)});
 				for(List<String> availability : listingAvailabilities) {
 					if((modify && !modifyListingNum.equals(listing.get(0))) || (modify && modifyListingNum.equals(listing.get(0)) && !modifyDate.equals(availability.get(0))) || !modify) {
 						String startDateStr = availability.get(0);
@@ -931,6 +962,184 @@ public class CommandLine {
 			}
 		}
 		return true;
+	}
+	
+	private void searchListings() throws SQLException, ParseException {
+		System.out.println("");
+		String input = "";
+		int choice = -1;
+		do {
+			System.out.println("=========SEARCH LISTINGS BY=========");
+			System.out.println("0. Exit");
+			System.out.println("1. Latitude, Longitude, Distance");
+			System.out.println("2. Postal Code");
+			System.out.println("3. Address");
+			System.out.println("4. Home");
+			System.out.println("5. Log Out");
+			System.out.print("Choose one of the options [0-5]: ");
+			input = sc.nextLine();
+			try {
+				choice = Integer.parseInt(input);
+				switch (choice) { 
+				case 0:
+					break;
+				case 1:
+					latLongSearch(isAdvancedSearch());
+					renterHome();
+					break;
+				case 2:
+					renterHome();
+					break;
+				case 3:
+					renterHome();
+					break;
+				case 4:
+					renterHome();
+					break;
+				case 5:
+					mainMenu();
+					break;
+				default:
+					invalidEntry();
+					break;
+				}
+			} catch (NumberFormatException e) {
+				input = "-1";
+				invalidEntry();
+			}
+		} while (input.compareTo("0") != 0 && input.compareTo("1") != 0 && input.compareTo("2") != 0 && input.compareTo("3") != 0 && input.compareTo("4") != 0 && input.compareTo("5") != 0);
+		if (input.compareTo("0") == 0) {
+			endSession();
+		}
+	}
+	
+	private boolean isAdvancedSearch() {
+		System.out.println("");
+		String type;
+		do {
+			System.out.print("Advanced Search (y/n): ");
+			type = sc.nextLine().trim();
+			if (!type.equalsIgnoreCase("y") && !type.equalsIgnoreCase("n")) {
+				invalidEntry();
+			}
+		} while(!type.equalsIgnoreCase("y") && !type.equalsIgnoreCase("n"));
+		if(type.equalsIgnoreCase("y")) {
+			return true;
+		}
+		return false;
+	}
+	
+	private void latLongSearch(boolean advancedSearch) {
+		System.out.println("");
+		String[] params = new String[3];
+		String[] dates = new String[2];
+		dates[0] = "";
+		String[] amenity_vals = new String[7];
+		do {
+			System.out.print("Latitude: ");
+			params[0] = sc.nextLine().trim();
+		} while (!isValidLatitude(params[0]));
+		do {
+			System.out.print("Longitude: ");
+			params[1] = sc.nextLine().trim();
+		} while (!isValidLongitude(params[1]));
+		do {
+			System.out.print("Distance: ");
+			params[2] = sc.nextLine().trim();
+		} while (!isDouble(params[2]));
+		if(advancedSearch) {
+			System.out.println("----DATE FILTER----");
+			do {
+				System.out.print("Start Date (leave blank for no date filter): ");
+				dates[0] = sc.nextLine().trim();
+				if(dates[0].equals("")) {
+					break;
+				}
+			} while(!isValidStartDate(dates[0]));
+			if (!dates[0].equals("")) {
+				do {
+					System.out.print("End Date: ");
+					dates[1] = sc.nextLine().trim();
+				} while(!isValidEndDate(dates[0], dates[1]));
+			}
+			System.out.println("----AMENITIES FILTER----");
+			do {
+				System.out.print("Toilet Paper Included? (y/n or leave blank): ");
+				amenity_vals[0] = sc.nextLine().trim();
+				if(amenity_vals[0].equals("")) {
+					break;
+				}
+				if(!amenity_vals[0].equalsIgnoreCase("y") && !amenity_vals[0].equalsIgnoreCase("n")) {
+					invalidEntry();
+				}
+			} while(!amenity_vals[0].equalsIgnoreCase("y") && !amenity_vals[0].equalsIgnoreCase("n"));
+			do {
+				System.out.print("WiFi Included? (y/n or leave blank): ");
+				amenity_vals[1] = sc.nextLine().trim();
+				if(amenity_vals[1].equals("")) {
+					break;
+				}
+				if(!amenity_vals[1].equalsIgnoreCase("y") && !amenity_vals[1].equalsIgnoreCase("n")) {
+					invalidEntry();
+				}
+			} while(!amenity_vals[1].equalsIgnoreCase("y") && !amenity_vals[1].equalsIgnoreCase("n"));
+			do {
+				System.out.print("Towels Included? (y/n or leave blank): ");
+				amenity_vals[2] = sc.nextLine().trim();
+				if(amenity_vals[2].equals("")) {
+					break;
+				}
+				if(!amenity_vals[2].equalsIgnoreCase("y") && !amenity_vals[2].equalsIgnoreCase("n")) {
+					invalidEntry();
+				}
+			} while(!amenity_vals[2].equalsIgnoreCase("y") && !amenity_vals[2].equalsIgnoreCase("n"));
+			do {
+				System.out.print("Iron Included? (y/n or leave blank): ");
+				amenity_vals[3] = sc.nextLine().trim();
+				if(amenity_vals[3].equals("")) {
+					break;
+				}
+				if(!amenity_vals[3].equalsIgnoreCase("y") && !amenity_vals[3].equalsIgnoreCase("n")) {
+					invalidEntry();
+				}
+			} while(!amenity_vals[3].equalsIgnoreCase("y") && !amenity_vals[3].equalsIgnoreCase("n"));
+			do {
+				System.out.print("Pool Included? (y/n or leave blank): ");
+				amenity_vals[4] = sc.nextLine().trim();
+				if(amenity_vals[4].equals("")) {
+					break;
+				}
+				if(!amenity_vals[4].equalsIgnoreCase("y") && !amenity_vals[4].equalsIgnoreCase("n")) {
+					invalidEntry();
+				}
+			} while(!amenity_vals[4].equalsIgnoreCase("y") && !amenity_vals[4].equalsIgnoreCase("n"));
+			do {
+				System.out.print("A/C Included? (y/n or leave blank): ");
+				amenity_vals[5] = sc.nextLine().trim();
+				if(amenity_vals[5].equals("")) {
+					break;
+				}
+				if(!amenity_vals[5].equalsIgnoreCase("y") && !amenity_vals[5].equalsIgnoreCase("n")) {
+					invalidEntry();
+				}
+			} while(!amenity_vals[5].equalsIgnoreCase("y") && !amenity_vals[5].equalsIgnoreCase("n"));
+			do {
+				System.out.print("Fireplace Included? (y/n or leave blank): ");
+				amenity_vals[6] = sc.nextLine().trim();
+				if(amenity_vals[6].equals("")) {
+					break;
+				}
+				if(!amenity_vals[6].equalsIgnoreCase("y") && !amenity_vals[6].equalsIgnoreCase("n")) {
+					invalidEntry();
+				}
+			} while(!amenity_vals[6].equalsIgnoreCase("y") && !amenity_vals[6].equalsIgnoreCase("n"));
+		}
+		if(dates[0].equals("")) {
+			DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			Date today = new Date();
+			dates[0] = sdf.format(today);
+			dates[1] = "";
+		}
 	}
 
 	private void bookings() throws ParseException, SQLException {
@@ -1055,7 +1264,7 @@ public class CommandLine {
 
 			updateAvailability(startDate, endDate, dates, listingNumber, listingPerDayCost);
 			addBooking(listingNumber,startDate, endDate, listingPerDayCost );
-			List<List<String>> bookingNums = sqlMngr.select("booking", new String[] {"booking_num","start_date"},"listing_num", new String[] {listingNumber});
+			List<List<String>> bookingNums = sqlMngr.select("booking", new String[] {"booking_num","start_date"}, new String[] {"listing_num"}, new String[] {listingNumber});
 			int i = 0;
 			while(!(bookingNums.get(i).get(1).equals(startDate))) {
 				i++;
@@ -1091,7 +1300,7 @@ public class CommandLine {
 		String currStop;
 		boolean exit = false;
 		String[] toReturn = {};
-		List<List<String>> allDates = sqlMngr.select("availability", new String[] {"start_date", "end_date"}, "listing_num", new String[] {listingnumber});
+		List<List<String>> allDates = sqlMngr.select("availability", new String[] {"start_date", "end_date"}, new String[] {"listing_num"}, new String[] {listingnumber});
 		while(i < allDates.size() && !exit) {
 				currStart = allDates.get(i).get(0);
 				currStop = allDates.get(i).get(1);
@@ -1127,13 +1336,13 @@ public class CommandLine {
 		}
 		}
 	private boolean displayByPostalCode(String postal) {
-		List<List<String>> listingCode = sqlMngr.select("location", locationColumns, "postal_code", new String[] {postal});
+		List<List<String>> listingCode = sqlMngr.select("location", locationColumns, new String[] {"postal_code"}, new String[] {postal});
 		boolean toReturn = false;
 		if(listingCode.size() > 0) {
 			toReturn = true;
 		}
 		for(int i = 0; i < listingCode.size();i++) {
-			List<List<String>> dates = sqlMngr.select("availability", new String[] {"start_date", "end_date"} , "listing_num", new String[] {(listingCode.get(i)).get(0)});
+			List<List<String>> dates = sqlMngr.select("availability", new String[] {"start_date", "end_date"} , new String[] {"listing_num"}, new String[] {(listingCode.get(i)).get(0)});
 			for(int j = 0; j < dates.size();j++) {
 				for(int k = 0; k < listingCode.get(i).size();k++) {
 					System.out.print(listingCode.get(i).get(k) + "\t");
@@ -1155,7 +1364,7 @@ public class CommandLine {
 	private void feedBackByRenter(String bookingNum) {
 		int selection;
 		List<List<String>>sinCheck;
-		sinCheck = sqlMngr.select("booking", new String[] {"sin"}, "booking_num", new String[] {bookingNum});
+		sinCheck = sqlMngr.select("booking", new String[] {"sin"}, new String[] {"booking_num"}, new String[] {bookingNum});
 		if(sinCheck.size() > 0 && sinCheck.get(0).get(0).equals(user.getSin())) {
 			System.out.println("1. Comment On Listing");
 			System.out.println("2. Rate Listing");
@@ -1349,6 +1558,7 @@ public class CommandLine {
 				}
 			} catch (NumberFormatException e) {
 				input = "-1";
+				invalidEntry();
 			}
 		} while (input.compareTo("0") != 0 && input.compareTo("13") != 0);
 		if (input.compareTo("0") == 0) {
@@ -1567,7 +1777,7 @@ public class CommandLine {
 	}
 
 	private boolean occursAfter(String earlier, String later) {
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 	    sdf.setLenient(false);
 	    Date earlierDate;
 	    Date laterDate;
