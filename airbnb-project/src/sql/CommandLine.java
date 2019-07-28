@@ -28,7 +28,7 @@ public class CommandLine {
 	private static final String[] locationColumns = new String [] {"listing_num", "suite_num","house_num", "street_name","postal_code", "city", "country", "latitude", "longitude", "type"};
 	private static final String[] availabilityColumns = new String [] {"listing_num", "start_date", "end_date", "cost_per_day"};
 	private static final String[] hostColumns = new String [] {"listing_num", "sin"};
-	private static final String[] bookingColumns = new String[] {"booking_num", "listing_num", "startDate", "endDate", "cost_per_day","sin", "renter_comment_on_listing","renter_comment_on_host","host_comment_on_renter","listing_rating","host_rating", "renter_rating"};
+	private static final String[] bookingColumns = new String[] {"booking_num", "listing_num", "start_date", "end_date", "cost_per_day","sin", "renter_comment_on_listing","renter_comment_on_host","host_comment_on_renter","listing_rating","host_rating", "renter_rating"};
 	private static final String[] amenitiesColumns = new String [] {"listing_num", "toilet_paper_included", "wifi_included", "towels_included", "iron_included", "pool_included", "ac_included", "fireplace_included"};
 	private static final Map<String, String> locationTypeOptionMap = new HashMap<String, String>(){{
 	    put("1", "Apartment");
@@ -80,7 +80,7 @@ public class CommandLine {
      * functionality according to user's choice. At each time it also outputs
      * the menu of core functionalities supported from our application.
      */
-	public void execute() throws SQLException {
+	public void execute() throws SQLException, ParseException {
 		if (sc != null && sqlMngr != null) {
 			System.out.println("");
 			System.out.println("****************************");
@@ -95,7 +95,7 @@ public class CommandLine {
 		}
 	}
 
-	private void mainMenu() throws SQLException {
+	private void mainMenu() throws SQLException, ParseException {
 		user = null;
 		String input = "";
 		int choice = -1;
@@ -135,7 +135,7 @@ public class CommandLine {
 		}
 	}
 
-	private void login() throws SQLException {
+	private void login() throws SQLException, ParseException {
 		String[] cred = new String[2];
 		do {
 			System.out.println("");
@@ -159,7 +159,7 @@ public class CommandLine {
 		}
 	}
 
-	private void hostHome() throws SQLException {
+	private void hostHome() throws SQLException, ParseException {
 		String input = "";
 		int choice = -1;
 		do {
@@ -193,6 +193,7 @@ public class CommandLine {
 					break;
 				case 5:
 					feedbackForRenter();
+					hostHome();
 					break;
 				case 6:
 					mainMenu();
@@ -210,7 +211,7 @@ public class CommandLine {
 		}
 	}
 
-	private void renterHome() throws SQLException {
+	private void renterHome() throws SQLException, ParseException {
 		String input = "";
 		int choice = -1;
 		do {
@@ -229,12 +230,16 @@ public class CommandLine {
 				case 0:
 					break;
 				case 1:
+					bookings();
+					renterHome();
 					break;
 				case 2:
 					cancelBooking(false);
+					renterHome();
 					break;
 				case 3:
 					feedbackForHost();
+					renterHome();
 					break;
 				case 4:
 					mainMenu();
@@ -252,7 +257,7 @@ public class CommandLine {
 		}
 	}
 
-	private void createListingForm() throws SQLException {
+	private void createListingForm() throws SQLException, ParseException {
 		String listing_num = UUID.randomUUID().toString();
 		String[] location_vals = new String[10];
 		String[] availability_vals = new String[4];
@@ -274,7 +279,7 @@ public class CommandLine {
 			System.out.print("House Number: ");
 			location_vals[2] = sc.nextLine().trim();
 		} while(location_vals[2].equals(""));
-		if(location_vals[9].equals("2")) {
+		if(location_vals[9].equals("House")) {
 			location_vals[1] = null;
 		} else {
 			do {
@@ -358,7 +363,7 @@ public class CommandLine {
 		hostHome();
 	}
 
-	private void deleteListing() throws SQLException {
+	private void deleteListing() throws SQLException, ParseException {
 		System.out.println("");
 		System.out.println("=========DELETE LISTING=========");
 		String listing_num;
@@ -400,11 +405,12 @@ public class CommandLine {
 				booking_num = sc.nextLine().trim();
 			} while (!isValidBookingNumForHost(booking_num));
 		}
-		List<String> availInfo = sqlMngr.select("booking", new String[] {"listing_num", "startDate", "endDate", "cost_per_day"}, "booking_num", new String [] {booking_num}).get(0);
+		List<String> availInfo = sqlMngr.select("booking", new String[] {"listing_num", "start_date", "end_date", "cost_per_day"}, "booking_num", new String [] {booking_num}).get(0);
 		sqlMngr.delete("booking_num", booking_num);
 		sqlMngr.insert("availability", availabilityColumns, new String[] {availInfo.get(0), availInfo.get(1), availInfo.get(2), availInfo.get(3)});
 		sqlMngr.update("user", new String[] {"sin"}, new String[] {user.getSin()}, new String[] {"num_cancellations"}, new String[] {Integer.toString(user.getCancellations() + 1)});
 		user.setCancellations(user.getCancellations() + 1);
+		System.out.println("Your Booking was Cancelled !");
 	}
 	
 	private boolean isValidBookingNumForRenter(String booking_num) {
@@ -437,7 +443,7 @@ public class CommandLine {
 	}
 	
 	
-	private void modifyListing() {
+	private void modifyListing() throws SQLException, ParseException {
 		System.out.println("");
 		System.out.println("=========MODIFY LISTING=========");
 		String[] newVals = new String[3];
@@ -451,7 +457,7 @@ public class CommandLine {
 		do {
 			System.out.print("Start Date of Listing to Modify: ");
 			start_date = sc.nextLine().trim();
-		} while (!isValidStartDate(start_date) && !isValidStartDateToBeModified(start_date, listing_num));
+		} while (!isValidStartDate(start_date) || !isValidStartDateToBeModified(start_date, listing_num));
 		List<String> location = sqlMngr.select("location", new String[] {"suite_num", "house_num", "latitude", "longitude"}, "listing_num", new String [] {listing_num}).get(0);
 //		List<List<String>> listingsWithoutModficationListing = new ArrayList<List<String>>();
 //		List<List<String>> allAvailabilities = sqlMngr.select("availability", new String[] {"start_date"}, "listing_num", new String [] {listing_num});
@@ -482,21 +488,16 @@ public class CommandLine {
 				break;
 			}
 		} while (!isDouble(newVals[2]));
-		Map<String, String> updatedVals = new LinkedHashMap();
 		if (!newVals[0].equals(start_date)) {
-			updatedVals.put("start_date", newVals[0]);
+			sqlMngr.update("availability ", new String[] { "listing_num","start_date"}, new String[] {listing_num, start_date}, new String [] {"start_date"}, new String [] {newVals[0]});
 		}
 		if (!newVals[1].equals("")) {
-			updatedVals.put("end_date", newVals[1]);
+			sqlMngr.update("availability ", new String[] { "listing_num","start_date"}, new String[] {listing_num, start_date}, new String [] {"end_date"}, new String [] {newVals[1]});
 		}
 		if (!newVals[2].equals("")) {
-			updatedVals.put("cost_per_day", newVals[2]);
+			sqlMngr.update("availability ", new String[] { "listing_num","start_date"}, new String[] {listing_num, start_date}, new String [] {"cost_per_day"}, new String [] {newVals[2]});
 		}
-		Object[] keySet = updatedVals.keySet().toArray();
-		Object[] valSet = updatedVals.entrySet().toArray();
-		String[] keySetString = Arrays.copyOf(keySet, keySet.length, String[].class);
-		String[] valSetString = Arrays.copyOf(valSet, valSet.length, String[].class);
-		sqlMngr.update("availability ", new String[] { "listing_num,","start_date"}, new String[] {listing_num, start_date}, keySetString, valSetString);
+		hostHome();
 	}
 	
 	private boolean isValidStartDateToBeModified(String startDate, String listingNum) {
@@ -512,7 +513,7 @@ public class CommandLine {
 		return false;
 	}
 
-	private void signUpMenu() throws SQLException {
+	private void signUpMenu() throws SQLException, ParseException {
 		String input = "";
 		int choice = -1;
 		do {
@@ -547,7 +548,7 @@ public class CommandLine {
 		}
 	}
 
-	private void signUpForm(boolean renterSignUp) throws SQLException {
+	private void signUpForm(boolean renterSignUp) throws SQLException, ParseException {
 		System.out.println("");
 		System.out.println("=========SIGN UP FORM=========");
 		String[] cred = new String[10];
@@ -596,7 +597,7 @@ public class CommandLine {
 		mainMenu();
 	}
 
-	private void deleteUser() throws SQLException {
+	private void deleteUser() throws SQLException, ParseException {
 		System.out.println("");
 		System.out.println("=========DELETE USER=========");
 		String email;
@@ -847,7 +848,7 @@ public class CommandLine {
 	}
 
 	private boolean isHost(List<String> userInfo) {
-		return userInfo.get(userInfo.size() - 1) == null;
+		return userInfo.get(userInfo.size() - 2) == null;
 	}
 
 	private boolean isNotOverlap(String startDateToCheck, String endDateToCheck, String suite_num, String house_num, String latitude, String longitude, boolean modify, String modifyDate, String modifyListingNum) {
@@ -856,7 +857,7 @@ public class CommandLine {
 		sdf.setLenient(false);
 		for (List<String> listing : allListings) {
 			List<String> listingLocation = sqlMngr.select("location", new String[] {"suite_num", "house_num", "latitude", "longitude"}, "listing_num", new String [] {listing.get(0)}).get(0);
-			if (listingLocation.get(0).equalsIgnoreCase(suite_num) && listingLocation.get(1).equalsIgnoreCase(house_num) && listingLocation.get(2).equalsIgnoreCase(latitude) && listingLocation.get(3).equalsIgnoreCase(longitude)) {
+			if ((listingLocation.get(0)==null || listingLocation.get(0).equalsIgnoreCase(suite_num)) && listingLocation.get(1).equalsIgnoreCase(house_num) && listingLocation.get(2).equalsIgnoreCase(latitude) && listingLocation.get(3).equalsIgnoreCase(longitude)) {
 				List<List<String>> listingAvailabilities = sqlMngr.select("availability", new String[] {"start_date", "end_date"}, "listing_num", new String [] {listing.get(0)});
 				for(List<String> availability : listingAvailabilities) {
 					if((modify && !modifyListingNum.equals(listing.get(0))) || (modify && modifyListingNum.equals(listing.get(0)) && !modifyDate.equals(availability.get(0))) || !modify) {
@@ -905,7 +906,7 @@ public class CommandLine {
 		}
 		return true;
 	}
-	private void bookings() {
+	private void bookings() throws ParseException, SQLException {
 		int selection;
 		System.out.println("Book by:");
 		System.out.println("1: Date");
@@ -916,7 +917,7 @@ public class CommandLine {
 			bookByDate();
 		}
 		else if(selection ==2) {
-			bookByCity();
+			bookByPostalCode();
 		}
 		else if(selection == 0) {
 			goBack();
@@ -926,7 +927,7 @@ public class CommandLine {
 		}
 
 	}
-	private void bookByDate() {
+	private void bookByDate() throws ParseException, SQLException {
 		String startDate;
 		Date startInDate;
 		String endDate;
@@ -958,29 +959,32 @@ public class CommandLine {
 
 
 	}
-	private void bookByCity() {
+	private void bookByCity() throws ParseException, SQLException {
 		String country;
 		String city;
 		System.out.println("Enter Country:");
-		country = sc.nextLine();
+		country = sc.nextLine().trim();
 		System.out.println("Enter City");
-		city = sc.nextLine();
+		city = sc.nextLine().trim();
 		//displayByCity(country, city);
 		startBookingByListingNumber();
 
 	}
 
-	private void bookByPostalCode() {
+	private void bookByPostalCode() throws ParseException, SQLException {
 		String postalCode;
 		System.out.println("Enter Postal Code:");
-		postalCode = sc.nextLine();
-		displayByPostalCode(postalCode);
-		startBookingByListingNumber();
+		sc.nextLine();
+		postalCode = sc.nextLine().trim();
+		if(displayByPostalCode(postalCode)) {
+			startBookingByListingNumber();
+		}
+		
 	}
 	private void goBack() {
 
 	}
-	private boolean bookByListingNumber(String listingNumber, User CurrUser) {
+	private boolean bookByListingNumber(String listingNumber, User CurrUser) throws ParseException, SQLException {
 
 		boolean toReturn = false;
 		double listingPerDayCost = 1;
@@ -988,14 +992,23 @@ public class CommandLine {
 		String startDate;
 		Date start;
 		Date stop;
+		boolean datesRight;
 		String endDate;
+		String[] dates = null;
 
 		System.out.println("Please enter the date you want to book it from");
-		startDate = sc.nextLine();
+		startDate = sc.nextLine().trim();
 		System.out.println("Please enter the date you want to end the booking at");
-		endDate = sc.nextLine() ;
-		String[] dates = checkIfFree(startDate, endDate, listingNumber);
-		if(dates.length > 0) {
+		endDate = sc.nextLine().trim() ;
+		if(occursAfter(startDate,endDate)) {
+			dates = checkIfFree(startDate, endDate, listingNumber);
+		}
+		else {
+			
+			System.out.println("End date needs to be after start date.");
+		}
+		
+		if(dates != null && dates.length > 0) {
 			start = isValidDate(startDate);
 			stop = isValidDate(endDate);
 			//numberOfDays = ChronoUnit.DAYS.between(start, stop);
@@ -1003,6 +1016,13 @@ public class CommandLine {
 
 			updateAvailability(startDate, endDate, dates, listingNumber, listingPerDayCost);
 			addBooking(listingNumber,startDate, endDate, listingPerDayCost );
+			List<List<String>> bookingNums = sqlMngr.select("booking", new String[] {"booking_num","start_date"},"listing_num", new String[] {listingNumber});
+			int i = 0;
+			while(!(bookingNums.get(i).get(1).equals(startDate))) {
+				i++;
+			}
+			String bookingNumber = bookingNums.get(i).get(0); 
+			System.out.println("Your booking was made. Booking number is: " + bookingNumber);
 			toReturn = true;
 		}
 		else {
@@ -1015,7 +1035,7 @@ public class CommandLine {
 		double total = cost*numbDays;
 		System.out.print("Dear "+ user.getLastName() + " " + user.getFirstName() +"," + total + " has been deducted from your account");
 	}
-	private void startBookingByListingNumber() {
+	private void startBookingByListingNumber() throws ParseException, SQLException {
 		String listingNumber;
 		System.out.println("Enter Listing number to book");
 		listingNumber = sc.nextLine();
@@ -1026,17 +1046,17 @@ public class CommandLine {
 			System.out.println("This booking was not successful.");
 		}
 	}
-	private String[] checkIfFree(String startDate, String endDate, String listingnumber) {
+	private String[] checkIfFree(String startDate, String endDate, String listingnumber) throws ParseException {
 		int i = 0;
 		String currStart;
 		String currStop;
 		boolean exit = false;
 		String[] toReturn = {};
-		List<List<String>> allDates = sqlMngr.select("availability", new String[] {"startDate", "endDate"}, "listing_num", new String[] {listingnumber});
+		List<List<String>> allDates = sqlMngr.select("availability", new String[] {"start_date", "end_date"}, "listing_num", new String[] {listingnumber});
 		while(i < allDates.size() && !exit) {
 				currStart = allDates.get(i).get(0);
 				currStop = allDates.get(i).get(1);
-				exit = occursAfter(currStart, startDate) && occursAfter(endDate,currStop);
+				exit = (currStart.equals(startDate) || occursAfter(currStart, startDate)) && (endDate.equals(currStop) || occursAfter(endDate,currStop));
 				i++;
 			}
 		i--;
@@ -1049,9 +1069,9 @@ public class CommandLine {
 		return toReturn;
 
 	}
-	private void updateAvailability(String startDate,String endDate, String[] dates, String listingNumber, double cost) {
+	private void updateAvailability(String startDate,String endDate, String[] dates, String listingNumber, double cost) throws SQLException {
 		if(startDate.equals(dates[0]) && endDate.equals(dates[1])) {
-			// remove from availability
+			sqlMngr.deleteRow("availability", new String[] { "listing_num","start_date"}, new String[] {listingNumber, dates[0]});
 			
 			
 		}
@@ -1059,7 +1079,7 @@ public class CommandLine {
 			sqlMngr.update("availability",new String[] { "listing_num", "start_date", "end_date"},new String[] {listingNumber,dates[0],dates[1]}, new String[] {"start_date"},new String[] {endDate} );
 		}
 		else if(endDate.equals(dates[1])) {
-			sqlMngr.update("availability",new String[] { "listing_num", "start_date", "end_date"},new String[] {listingNumber, dates[0], dates[1]}, new String[] {"end_date"}, new String[] {endDate});
+			sqlMngr.update("availability",new String[] { "listing_num", "start_date", "end_date"},new String[] {listingNumber, dates[0], dates[1]}, new String[] {"end_date"}, new String[] {dates[0]});
 		}
 		else {
 		
@@ -1067,47 +1087,63 @@ public class CommandLine {
 			sqlMngr.insert("availability", availabilityColumns , new String[] {listingNumber,endDate,dates[1],String.valueOf(cost)});
 		}
 		}
-	private void displayByPostalCode(String postal) {
+	private boolean displayByPostalCode(String postal) {
 		List<List<String>> listingCode = sqlMngr.select("location", locationColumns, "postal_code", new String[] {postal});
-		
+		boolean toReturn = false;
+		if(listingCode.size() > 0) {
+			toReturn = true;
+		}
 		for(int i = 0; i < listingCode.size();i++) {
-			List<List<String>> dates = sqlMngr.select("availability", new String[] {"start_date", "end_date"} , "listing_num", new String[] {listingCode.get(i).get(0)});
+			List<List<String>> dates = sqlMngr.select("availability", new String[] {"start_date", "end_date"} , "listing_num", new String[] {(listingCode.get(i)).get(0)});
 			for(int j = 0; j < dates.size();j++) {
 				for(int k = 0; k < listingCode.get(i).size();k++) {
-					System.out.print(listingCode.get(i).get(j) + "\t");
+					System.out.print(listingCode.get(i).get(k) + "\t");
 				}
 				System.out.println(dates.get(j).get(0) + "\t" + dates.get(j).get(1));
 				
 			}
 		}
+		if(!toReturn) {
+			System.out.println("Postal Code does not Exist !");
+		}
+		return toReturn;
 	}
 	public void addBooking(String listing, String startDate, String endDate, double cost)  {
 		sqlMngr.insert("booking", bookingColumns,new String[] {UUID.randomUUID().toString(), listing, startDate, endDate, String.valueOf(cost), user.getSin(),null,null,null,null,null,null});
 	}
-	private boolean occursAfter(String first, String second) {
-		return true;
+	private boolean occursAfter(String first, String second) throws ParseException {
+		Date firstDate = new SimpleDateFormat("dd/MM/yyyy").parse(first);  
+		Date secondDate = new SimpleDateFormat("dd/MM/yyy").parse(second);
+		return secondDate.after(firstDate);
+		
 	}
 	private void feedBackByRenter(String bookingNum) {
 		int selection;
-		System.out.println("1. Comment On Listing");
-		System.out.println("2. Rate Listing");
-		System.out.println("3. Comment On the Host");
-		System.out.println("4. Rate Host");
+		List<List<String>>sinCheck;
+		sinCheck = sqlMngr.select("booking", new String[] {"sin"}, "booking_num", new String[] {bookingNum});
+		if(sinCheck.size() > 0 && sinCheck.get(0).get(0).equals(user.getSin())) {
+			System.out.println("1. Comment On Listing");
+			System.out.println("2. Rate Listing");
+			System.out.println("3. Comment On the Host");
+			System.out.println("4. Rate Host");
 		
-		selection = sc.nextInt();
-		if(selection == 1 ) {
-			commentOnListing(bookingNum);
+			selection = sc.nextInt();
+			if(selection == 1 ) {
+				commentOnListing(bookingNum);
+			}
+			else if(selection == 2 ) {
+				rateListing(bookingNum);
+			}
+			else if(selection == 3 ) {
+				commentOnHost(bookingNum);
+			}
+			else if(selection == 4 ) {
+				rateHost(bookingNum);
+			}
 		}
-		else if(selection == 2 ) {
-			rateListing(bookingNum);
+		else {
+			System.out.println("Sorry youare not associate with that booking, Try again");
 		}
-		else if(selection == 3 ) {
-			commentOnHost(bookingNum);
-		}
-		else if(selection == 4 ) {
-			rateHost(bookingNum);
-		}
-		
 		
 	}
 	private void feedBackByHost(String bookingNum) {
@@ -1129,23 +1165,27 @@ public class CommandLine {
 	private void commentOnListing(String bookingNum) {
 		String comment;
 		System.out.println("Please enter your comment for the listing");
+		sc.nextLine();
 		comment = sc.nextLine();
 		
-		sqlMngr.update("booking", new String[] {"booking_number"}, new String[] {bookingNum}, new String[] {"renter_comment_on_listing"} , new String[] {comment});
+		sqlMngr.update("booking", new String[] {"booking_num"}, new String[] {bookingNum}, new String[] {"renter_comment_on_listing"} , new String[] {comment});
 	}
 	private void commentOnHost(String bookingNum) {
 		String comment;
-		System.out.println("Please enter your comment for the Host");
-		comment = sc.nextLine();
+		System.out.println("Please enter your comment for the Host:");
+		sc.nextLine().trim();
+		comment = sc.nextLine().trim();
 		
-		sqlMngr.update("booking", new String[] {"booking_number"}, new String[] {bookingNum}, new String[] {"renter_comment_on_host"} , new String[] {comment});
+		sqlMngr.update("booking", new String[] {"booking_num"}, new String[] {bookingNum}, new String[] {"renter_comment_on_host"} , new String[] {comment});
+		System.out.println("Your comment was added. Thank you for your feedback");
 	}
 	private void commentOnRenter(String bookingNum) {
 		String comment;
 		System.out.println("Please enter your comment for the Renter");
-		comment = sc.nextLine();
+		sc.nextLine().trim();
+		comment = sc.nextLine().trim();
 		
-		sqlMngr.update("booking", new String[] {"booking_number"}, new String[] {bookingNum}, new String[] {"host_comment_on_renter"} , new String[] {comment});
+		sqlMngr.update("booking", new String[] {"booking_num"}, new String[] {bookingNum}, new String[] {"host_comment_on_renter"} , new String[] {comment});
 	}
 	private void rateListing(String bookingNum) {
 		int comment;
@@ -1158,7 +1198,7 @@ public class CommandLine {
 			}
 		}while(comment > 5);
 		
-		sqlMngr.update("booking", new String[] {"booking_number"}, new String[] {bookingNum}, new String[] {"rating_on_listing"} , new String[] {String.valueOf(comment)});
+		sqlMngr.update("booking", new String[] {"booking_num"}, new String[] {bookingNum}, new String[] {"listing_rating"} , new String[] {String.valueOf(comment)});
 	}
 	private void rateHost(String bookingNum) {
 		int comment;
@@ -1171,7 +1211,7 @@ public class CommandLine {
 			}
 		}while(comment > 5);
 		
-		sqlMngr.update("booking", new String[] {"booking_number"}, new String[] {bookingNum}, new String[] {"renter_rating_on_host"} , new String[] {String.valueOf(comment)});
+		sqlMngr.update("booking", new String[] {"booking_num"}, new String[] {bookingNum}, new String[] {"renter_rating"} , new String[] {String.valueOf(comment)});
 	}
 	
 	private void rateRenter(String bookingNum) {
@@ -1185,7 +1225,7 @@ public class CommandLine {
 			}
 		}while(comment > 5);
 		
-		sqlMngr.update("booking", new String[] {"booking_number"}, new String[] {bookingNum}, new String[] {"host_rating_on_renter"} , new String[] {String.valueOf(comment)});
+		sqlMngr.update("booking", new String[] {"booking_num"}, new String[] {bookingNum}, new String[] {"host_rating"} , new String[] {String.valueOf(comment)});
 	}
 	private void feedbackForRenter() {
 		String bookingNumber;

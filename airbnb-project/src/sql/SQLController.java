@@ -14,7 +14,7 @@ public class SQLController {
 	private static final String dbClassName = "com.mysql.jdbc.Driver";
 	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/airbnb";
 	private static final String sqlUser = "root";
-	private static final String sqlPass = "irw1rgi5";
+	private static final String sqlPass = "password07";
     //Object that establishes and keeps the state of our application's
     //connection with the MySQL backend.
 	private Connection conn = null;
@@ -210,24 +210,38 @@ public class SQLController {
 		}
 		return deleteQueries;
 	}
+	public void deleteRow(String tableName, String[] identifyField, String[] identify) throws SQLException {
+		int i = 0;
+		String query = "DELETE FROM " + tableName + " WHERE ";
+		for (i = 0; i + 1 < identifyField.length; i++) {
+			query = query + identifyField[i] + " = '" + identify[i] + "' AND ";
+		}
+		query = query + identifyField[i] + " = '" + identify[i] + "' ;";
+		st.executeUpdate(query);
+	}
 	public void update(String table,String[] identifyField, String[] identify,String[] fields, String[] newValues){
 		int i = 0;
-		String query = "UPDATE" + table +"\n SET";
-		while(i < fields.length) {
+		String query = "UPDATE \t" + table +" SET ";
+		while(i+1 < fields.length) {
 			
-			query = query + "\t" + fields[i] + " = " + newValues[i] + ",\n";
+			query = query + " " + fields[i] + " = " +"'" + newValues[i]+ "'" + ",\t";
 			i++;
 		}
+		query = query + " " + fields[i] + " = " +"'" + newValues[i]+ "'" + " ";
 		i = 0;
-		query = query + " [ WHERE + \n ";
+		query = query + " WHERE ";
 		while(i + 1< identifyField.length) {
-			query = query + "\t"+ identifyField[i] + " = " + identify[i] + " , \n";
+			
+			query = query + " "+ identifyField[i] + " = '" +identify[i] + "' AND ";
 			
 			i++;
 			
 			
 		}
-		query = query + "\t"+ identifyField[i] + " = " + identify[i] + " ];";
+
+		
+		query = query + "\t"+ identifyField[i] + " = '" + identify[i] + "' ;";
+		
 		try {
 			st.executeUpdate(query);
 		} catch (SQLException e) {
