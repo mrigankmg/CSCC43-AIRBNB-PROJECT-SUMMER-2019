@@ -10,9 +10,8 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -21,6 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.time.Month;
 import java.time.temporal.ChronoUnit;
 import users.*;
@@ -1273,6 +1273,7 @@ public class CommandLine {
 				case 8:
 					break;
 				case 9:
+					report9Display();
 					break;
 				case 10:
 					break;
@@ -1446,6 +1447,64 @@ public class CommandLine {
 				    }
 				 });});
 		}
+	}
+	
+	private void report9Display() throws SQLException {
+		String order;
+		System.out.println("");
+		String[] dates = new String[2];
+		do {
+			System.out.print("From (dd/mm/yyy): ");
+			dates[0] = sc.nextLine().trim();
+		} while (isValidDate(dates[0]) == null);
+		do {
+			System.out.print("To (dd/mm/yyy): ");
+			dates[1] = sc.nextLine().trim();
+		} while (!isValidEndDate(dates[0], dates[1]));
+		do {
+			System.out.print("Order (1- Most listings, 2- Least listings): ");
+			order = sc.nextLine().trim();
+			if(order.equals("") || (!order.equals("1") && !order.equals("2"))) {
+				invalidEntry();
+			}
+		} while (order.equals("") || (!order.equals("1") && !order.equals("2")));
+		Map<List<String>, List<List<String>>> renterInfos = sqlMngr.report9();
+		Map<List<String>, Integer> counts = new HashMap<List<String>, Integer> ();
+		renterInfos.entrySet().forEach(entry->{
+			for(List<String> info : entry.getValue()) {
+				if((info.get(0).equals(dates[0]) && info.get(1).equals(dates[1])) || (info.get(0).equals(dates[0]) && occursAfter(info.get(1), dates[1])) || (info.get(1).equals(dates[1]) && occursAfter(dates[0], info.get(0))) || (occursAfter(dates[0], info.get(0)) && occursAfter(info.get(0), dates[1]) && occursAfter(dates[0], info.get(1)) && occursAfter(info.get(1), dates[1]))) {
+					if (counts.containsKey(entry.getKey())) {
+						counts.put(entry.getKey(), counts.get(entry.getKey()) + 1);
+					} else {
+						counts.put(entry.getKey(), 1);
+					}
+				}
+			}		 });
+		Map<List<String>, Integer> sorted;
+		System.out.println("");
+		System.out.println("=========REPORT=========");
+		if(order.equals("1")) {
+			sorted = counts
+			        .entrySet()
+			        .stream()
+			        .sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).limit(10)
+			        .collect(
+			            Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
+			                LinkedHashMap::new));
+			System.out.println("The renters with the most bookings in the date range of " + dates[0] + " to " + dates[1] + " are:");
+		} else {
+			sorted = counts
+			        .entrySet()
+			        .stream()
+			        .sorted(Map.Entry.comparingByValue()).limit(10)
+			        .collect(
+			            Collectors.toMap(e -> e.getKey(), e -> e.getValue(), (e1, e2) -> e2,
+			                LinkedHashMap::new));
+			System.out.println("The renters with the least bookings in the date range of " + dates[0] + " to " + dates[1] + " are:");
+		}
+		sorted.entrySet().forEach(entry->{
+			    System.out.println("\t-> " + entry.getKey().get(1) + " " + entry.getKey().get(2) + " with " + entry.getValue() + " bookings.");  
+			 });
 	}
 
 	private boolean occursAfter(String earlier, String later) {

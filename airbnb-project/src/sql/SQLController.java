@@ -3,6 +3,7 @@ package sql;
 import java.security.interfaces.RSAKey;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -399,6 +400,29 @@ public class SQLController {
 					curr.add(rs.getString("count"));
 					result.get(rs.getString("country")).get(rs.getString("city")).add(curr);
 				}
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public Map<List<String>, List<List<String>>> report9() {
+		String query = "SELECT sin, first_name, last_name, start_date, end_date FROM booking NATURAL JOIN user;";
+		Map<List<String>, List<List<String>>> result = new HashMap<List<String>, List<List<String>>>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				List<String> curr = new ArrayList<String>();
+				List<String> key = Arrays.asList(rs.getString("sin"), rs.getString("first_name"), rs.getString("last_name")); 
+				if (!result.containsKey(key)) {
+					result.put(key, new ArrayList<List<String>>());
+				}
+				curr.add(rs.getString("start_date"));
+				curr.add(rs.getString("end_date"));
+				result.get(key).add(curr);
 			}
 			rs.close();
 		} catch (SQLException e) {
