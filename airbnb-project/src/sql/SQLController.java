@@ -3,7 +3,10 @@ package sql;
 import java.security.interfaces.RSAKey;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /*
  * This class acts as the medium between our CommandLine interface
@@ -219,6 +222,7 @@ public class SQLController {
 		query = query + identifyField[i] + " = '" + identify[i] + "' ;";
 		st.executeUpdate(query);
 	}
+
 	public void update(String table,String[] identifyField, String[] identify,String[] fields, String[] newValues){
 		int i = 0;
 		String query = "UPDATE \t" + table +" SET ";
@@ -248,6 +252,198 @@ public class SQLController {
 			System.err.println("Exception triggered during update execution!");
 			e.printStackTrace();
 		}
+	}
+
+	public List<List<String>> report1() {
+		String query = "SELECT booking.start_date, booking.end_date, location.city\n" + 
+				"FROM booking\n" + 
+				"NATURAL JOIN location;";
+		List<List<String>> result = new ArrayList<List<String>>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			List<String> curr = new ArrayList<String>();
+			while(rs.next()) {
+				curr.add(rs.getString("start_date"));
+				curr.add(rs.getString("end_date"));
+				curr.add(rs.getString("city"));
+				result.add(curr);
+				curr = new ArrayList<String>();
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public Map<String, String> report2(String city) {
+		String query = "SELECT location.city, location.postal_code, COUNT(postal_code) AS count\n" + 
+				"FROM booking\n" + 
+				"NATURAL JOIN location\n" + 
+				"WHERE city = '" + city + "'\n" + 
+				"GROUP BY postal_code;";
+		Map<String, String> result = new HashMap<String, String>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				result.put(rs.getString("postal_code"), rs.getString("count"));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public Map<String, String> report3() {
+		String query = "SELECT location.country, COUNT(country) AS count\n" + 
+				"FROM location\n" + 
+				"GROUP BY country;";
+		Map<String, String> result = new HashMap<String, String>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				result.put(rs.getString("country"), rs.getString("count"));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public Map<String, Map<String, String>> report4() {
+		String query = "SELECT location.country, location.city, COUNT(*) AS count\n" + 
+				"FROM location\n" + 
+				"GROUP BY country, city;";
+		Map<String, Map<String, String>> result = new HashMap<String, Map<String, String>>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				if (!result.containsKey(rs.getString("country"))) {
+					result.put(rs.getString("country"), new HashMap<String, String>());
+				}
+				result.get(rs.getString("country")).put(rs.getString("city"), rs.getString("count"));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	public Map<String, Map<String, Map<String, String>>> report5() {
+		String query = "SELECT location.country, location.city, location.postal_code, COUNT(*) AS count\n" + 
+				"FROM location\n" + 
+				"GROUP BY country, city, postal_code;";
+		Map<String, Map<String, Map<String, String>>> result = new HashMap<String, Map<String, Map<String, String>>>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				if (!result.containsKey(rs.getString("country"))) {
+					result.put(rs.getString("country"), new HashMap<String, Map<String, String>>());
+				}
+				if (!result.get(rs.getString("country")).containsKey(rs.getString("city"))) {
+					result.get(rs.getString("country")).put(rs.getString("city"), new HashMap<String, String>());
+				}
+				result.get(rs.getString("country")).get(rs.getString("city")).put(rs.getString("postal_code"), rs.getString("count"));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public Map<String, List<List<String>>> report6(boolean most) {
+		String query = "SELECT * FROM (SELECT user.first_name, user.last_name, location.country, COUNT(*) AS count FROM host NATURAL JOIN location NATURAL JOIN user GROUP BY sin, first_name, last_name, country) AS t ORDER BY count ";
+		if(most) {
+			query += "DESC;";
+		} else {
+			query += "ASC;";
+		}
+		Map<String, List<List<String>>> result = new HashMap<String, List<List<String>>>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				List<String> curr = new ArrayList<String>();
+				if (!result.containsKey(rs.getString("country"))) {
+					result.put(rs.getString("country"), new ArrayList<List<String>>());
+				}
+				if(result.get(rs.getString("country")).size() < 10) {
+					curr.add(rs.getString("first_name"));
+					curr.add(rs.getString("last_name"));
+					curr.add(rs.getString("count"));
+					result.get(rs.getString("country")).add(curr);
+				}
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public Map<String, Map<String, List<List<String>>>> report7(boolean most) {
+		String query = "SELECT * FROM (SELECT user.first_name, user.last_name, location.country, location.city, COUNT(*) AS count FROM host NATURAL JOIN location NATURAL JOIN user GROUP BY sin, first_name, last_name, country, city) AS t ORDER BY count ";
+		if(most) {
+			query += "DESC;";
+		} else {
+			query += "ASC;";
+		}
+		Map<String, Map<String, List<List<String>>>> result = new HashMap<String, Map<String, List<List<String>>>>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				List<String> curr = new ArrayList<String>();
+				if (!result.containsKey(rs.getString("country"))) {
+					result.put(rs.getString("country"), new HashMap <String, List<List<String>>>());
+				}
+				if (!result.get(rs.getString("country")).containsKey(rs.getString("city"))) {
+					result.get(rs.getString("country")).put(rs.getString("city"), new ArrayList<List<String>>());
+				}
+				if(result.get(rs.getString("country")).get(rs.getString("city")).size() < 10) {
+					curr.add(rs.getString("first_name"));
+					curr.add(rs.getString("last_name"));
+					curr.add(rs.getString("count"));
+					result.get(rs.getString("country")).get(rs.getString("city")).add(curr);
+				}
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public Map<List<String>, List<List<String>>> report9() {
+		String query = "SELECT sin, first_name, last_name, start_date, end_date FROM booking NATURAL JOIN user;";
+		Map<List<String>, List<List<String>>> result = new HashMap<List<String>, List<List<String>>>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				List<String> curr = new ArrayList<String>();
+				List<String> key = Arrays.asList(rs.getString("sin"), rs.getString("first_name"), rs.getString("last_name")); 
+				if (!result.containsKey(key)) {
+					result.put(key, new ArrayList<List<String>>());
+				}
+				curr.add(rs.getString("start_date"));
+				curr.add(rs.getString("end_date"));
+				result.get(key).add(curr);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
 	}
 
 }
