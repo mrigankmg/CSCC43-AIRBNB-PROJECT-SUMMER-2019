@@ -161,7 +161,7 @@ LOCK TABLES `amenities` WRITE;
 /*!40000 ALTER TABLE `amenities` DISABLE KEYS */;
 INSERT INTO `amenities` VALUES ('1', 'y', 'y', 'y', 'n', 'n', 'y', 'n');
 INSERT INTO `amenities` VALUES ('2', 'y', 'n', 'y', 'n', 'n', 'y', 'n');
-INSERT INTO `amenities` VALUES ('3', 'y', 'y', 'y', 'n', 'n', 'y', 'n');
+INSERT INTO `amenities` VALUES ('3', 'y', 'n', 'y', 'n', 'n', 'y', 'n');
 INSERT INTO `amenities` VALUES ('4', 'y', 'y', 'y', 'n', 'n', 'y', 'n');
 INSERT INTO `amenities` VALUES ('5', 'y', 'y', 'y', 'n', 'n', 'y', 'n');
 INSERT INTO `amenities` VALUES ('6', 'y', 'y', 'y', 'n', 'n', 'y', 'n');

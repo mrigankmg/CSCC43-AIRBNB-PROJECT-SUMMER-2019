@@ -986,13 +986,15 @@ public class CommandLine {
 				case 0:
 					break;
 				case 1:
-					latLongSearch(isAdvancedSearch());
+					search("1", isAdvancedSearch());
 					searchListings();
 					break;
 				case 2:
+					search("2", isAdvancedSearch());
 					searchListings();
 					break;
 				case 3:
+					search("3", isAdvancedSearch());
 					searchListings();
 					break;
 				case 4:
@@ -1031,27 +1033,90 @@ public class CommandLine {
 		return false;
 	}
 	
-	private void latLongSearch(boolean advancedSearch) {
+	private void search(String search, boolean advancedSearch) {
 		System.out.println("");
-		String[] latLong = new String[3];
+		String[] params;
 		String[] dates = new String[2];
 		dates[0] = "";
 		String[] amenity_vals = new String[7];
-		List<String> amenity_vals_final = new ArrayList<String>();
-		List<String> amenity_columns_final = new ArrayList<String>();
+		List<String> filtered_vals_final = new ArrayList<String>();
+		List<String> filtered_columns_final = new ArrayList<String>();
 		List<List<String>> filteredListings;
-		do {
-			System.out.print("Latitude: ");
-			latLong[0] = sc.nextLine().trim();
-		} while (!isValidLatitude(latLong[0]));
-		do {
-			System.out.print("Longitude: ");
-			latLong[1] = sc.nextLine().trim();
-		} while (!isValidLongitude(latLong[1]));
-		do {
-			System.out.print("Distance (Km): ");
-			latLong[2] = sc.nextLine().trim();
-		} while (!isDouble(latLong[2]));
+		if(search.equals("1")) {
+			params = new String[3];
+			do {
+				System.out.print("Latitude: ");
+				params[0] = sc.nextLine().trim();
+			} while (!isValidLatitude(params[0]));
+			do {
+				System.out.print("Longitude: ");
+				params[1] = sc.nextLine().trim();
+			} while (!isValidLongitude(params[1]));
+			do {
+				System.out.print("Distance (Km): ");
+				params[2] = sc.nextLine().trim();
+			} while (!isDouble(params[2]));
+		} else if(search.equals("3")) {
+				params = new String[10];
+				do {
+					System.out.print("House Number: ");
+					params[0] = sc.nextLine().trim();
+					if(params[0].equals("")) {
+						invalidEntry();
+					} else {
+						filtered_columns_final.add("house_num");
+						filtered_vals_final.add(params[0]);
+					}
+				} while(params[0].equals(""));
+				System.out.print("Suite Number (leave blank if not applicable): ");
+				params[1] = sc.nextLine().trim();
+				if (!params[1].equals("")) {
+					filtered_columns_final.add("suite_num");
+					filtered_vals_final.add(params[1]);
+				}
+				do {
+					System.out.print("Street Name: ");
+					params[2] = sc.nextLine().trim();
+					if(params[2].equals("")) {
+						invalidEntry();
+					} else {
+						filtered_columns_final.add("street_name");
+						filtered_vals_final.add(params[2]);
+					}
+				} while(params[2].equals(""));
+				do {
+					System.out.print("City: ");
+					params[3] = sc.nextLine().trim();
+					if(params[3].equals("")) {
+						invalidEntry();
+					} else {
+						filtered_columns_final.add("city");
+						filtered_vals_final.add(params[3]);
+					}
+				} while(params[3].equals(""));
+				do {
+					System.out.print("Country: ");
+					params[4] = sc.nextLine().trim();
+					if(params[4].equals("")) {
+						invalidEntry();
+					} else {
+						filtered_columns_final.add("country");
+						filtered_vals_final.add(params[4]);
+					}
+				} while(params[4].equals(""));
+		} else {
+			params = new String[1];
+			do {
+				System.out.print("Postal Code: ");
+				params[0] = sc.nextLine().trim();
+				if(params[0].equals("")) {
+					invalidEntry();
+				} else {
+					filtered_columns_final.add("postal_code");
+					filtered_vals_final.add(params[0]);
+				}
+			} while (params[0].equals(""));
+		}
 		if(advancedSearch) {
 			System.out.println("----DATE FILTER----");
 			do {
@@ -1077,8 +1142,8 @@ public class CommandLine {
 				if(!amenity_vals[0].equalsIgnoreCase("y") && !amenity_vals[0].equalsIgnoreCase("n")) {
 					invalidEntry();
 				} else {
-					amenity_columns_final.add("toilet_paper_included");
-					amenity_vals_final.add(amenity_vals[0]);
+					filtered_columns_final.add("toilet_paper_included");
+					filtered_vals_final.add(amenity_vals[0]);
 				}
 			} while(!amenity_vals[0].equalsIgnoreCase("y") && !amenity_vals[0].equalsIgnoreCase("n"));
 			do {
@@ -1090,8 +1155,8 @@ public class CommandLine {
 				if(!amenity_vals[1].equalsIgnoreCase("y") && !amenity_vals[1].equalsIgnoreCase("n")) {
 					invalidEntry();
 				} else {
-					amenity_columns_final.add("wifi_included");
-					amenity_vals_final.add(amenity_vals[1]);
+					filtered_columns_final.add("wifi_included");
+					filtered_vals_final.add(amenity_vals[1]);
 				}
 			} while(!amenity_vals[1].equalsIgnoreCase("y") && !amenity_vals[1].equalsIgnoreCase("n"));
 			do {
@@ -1103,8 +1168,8 @@ public class CommandLine {
 				if(!amenity_vals[2].equalsIgnoreCase("y") && !amenity_vals[2].equalsIgnoreCase("n")) {
 					invalidEntry();
 				} else {
-					amenity_columns_final.add("towels_included");
-					amenity_vals_final.add(amenity_vals[2]);
+					filtered_columns_final.add("towels_included");
+					filtered_vals_final.add(amenity_vals[2]);
 				}
 			} while(!amenity_vals[2].equalsIgnoreCase("y") && !amenity_vals[2].equalsIgnoreCase("n"));
 			do {
@@ -1116,8 +1181,8 @@ public class CommandLine {
 				if(!amenity_vals[3].equalsIgnoreCase("y") && !amenity_vals[3].equalsIgnoreCase("n")) {
 					invalidEntry();
 				} else {
-					amenity_columns_final.add("iron_included");
-					amenity_vals_final.add(amenity_vals[3]);
+					filtered_columns_final.add("iron_included");
+					filtered_vals_final.add(amenity_vals[3]);
 				}
 			} while(!amenity_vals[3].equalsIgnoreCase("y") && !amenity_vals[3].equalsIgnoreCase("n"));
 			do {
@@ -1129,8 +1194,8 @@ public class CommandLine {
 				if(!amenity_vals[4].equalsIgnoreCase("y") && !amenity_vals[4].equalsIgnoreCase("n")) {
 					invalidEntry();
 				} else {
-					amenity_columns_final.add("pool_included");
-					amenity_vals_final.add(amenity_vals[4]);
+					filtered_columns_final.add("pool_included");
+					filtered_vals_final.add(amenity_vals[4]);
 				}
 			} while(!amenity_vals[4].equalsIgnoreCase("y") && !amenity_vals[4].equalsIgnoreCase("n"));
 			do {
@@ -1142,8 +1207,8 @@ public class CommandLine {
 				if(!amenity_vals[5].equalsIgnoreCase("y") && !amenity_vals[5].equalsIgnoreCase("n")) {
 					invalidEntry();
 				} else {
-					amenity_columns_final.add("ac_included");
-					amenity_vals_final.add(amenity_vals[5]);
+					filtered_columns_final.add("ac_included");
+					filtered_vals_final.add(amenity_vals[5]);
 				}
 			} while(!amenity_vals[5].equalsIgnoreCase("y") && !amenity_vals[5].equalsIgnoreCase("n"));
 			do {
@@ -1155,8 +1220,8 @@ public class CommandLine {
 				if(!amenity_vals[6].equalsIgnoreCase("y") && !amenity_vals[6].equalsIgnoreCase("n")) {
 					invalidEntry();
 				} else {
-					amenity_columns_final.add("fireplace_included");
-					amenity_vals_final.add(amenity_vals[6]);
+					filtered_columns_final.add("fireplace_included");
+					filtered_vals_final.add(amenity_vals[6]);
 				}
 			} while(!amenity_vals[6].equalsIgnoreCase("y") && !amenity_vals[6].equalsIgnoreCase("n"));
 		}
@@ -1166,23 +1231,37 @@ public class CommandLine {
 			dates[0] = sdf.format(today);
 			dates[1] = "";
 		}
-		filteredListings = sqlMngr.select("(SELECT * FROM availability NATURAL JOIN amenities NATURAL JOIN location) AS t", new String[] {"start_date", "end_date", "latitude", "longitude", "listing_num", "type", "house_num", "street_name", "city", "country", "suite_num", "cost_per_day"}, amenity_columns_final.toArray(new String[amenity_columns_final.size()]), amenity_vals_final.toArray(new String[amenity_vals_final.size()]));
-		double lat_1 = Double.parseDouble(latLong[0]);
-		double long_1 = Double.parseDouble(latLong[1]);
-		double distance = Double.parseDouble(latLong[2]);
+		filteredListings = sqlMngr.select("(SELECT * FROM availability NATURAL JOIN amenities NATURAL JOIN location) AS t", new String[] {"start_date", "end_date", "latitude", "longitude", "listing_num", "type", "house_num", "street_name", "city", "country", "suite_num", "cost_per_day"}, filtered_columns_final.toArray(new String[filtered_columns_final.size()]), filtered_vals_final.toArray(new String[filtered_vals_final.size()]));
+		double lat_1 = 0;
+		double long_1 = 0;
+		double distance = 0;
+		if(search.equals("1")) {
+			lat_1 = Double.parseDouble(params[0]);
+			long_1 = Double.parseDouble(params[1]);
+			distance = Double.parseDouble(params[2]);
+		}
 		System.out.println("");
 		System.out.println("Listings: ");
 		for(List<String> listing : filteredListings) {
 			if((dates[1].equals("") && (listing.get(0).equals(dates[0]) || occursAfter(dates[0], listing.get(0)))) || (!dates[1].equals("") && (listing.get(0).equals(dates[0]) && listing.get(1).equals(dates[1])) || (listing.get(0).equals(dates[0]) && occursAfter(listing.get(1), dates[1])) || (listing.get(1).equals(dates[1]) && occursAfter(dates[0], listing.get(0))) || (occursAfter(dates[0], listing.get(0)) && occursAfter(listing.get(0), dates[1]) && occursAfter(dates[0], listing.get(1)) && occursAfter(listing.get(1), dates[1])))) {
-				double lat_2 = Double.parseDouble(listing.get(2));
-				double long_2 = Double.parseDouble(listing.get(3));
-				double latDiff = Math.toRadians(lat_2-lat_1);
-				double longDiff = Math.toRadians(long_2-long_1);
-				double a = Math.pow(Math.sin(latDiff/2), 2) +
-				        Math.cos(Math.toRadians(lat_1)) * Math.cos(Math.toRadians(lat_2)) *
-				        Math.pow(Math.sin(longDiff/2), 2);
-				double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-				if ((6371000 * c)/1000 <= distance) {
+				if(search.equals("1")) {
+					double lat_2 = Double.parseDouble(listing.get(2));
+					double long_2 = Double.parseDouble(listing.get(3));
+					double latDiff = Math.toRadians(lat_2-lat_1);
+					double longDiff = Math.toRadians(long_2-long_1);
+					double a = Math.pow(Math.sin(latDiff/2), 2) +
+					        Math.cos(Math.toRadians(lat_1)) * Math.cos(Math.toRadians(lat_2)) *
+					        Math.pow(Math.sin(longDiff/2), 2);
+					double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+					if ((6371000 * c)/1000 <= distance) {
+						String listingInfo = "-> Listing #: " + listing.get(4) + "; Type: " + listing.get(5) + "; Address: " + listing.get(6) + " " + listing.get(7) + ", " + listing.get(8) + ", " + listing.get(9);
+						if (listing.get(10) != null) {
+							listingInfo += ", Suite No. " + listing.get(10);
+						}
+						listingInfo += "; Cost per Day: " + listing.get(11);
+						System.out.println(listingInfo);
+					}
+				} else {
 					String listingInfo = "-> Listing #: " + listing.get(4) + "; Type: " + listing.get(5) + "; Address: " + listing.get(6) + " " + listing.get(7) + ", " + listing.get(8) + ", " + listing.get(9);
 					if (listing.get(10) != null) {
 						listingInfo += ", Suite No. " + listing.get(10);
