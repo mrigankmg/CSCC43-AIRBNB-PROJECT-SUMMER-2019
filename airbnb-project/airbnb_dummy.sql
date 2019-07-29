@@ -90,7 +90,8 @@ primary key(`listing_num`, `start_date`)
 LOCK TABLES `availability` WRITE;
 /*!40000 ALTER TABLE `availability` DISABLE KEYS */;
 INSERT INTO `availability` VALUES ('1', '20/10/2019', '20/10/2020', '123');
-INSERT INTO `availability` VALUES ('2', '20/11/2019', '20/05/2020', '12345');
+INSERT INTO `availability` VALUES ('2', '20/11/2019', '20/12/2019', '12345');
+INSERT INTO `availability` VALUES ('2', '24/12/2019', '20/05/2020', '12345');
 INSERT INTO `availability` VALUES ('3', '20/11/2019', '20/05/2020', '1234');
 INSERT INTO `availability` VALUES ('4', '20/10/2019', '20/10/2020', '1236');
 INSERT INTO `availability` VALUES ('5', '20/11/2019', '20/05/2020', '1237');

@@ -364,13 +364,13 @@ public class CommandLine {
 			System.out.print("Availability End Date (dd/mm/yyyy): ");
 			availability_vals[2] = sc.nextLine().trim();
 		} while(!isValidEndDate(availability_vals[1], availability_vals[2]) || !isNotOverlap(availability_vals[1], availability_vals[2], location_vals[1], location_vals[2], location_vals[7], location_vals[8], false, "", ""));
-		List<List<String>> toiletPaperYes = sqlMngr.select("amenities", new String[] {"listing_num"}, new String[] {"toilet_paper_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
-		List<List<String>> wifiYes = sqlMngr.select("amenities", new String[] {"listing_num"}, new String[] {"wifi_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
-		List<List<String>> towelsYes = sqlMngr.select("amenities", new String[] {"listing_num"}, new String[] {"towels_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
-		List<List<String>> ironYes = sqlMngr.select("amenities", new String[] {"listing_num"}, new String[] {"iron_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
-		List<List<String>> poolYes = sqlMngr.select("amenities", new String[] {"listing_num"}, new String[] {"pool_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
-		List<List<String>> acYes = sqlMngr.select("amenities", new String[] {"listing_num"}, new String[] {"ac_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
-		List<List<String>> fireplaceYes = sqlMngr.select("amenities", new String[] {"listing_num"}, new String[] {"fireplace_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
+		List<List<String>> toiletPaperYes = sqlMngr.select("(SELECT * FROM amenities NATURAL JOIN location) AS t", new String[] {"listing_num"}, new String[] {"toilet_paper_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
+		List<List<String>> wifiYes = sqlMngr.select("(SELECT * FROM amenities NATURAL JOIN location) AS t", new String[] {"listing_num"}, new String[] {"wifi_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
+		List<List<String>> towelsYes = sqlMngr.select("(SELECT * FROM amenities NATURAL JOIN location) AS t", new String[] {"listing_num"}, new String[] {"towels_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
+		List<List<String>> ironYes = sqlMngr.select("(SELECT * FROM amenities NATURAL JOIN location) AS t", new String[] {"listing_num"}, new String[] {"iron_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
+		List<List<String>> poolYes = sqlMngr.select("(SELECT * FROM amenities NATURAL JOIN location) AS t", new String[] {"listing_num"}, new String[] {"pool_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
+		List<List<String>> acYes = sqlMngr.select("(SELECT * FROM amenities NATURAL JOIN location) AS t", new String[] {"listing_num"}, new String[] {"ac_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
+		List<List<String>> fireplaceYes = sqlMngr.select("(SELECT * FROM amenities NATURAL JOIN location) AS t", new String[] {"listing_num"}, new String[] {"fireplace_included", "city", "country", "type"}, new String[] {"y",location_vals[5], location_vals[6], location_vals[9]});
 		Map<String, Integer> amenitiesCountMap = new HashMap<String, Integer>();
 		amenitiesCountMap.put("toilet paper", toiletPaperYes.size());
 		amenitiesCountMap.put("wifi", wifiYes.size());
@@ -386,10 +386,11 @@ public class CommandLine {
 		            Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
 		                LinkedHashMap::new));
 		System.out.println("");
-		System.out.println("Based on other similar listings in " + location_vals[5] + ", " + location_vals[6] + ", we suggest to include the following amenities: ");
+		System.out.println("Based on other similar listings in " + location_vals[5].substring(0,1).toUpperCase() + location_vals[5].substring(1).toLowerCase() + ", " + location_vals[6].substring(0,1).toUpperCase() + location_vals[6].substring(1).toLowerCase() + ", we suggest to include the following amenities: ");
 		amenitiesCountMap.entrySet().forEach(entry->{
 		    System.out.println("-> " + entry.getKey());
 		 });
+		System.out.println("");
 		do {
 			System.out.print("Toilet Paper Included? (y/n): ");
 			amenity_vals[1] = sc.nextLine().trim();
@@ -439,6 +440,46 @@ public class CommandLine {
 				invalidEntry();
 			}
 		} while(!amenity_vals[7].equalsIgnoreCase("y") && !amenity_vals[7].equalsIgnoreCase("n"));
+		List<List<String>> costs = sqlMngr.select("(SELECT * FROM availability NATURAL JOIN location NATURAL JOIN amenities) AS t", new String [] {"cost_per_day"}, new String [] {"type", "city", "country", "toilet_paper_included", "wifi_included", "towels_included", "iron_included", "pool_included", "ac_included", "fireplace_included"}, new String [] {location_vals[9], location_vals[5], location_vals[6], amenity_vals[1], amenity_vals[2], amenity_vals[3], amenity_vals[4], amenity_vals[5], amenity_vals[6], amenity_vals[7]});
+		double suggested = 0;
+		for (List<String> cost : costs) {
+			suggested += Double.parseDouble(cost.get(0));
+		}
+		if (costs.size() > 0) {
+			suggested /= costs.size();
+		} else {
+			if(location_vals[9].equals("House")) {
+				suggested = 200;
+			} else if (location_vals[9].equals("Apartment")) {
+				suggested = 120;
+			} else {
+				suggested = 50;
+			}
+			if(amenity_vals[1].equalsIgnoreCase("y")) {
+				suggested += 5;
+			}
+			if(amenity_vals[2].equalsIgnoreCase("y")) {
+				suggested += 10;
+			}
+			if(amenity_vals[3].equalsIgnoreCase("y")) {
+				suggested += 5;
+			}
+			if(amenity_vals[4].equalsIgnoreCase("y")) {
+				suggested += 10;
+			}
+			if(amenity_vals[5].equalsIgnoreCase("y")) {
+				suggested += 30;
+			}
+			if(amenity_vals[6].equalsIgnoreCase("y")) {
+				suggested += 5;
+			}
+			if(amenity_vals[7].equalsIgnoreCase("y")) {
+				suggested += 15;
+			}
+		}
+		System.out.println("");
+		System.out.println("Based on other similar listings in " + location_vals[5].substring(0,1).toUpperCase() + location_vals[5].substring(1).toLowerCase() + ", " + location_vals[6].substring(0,1).toUpperCase() + location_vals[6].substring(1).toLowerCase() + ", we suggest a price of $" + suggested + "/day.");
+		System.out.println("");
 		do {
 			System.out.print("Cost per Day: ");
 			availability_vals[3] = sc.nextLine().trim();
