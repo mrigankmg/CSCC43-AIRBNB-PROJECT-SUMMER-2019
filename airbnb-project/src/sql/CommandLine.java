@@ -55,6 +55,7 @@ public class CommandLine {
 	    put("3", "Room");
 	}};
 	private User user;
+	private static Map<String, Integer> nouns;
 
 	//Public functions - CommandLine State Functions
 
@@ -2172,53 +2173,80 @@ public class CommandLine {
 		System.out.println("Top 10 cancellation hosts are : \n" + hostString);
 		System.out.println("Top 10 cancellation renters are : \n" + renterString);
 	}
+
 	private void report12Display() throws SQLException, IOException {
 		String[] empty = {};
+		String order;
+		System.out.println("");
+		do {
+			System.out.print("Order (1- Most common, 2- Least common): ");
+			order = sc.nextLine().trim();
+			if(order.equals("") || (!order.equals("1") && !order.equals("2"))) {
+				invalidEntry();
+			}
+		} while (order.equals("") || (!order.equals("1") && !order.equals("2")));
 		List <String> top = new ArrayList<String>();
 		List<List<String>> listings = sqlMngr.SelectDistinct("booking",new String[] {"listing_num"} , empty, empty);
+		System.out.println("");
+		System.out.println("=========REPORT=========");
 		for(int i =0; i < listings.size(); i++) {
+			nouns = new HashMap<String, Integer>();
 			List<List<String>> commentChart = sqlMngr.select("booking", new String[] {"renter_comment_on_listing"}, new String[] {"listing_num"}, new String[] {listings.get(i).get(0)});
-			String comment ="";
 			for(int j = 0; j< commentChart.size(); j++) {
-				comment += " " + commentChart.get(j).get(0);
+				if(commentChart.get(j).get(0) != null) {
+					getNouns(commentChart.get(j).get(0));
+				}
 			}
-			top = getNouns(comment);
-			System.out.println("top nouns in " + listings.get(i).get(0) + " are :");
-			for(int k = 0;k < 5 && k < top.size() ; k++) {
-				
-				System.out.println((k+1)+"."+top.get(k));
+			if(order.equals("1")) {
+				nouns = nouns
+				        .entrySet()
+				        .stream()
+				        .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+				        .collect(
+				            Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
+				                LinkedHashMap::new));
+				System.out.println("Most common noun phrases in listing '" + listings.get(i).get(0) + "' are :");
+			} else {
+				nouns = nouns
+				        .entrySet()
+				        .stream()
+				        .sorted(Map.Entry.comparingByValue())
+				        .collect(
+				            Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
+				                LinkedHashMap::new));
+				System.out.println("Least common noun phrases in listing '" + listings.get(i).get(0) + "' are :");
 			}
+			nouns.entrySet().forEach(entry->{
+			    System.out.println("-> '" + entry.getKey() + "' with a count of " + entry.getValue() + ".");  
+			 });
 		}
 	}
-	private List<String> getNouns(String comment) throws IOException {
-		Set<String> nouns = new HashSet<>();
+
+	private void getNouns(String comments) throws IOException {
 		InputStream modelInParse = null;
-		List <String> toReturn = new ArrayList<String>();
 		modelInParse = new FileInputStream("en-parser-chunking.bin");
 		ParserModel model = new ParserModel(modelInParse);
-		
 		//create parse tree
 		Parser parser = ParserFactory.create(model);
-		Parse topParses[] = ParserTool.parseLine(comment, parser, 1);
-		
+		Parse topParses[] = ParserTool.parseLine(comments, parser, 1);
+	
 		//call subroutine to extract noun phrases
 		for (Parse p : topParses)
 			getNounPhrases(nouns,p);
-		
-		//print noun phrases
-		for (String s : nouns) {
-			toReturn.add(s);
-		}
-		    return toReturn;
 	}
-	private void getNounPhrases(Set<String> nouns, Parse p) {
-		
+
+	private void getNounPhrases(Map<String, Integer> nouns, Parse p) {
 	    if (p.getType().equals("NP")) { //NP=noun phrase
-	         nouns.add(p.getCoveredText());
+	    	if (!nouns.containsKey(p.getCoveredText())) {
+	    		nouns.put(p.getCoveredText(), 1);
+	    	} else {
+		        nouns.put(p.getCoveredText(), nouns.get(p.getCoveredText()) + 1);
+	    	}
 	    }
 	    for (Parse child : p.getChildren())
 	         getNounPhrases(nouns,child);
 	}
+
 	private boolean occursAfter(String earlier, String later) {
 		DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 	    sdf.setLenient(false);

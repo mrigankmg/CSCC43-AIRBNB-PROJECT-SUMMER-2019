@@ -46,7 +46,6 @@ LOCK TABLES `user` WRITE;
 INSERT INTO `user` VALUES ('a@b.c','Elon','Musk','09/10/1996','28 Golden Meadow Dr.','Founder of Tesla','123456789','pass','123456789012345','0');
 INSERT INTO `user` VALUES ('b@b.c','Bill','Gates','09/10/1996','28 Golden Meadow Dr.','Multi-Billionaire','123123123','pass',NULL,'0');
 INSERT INTO `user` VALUES ('c@b.c','Steph','Curry','09/10/1996','28 Golden Meadow Dr.','NBA Star','123457777','pass',NULL,'0');
-Insert Into `user` Values('d@.c', 'Bob', 'Marley', '10/11/1982', '32 china street','singer','420420420','eed',NULL,'0');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -120,16 +119,14 @@ primary key(`booking_num`)
 
 LOCK TABLES `booking` WRITE;
 /*!40000 ALTER TABLE `booking` DISABLE KEYS */;
-INSERT INTO `booking` VALUES ('1','1','20/10/2017','20/10/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
-INSERT INTO `booking` VALUES ('2','1','20/12/2017','20/09/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('1','1','20/10/2017','20/10/2018','125.5','123456789','Bad place!',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('2','1','20/12/2017','20/09/2018','125.5','123456789','Bad place, horrible place!',NULL,NULL,NULL,NULL,NULL);
 INSERT INTO `booking` VALUES ('3','2','20/12/2017','20/09/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
 INSERT INTO `booking` VALUES ('4','3','20/12/2017','20/09/2018','125.5','123123123',NULL,NULL,NULL,NULL,NULL,NULL);
-INSERT INTO `booking` VALUES ('5','4','20/12/2017','20/09/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
-INSERT INTO `booking` VALUES ('6','4','20/12/2017','20/09/2018','125.5','123123123',NULL,NULL,NULL,NULL,NULL,NULL);
-INSERT INTO `booking` VALUES ('7','4','20/09/2017','20/09/2018','125.5','123456789',NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('5','4','20/12/2017','20/09/2018','125.5','123456789','Beautiful house!',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('6','4','20/12/2017','20/09/2018','125.5','123123123','Beautiful house!',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `booking` VALUES ('7','4','20/09/2017','20/09/2018','125.5','123456789','Awesome stuff!',NULL,NULL,NULL,NULL,NULL);
 INSERT INTO `booking` VALUES ('8','5','20/08/2017','20/12/2018','125.5','123457777',NULL,NULL,NULL,NULL,NULL,NULL);
-INSERT INTO `booking` VALUES ('9','4','20/09/2011','20/09/2011','125.5','123456789',NULL,'george is great','lovely place','best ever',NULL,NULL);
-INSERT INTO `booking` VALUES ('10','5','20/08/2012','20/12/2013','125.5','123457777','Beautiful Bob works here','Taj Mahal is nothing in front of this','harvey is the best host','4','2','5');
 /*!40000 ALTER TABLE `booking` ENABLE KEYS */;
 UNLOCK TABLES;
 
