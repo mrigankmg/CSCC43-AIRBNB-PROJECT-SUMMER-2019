@@ -273,7 +273,7 @@ public class CommandLine {
 					renterHome();
 					break;
 				case 2:
-					bookings();
+					startBookingByListingNumber();
 					renterHome();
 					break;
 				case 3:
@@ -1519,8 +1519,6 @@ public class CommandLine {
 	}
 
 	private boolean bookByListingNumber(String listingNumber, User CurrUser) throws ParseException, SQLException {
-
-
 		boolean toReturn = false;
 		double listingPerDayCost = 1;
 		int numberOfDays = 1;
@@ -1530,19 +1528,16 @@ public class CommandLine {
 		boolean datesRight;
 		String endDate;
 		String[] dates = null;
-
-		System.out.println("Please enter the date you want to book it from");
-		startDate = sc.nextLine().trim();
-		System.out.println("Please enter the date you want to end the booking at");
-		endDate = sc.nextLine().trim() ;
-		if(occursAfter(startDate,endDate)) {
-			dates = checkIfFree(startDate, endDate, listingNumber);
-		}
-		else {
-			
-			System.out.println("End date needs to be after start date.");
-		}
 		
+		do {
+			System.out.print("Please enter the date you want to book it from: ");
+			startDate = sc.nextLine().trim();
+		} while(!isValidStartDate(startDate));
+		do {
+			System.out.print("Please enter the date you want to end the booking at: ");
+			endDate = sc.nextLine().trim() ;
+		} while (!isValidEndDate(startDate, endDate));
+		dates = checkIfFree(startDate, endDate, listingNumber);
 		if(dates != null && dates.length > 0) {
 			start = isValidDate(startDate);
 			stop = isValidDate(endDate);
@@ -1561,8 +1556,9 @@ public class CommandLine {
 			toReturn = true;
 		}
 		else {
-			System.out.println("The lisitng you chose is not free on the following dates");
-
+			System.out.println("");
+			System.out.println("The lisitng you chose is not free on the following dates.");
+			System.out.println("");
 		}
 		return toReturn;
 	}
@@ -1571,16 +1567,37 @@ public class CommandLine {
 		System.out.print("Dear "+ user.getLastName() + " " + user.getFirstName() +"," + total + " has been deducted from your account");
 	}
 	private void startBookingByListingNumber() throws ParseException, SQLException {
+		System.out.println("");
+		System.out.println("=========BOOK=========");
 		String listingNumber;
-		System.out.println("Enter Listing number to book");
-		listingNumber = sc.nextLine();
+		do {
+			System.out.print("Enter listing number to book: ");
+			listingNumber = sc.nextLine();
+		} while (!checkValidListingNum(listingNumber));
 		if(bookByListingNumber(listingNumber, user)) {
-			System.out.println("Your booking has been made");
+			System.out.println("");
+			System.out.println("Your booking has been made.");
+			System.out.println("");
 		}
 		else {
+			System.out.println("");
 			System.out.println("This booking was not successful.");
+			System.out.println("");
 		}
 	}
+	
+	private boolean checkValidListingNum(String listing_num) {
+		List<List<String>> availableListings = sqlMngr.select("availability", new String[] {"listing_num"}, new String[] {"listing_num"}, new String[] {listing_num});
+		boolean result = availableListings.size() > 0;
+		if(!result) {
+			System.out.println("");
+			System.out.println("No such listing exists!");
+			System.out.println("");
+			return false;
+		}
+		return true;
+	}
+	
 	private String[] checkIfFree(String startDate, String endDate, String listingnumber) throws ParseException {
 		int i = 0;
 		String currStart;

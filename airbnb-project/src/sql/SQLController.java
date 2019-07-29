@@ -17,7 +17,7 @@ public class SQLController {
 	private static final String dbClassName = "com.mysql.jdbc.Driver";
 	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/airbnb";
 	private static final String sqlUser = "root";
-	private static final String sqlPass = "password07";
+	private static final String sqlPass = "irw1rgi5";
     //Object that establishes and keeps the state of our application's
     //connection with the MySQL backend.
 	private Connection conn = null;
