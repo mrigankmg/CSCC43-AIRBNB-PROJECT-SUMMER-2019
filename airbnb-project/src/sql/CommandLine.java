@@ -6,7 +6,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -24,10 +23,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.time.Month;
 import java.time.temporal.ChronoUnit;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
@@ -1429,95 +1426,6 @@ public class CommandLine {
 		    });
 	}
 
-	private void bookings() throws ParseException, SQLException {
-
-		int selection;
-		System.out.println("Book by:");
-		System.out.println("1: Date");
-		System.out.println("2: Location");
-		System.out.println("0: Back");
-		selection = sc.nextInt();
-		if(selection == 1) {
-			bookByDate();
-		}
-		else if(selection ==2) {
-			bookByPostalCode();
-		}
-		else if(selection == 0) {
-			goBack();
-		}
-		else {
-			System.out.println("incorrect slection, try again");
-		}
-
-	}
-
-	private void bookByDate() throws ParseException, SQLException {
-
-
-		String startDate;
-		Date startInDate;
-		String endDate;
-		Date endInDate;
-		System.out.println("Enter start date(dd/mm/yyyy)");
-		startDate = sc.nextLine();
-
-		startInDate = isValidDate(startDate);
-		if(startInDate != null ) {
-			System.out.println("Enter start date(dd/mm/yyyy)");
-			endDate = sc.nextLine();
-			endInDate = isValidDate(endDate);
-			if (endInDate != null) {
-			//	displayDates(startInDate, endInDate);
-				startBookingByListingNumber();
-
-			}
-			else {
-				System.out.println("The end date is not valid");
-			}
-		}
-		else {
-			System.out.println("The date you entered is not valid ");
-
-		}
-
-	}
-
-	private void displayDates(String startDate, String endDate) {
-
-
-	}
-
-	private void bookByCity() throws ParseException, SQLException {
-
-
-
-		String country;
-		String city;
-		System.out.println("Enter Country:");
-		country = sc.nextLine().trim();
-		System.out.println("Enter City");
-		city = sc.nextLine().trim();
-		//displayByCity(country, city);
-		startBookingByListingNumber();
-
-	}
-
-	private void bookByPostalCode() throws ParseException, SQLException {
-		String postalCode;
-		System.out.println("Enter Postal Code:");
-		sc.nextLine();
-		postalCode = sc.nextLine().trim();
-		if(displayByPostalCode(postalCode)) {
-			startBookingByListingNumber();
-		}
-		
-	}
-
-	private void goBack() {
-
-	}
-
 	private boolean bookByListingNumber(String listingNumber, User CurrUser) throws ParseException, SQLException {
 		boolean toReturn = false;
 		double listingPerDayCost;
@@ -1525,7 +1433,6 @@ public class CommandLine {
 		String startDate;
 		Date start;
 		Date stop;
-		boolean datesRight;
 		String endDate;
 		String[] dates = null;
 		
@@ -1641,27 +1548,7 @@ public class CommandLine {
 			sqlMngr.insert("availability", availabilityColumns , new String[] {listingNumber,endDate,dates[1],String.valueOf(cost)});
 		}
 		}
-	private boolean displayByPostalCode(String postal) {
-		List<List<String>> listingCode = sqlMngr.select("location", locationColumns, new String[] {"postal_code"}, new String[] {postal});
-		boolean toReturn = false;
-		if(listingCode.size() > 0) {
-			toReturn = true;
-		}
-		for(int i = 0; i < listingCode.size();i++) {
-			List<List<String>> dates = sqlMngr.select("availability", new String[] {"start_date", "end_date"} , new String[] {"listing_num"}, new String[] {(listingCode.get(i)).get(0)});
-			for(int j = 0; j < dates.size();j++) {
-				for(int k = 0; k < listingCode.get(i).size();k++) {
-					System.out.print(listingCode.get(i).get(k) + "\t");
-				}
-				System.out.println(dates.get(j).get(0) + "\t" + dates.get(j).get(1));
-				
-			}
-		}
-		if(!toReturn) {
-			System.out.println("Postal Code does not Exist !");
-		}
-		return toReturn;
-	}
+
 	public void addBooking(String listing, String startDate, String endDate, double cost)  {
 		sqlMngr.insert("booking", bookingColumns,new String[] {UUID.randomUUID().toString(), listing, startDate, endDate, String.valueOf(cost), user.getSin(),null,null,null,null,null,null});
 	}
@@ -2214,7 +2101,6 @@ public class CommandLine {
 			}
 		} while (order.equals("") || (!order.equals("1") && !order.equals("2")));
 		String[] empty = {};
-		Map<String, Integer> map ;
 		List<List<String>> cities;
 		System.out.println("=========REPORT=========");
 		cities = sqlMngr.SelectDistinct("location", new String[] {"city"},empty,empty);
@@ -2289,7 +2175,6 @@ public class CommandLine {
 	private void report12Display() throws SQLException, IOException {
 		String[] empty = {};
 		List <String> top = new ArrayList<String>();
-		Map<String, List<String>> counts = new HashMap<String, List<String>> ();
 		List<List<String>> listings = sqlMngr.SelectDistinct("booking",new String[] {"listing_num"} , empty, empty);
 		for(int i =0; i < listings.size(); i++) {
 			List<List<String>> commentChart = sqlMngr.select("booking", new String[] {"renter_comment_on_listing"}, new String[] {"listing_num"}, new String[] {listings.get(i).get(0)});
