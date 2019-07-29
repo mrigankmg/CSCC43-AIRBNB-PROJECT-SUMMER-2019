@@ -506,5 +506,27 @@ public class SQLController {
 		}
 		return result;
 	}
+ 
+	public List<List<String>> report11(){
+		String query = "Select sin, num_cancellations, first_name, last_name FROM user ORDER BY num_cancellations DESC;";
+		String[] fCover = {"sin", "num_cancellations","first_name","last_name"};
+		List<List<String>> result = new ArrayList<List<String>>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				List<String> curr = new ArrayList<String>();
+				for (int counter = 0; counter < 4; counter ++) {
+					curr.add(rs.getString(fCover[counter]));
+				}
+				result.add(curr);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+		
+	}
 
 }

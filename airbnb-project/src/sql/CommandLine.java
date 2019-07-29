@@ -1780,6 +1780,7 @@ public class CommandLine {
 					report10Display();
 					break;
 				case 11:
+					report11Display();
 					break;
 				case 12:
 					break;
@@ -2138,6 +2139,33 @@ public class CommandLine {
 			    System.out.println("\t-> " + entry.getKey().get(1) + " " + entry.getKey().get(2) + " with " + entry.getValue() + " bookings.");  
 			});
 		}
+	}
+	private void report11Display() {
+		int hosts = 0;
+		String hostString ="";
+		String renterString = "";
+		int renters = 0;
+		int counter = 0;
+		
+		List<List<String>> values = sqlMngr.report11();
+		while((hosts < 10 || renters < 10)  && counter < values.size()) {
+			List<List<String>> temp = sqlMngr.select("host", new String[] {"sin"},new String[] {"sin"} , new String[] {values.get(counter).get(0)});
+			if(temp.size() > 0) {
+				if(hosts < 10) {
+					hosts++;
+					hostString +=  hosts + "."+ values.get(counter).get(2) + " " + values.get(counter).get(3) + " " + values.get(counter).get(0) + " with " + values.get(counter).get(1) + " cancellations ! \n";
+				}
+			}
+			else {
+				if(renters < 10) {
+					renters++;
+					renterString +=  renters + "."+ values.get(counter).get(2) + " " + values.get(counter).get(3) + " " + values.get(counter).get(0) + " with " + values.get(counter).get(1) + "cancellations ! \n";
+				}
+			}
+			counter++;
+		}
+		System.out.println("Top 10 cancellation hosts are : \n" + hostString);
+		System.out.println("Top 10 cancellation renters are : \n" + renterString);
 	}
 
 	private boolean occursAfter(String earlier, String later) {
