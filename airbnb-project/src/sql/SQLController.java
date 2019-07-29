@@ -17,7 +17,7 @@ public class SQLController {
 	private static final String dbClassName = "com.mysql.jdbc.Driver";
 	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/airbnb";
 	private static final String sqlUser = "root";
-	private static final String sqlPass = "irw1rgi5";
+	private static final String sqlPass = "password07";
     //Object that establishes and keeps the state of our application's
     //connection with the MySQL backend.
 	private Connection conn = null;
@@ -297,6 +297,42 @@ public class SQLController {
 			e.printStackTrace();
 		}
 		return result;
+	}
+	public List<List<String>> SelectDistinct(String table, String[] uniqueField, String[] limit, String[] value) throws SQLException{
+		String query = "Select Distinct ";
+		int i = 0;
+		List<List<String>> result = new ArrayList<List<String>>();
+	
+		while(i+1 < uniqueField.length) {
+			System.out.println(query);
+			query += uniqueField[i] + ",";
+			i++;
+		}
+		query += uniqueField[i] + " From " + table ;
+		if(limit.length > 0) {
+			query += " Where ";
+			i = 0;
+			
+			while(i+1 < limit.length) {
+				query += limit[i] + " = '" + value[i] + "' AND ";
+				i++;
+			}
+			query += limit[i] + " = '" + value[i] + "' ;";
+		}
+		
+		ResultSet rs = st.executeQuery(query);
+		
+		
+		while(rs.next()) {
+			List<String> curr = new ArrayList<String>();
+			for (int counter = 0; counter < uniqueField.length; counter ++) {
+				curr.add(rs.getString(uniqueField[counter]));
+			}
+			result.add(curr);
+		}
+		rs.close();
+		return result;
+		
 	}
 	
 	public Map<String, String> report3() {

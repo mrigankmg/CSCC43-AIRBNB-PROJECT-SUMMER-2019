@@ -870,7 +870,7 @@ public class CommandLine {
 		        	return Date.from(ld.atStartOfDay(ZoneId.systemDefault()).toInstant());
 		        } else {
 			    	System.out.println("");
-			    	System.out.println("Date does not match required format. Please enter again.");
+			    	System.out.println("Date does not match Hi required format. Please enter again.");
 			    	System.out.println("");
 		        	return null;
 		        }
@@ -1771,6 +1771,7 @@ public class CommandLine {
 					report7Display();
 					break;
 				case 8:
+					report8Display();
 					break;
 				case 9:
 					report9Display();
@@ -1948,6 +1949,69 @@ public class CommandLine {
 				    }
 				 });});
 		}
+	}
+	private void report8Display() throws SQLException {
+		System.out.println("1. Run report for Cities");
+		System.out.println("2. Run report for Countries");
+		int input = sc.nextInt();
+		
+		if(input == 1) {
+			commercialReportByCity();
+		}
+		else if(input == 2){
+			//commercialReportByCountry();
+		}
+		
+		
+		
+	}
+	private void commercialReportByCity() throws SQLException {
+		List<List<String>> cities;
+		List<List<String>> listingNumbs;
+		int numList = 0;
+		List <String> exceedingUsers = new ArrayList<String>();
+		List <String> atLoc = new ArrayList<String>();
+		String sin;
+		String[] empty = {};
+		Map<String, Integer> map ;
+		cities = sqlMngr.SelectDistinct("location", new String[] {"city"},empty,empty);
+	
+		for(int i =0; i< cities.size() ;i++) {
+			map = new HashMap<String, Integer>();
+			
+			listingNumbs = sqlMngr.select("location", new String[] {"listing_num"}, new String[] {"city"}, new String[] {cities.get(i).get(0)});
+			
+			numList = listingNumbs.size();
+			for(int j = 0; j < numList; j++) {
+				sin = sqlMngr.select("host", new String[] {"sin"}, new String[] {"listing_num"}, new String[] {listingNumbs.get(j).get(0)}).get(0).get(0);
+				if(map.containsKey(sin)) {
+					map.put(sin, map.get(sin)+ 1);
+				}
+				else {
+					map.put(sin, 1);
+				}
+				if((double)(map.get(sin)) > (double)numList/10) {
+					exceedingUsers.add(sin);
+					atLoc.add(cities.get(i).get(0));
+					map.put(sin, -numList);
+					
+				
+				}
+			}
+		}
+		if(exceedingUsers.size() > 0) {
+			
+		System.out.println("Users to be flagged have the sin :");
+			for(int i = 0; i < exceedingUsers.size(); i++) {
+				System.out.print(exceedingUsers.get(i));
+				System.out.println(" to be flagged in " + atLoc.get(i));
+				
+			}
+		}
+		
+		
+		
+		
 	}
 	
 	private void report9Display() throws SQLException {
