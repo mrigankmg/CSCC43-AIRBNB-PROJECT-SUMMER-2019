@@ -2201,7 +2201,7 @@ public class CommandLine {
 				        .collect(
 				            Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
 				                LinkedHashMap::new));
-				System.out.println("Most common noun phrases in listing '" + listings.get(i).get(0) + "' are :");
+				System.out.println("Most common noun phrases in listing '" + listings.get(i).get(0) + "' are:");
 			} else {
 				nouns = nouns
 				        .entrySet()
@@ -2210,7 +2210,7 @@ public class CommandLine {
 				        .collect(
 				            Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
 				                LinkedHashMap::new));
-				System.out.println("Least common noun phrases in listing '" + listings.get(i).get(0) + "' are :");
+				System.out.println("Least common noun phrases in listing '" + listings.get(i).get(0) + "' are:");
 			}
 			nouns.entrySet().forEach(entry->{
 			    System.out.println("-> '" + entry.getKey() + "' with a count of " + entry.getValue() + ".");  
