@@ -26,6 +26,19 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.time.Month;
 import java.time.temporal.ChronoUnit;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
+
+import opennlp.tools.cmdline.parser.ParserTool;
+import opennlp.tools.parser.Parse;
+import opennlp.tools.parser.Parser;
+import opennlp.tools.parser.ParserFactory;
+import opennlp.tools.parser.ParserModel;
+
 import users.*;
 
 public class CommandLine {
@@ -95,7 +108,12 @@ public class CommandLine {
 			System.out.println("****************************");
 			System.out.println("***CONNECTION ESTABLISHED***");
 			System.out.println("****************************");
-			mainMenu();
+			try {
+				mainMenu();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		} else {
 			System.out.println("");
@@ -104,7 +122,7 @@ public class CommandLine {
 		}
 	}
 
-	private void mainMenu() throws SQLException, ParseException {
+	private void mainMenu() throws SQLException, ParseException, IOException {
 		user = null;
 		String input = "";
 		int choice = -1;
@@ -210,7 +228,12 @@ public class CommandLine {
 					hostHome();
 					break;
 				case 6:
-					mainMenu();
+					try {
+						mainMenu();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					break;
 				default:
 					invalidEntry();
@@ -262,7 +285,12 @@ public class CommandLine {
 					renterHome();
 					break;
 				case 5:
-					mainMenu();
+					try {
+						mainMenu();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					break;
 				default:
 					invalidEntry();
@@ -747,7 +775,12 @@ public class CommandLine {
 		sqlMngr.insert("user", userColumns, cred);
 		System.out.println("");
 		System.out.println("You have successfully signed up!");
-		mainMenu();
+		try {
+			mainMenu();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void deleteUser() throws SQLException, ParseException {
@@ -774,7 +807,12 @@ public class CommandLine {
 		}
 		System.out.println("");
 		System.out.println("User with email '" + email + "' has been deleted.");
-		mainMenu();
+		try {
+			mainMenu();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	//Print menu options
@@ -1068,7 +1106,12 @@ public class CommandLine {
 					renterHome();
 					break;
 				case 5:
-					mainMenu();
+					try {
+						mainMenu();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					break;
 				default:
 					invalidEntry();
@@ -1722,7 +1765,7 @@ public class CommandLine {
 		
 	}
 	
-	private void generateReports() throws SQLException, ParseException {
+	private void generateReports() throws SQLException, ParseException, IOException {
 		String input = "";
 		int choice = -1;
 		do {
@@ -1783,6 +1826,7 @@ public class CommandLine {
 					report11Display();
 					break;
 				case 12:
+					report12Display();
 					break;
 				case 13:
 					mainMenu();
@@ -1961,7 +2005,7 @@ public class CommandLine {
 			commercialReportByCity();
 		}
 		else if(input == 2){
-			//commercialReportByCountry();
+			commercialReportByCountry();
 		}
 		
 		
@@ -1995,6 +2039,52 @@ public class CommandLine {
 				if((double)(map.get(sin)) > (double)numList/10) {
 					exceedingUsers.add(sin);
 					atLoc.add(cities.get(i).get(0));
+					map.put(sin, -numList);
+					
+				
+				}
+			}
+		}
+		if(exceedingUsers.size() > 0) {
+			
+		System.out.println("Users to be flagged have the sin :");
+			for(int i = 0; i < exceedingUsers.size(); i++) {
+				System.out.print(exceedingUsers.get(i));
+				System.out.println(" to be flagged in " + atLoc.get(i));
+				
+			}
+		}
+
+	}
+	
+	private void commercialReportByCountry() throws SQLException {
+		List<List<String>> countries;
+		List<List<String>> listingNumbs;
+		int numList = 0;
+		List <String> exceedingUsers = new ArrayList<String>();
+		List <String> atLoc = new ArrayList<String>();
+		String sin;
+		String[] empty = {};
+		Map<String, Integer> map ;
+		countries = sqlMngr.SelectDistinct("location", new String[] {"country"},empty,empty);
+	
+		for(int i =0; i< countries.size() ;i++) {
+			map = new HashMap<String, Integer>();
+			
+			listingNumbs = sqlMngr.select("location", new String[] {"listing_num"}, new String[] {"country"}, new String[] {countries.get(i).get(0)});
+			
+			numList = listingNumbs.size();
+			for(int j = 0; j < numList; j++) {
+				sin = sqlMngr.select("host", new String[] {"sin"}, new String[] {"listing_num"}, new String[] {listingNumbs.get(j).get(0)}).get(0).get(0);
+				if(map.containsKey(sin)) {
+					map.put(sin, map.get(sin)+ 1);
+				}
+				else {
+					map.put(sin, 1);
+				}
+				if((double)(map.get(sin)) > (double)numList/10) {
+					exceedingUsers.add(sin);
+					atLoc.add(countries.get(i).get(0));
 					map.put(sin, -numList);
 					
 				
@@ -2144,6 +2234,7 @@ public class CommandLine {
 		int renters = 0;
 		int counter = 0;
 		
+		
 		List<List<String>> values = sqlMngr.report11();
 		while((hosts < 10 || renters < 10)  && counter < values.size()) {
 			List<List<String>> temp = sqlMngr.select("host", new String[] {"sin"},new String[] {"sin"} , new String[] {values.get(counter).get(0)});
@@ -2164,7 +2255,54 @@ public class CommandLine {
 		System.out.println("Top 10 cancellation hosts are : \n" + hostString);
 		System.out.println("Top 10 cancellation renters are : \n" + renterString);
 	}
-
+	private void report12Display() throws SQLException, IOException {
+		String[] empty = {};
+		List <String> top = new ArrayList<String>();
+		Map<String, List<String>> counts = new HashMap<String, List<String>> ();
+		List<List<String>> listings = sqlMngr.SelectDistinct("booking",new String[] {"listing_num"} , empty, empty);
+		for(int i =0; i < listings.size(); i++) {
+			List<List<String>> commentChart = sqlMngr.select("booking", new String[] {"renter_comment_on_listing"}, new String[] {"listing_num"}, new String[] {listings.get(i).get(0)});
+			String comment ="";
+			for(int j = 0; j< commentChart.size(); j++) {
+				comment += " " + commentChart.get(j).get(0);
+			}
+			top = getNouns(comment);
+			System.out.println("top nouns in " + listings.get(i).get(0) + " are :");
+			for(int k = 0;k < 5 && k < top.size() ; k++) {
+				
+				System.out.println((k+1)+"."+top.get(k));
+			}
+		}
+	}
+	private List<String> getNouns(String comment) throws IOException {
+		Set<String> nouns = new HashSet<>();
+		InputStream modelInParse = null;
+		List <String> toReturn = new ArrayList<String>();
+		modelInParse = new FileInputStream("from http://opennlp.sourceforge.net/models-1.5/en-parser-chunking.bin"); //from http://opennlp.sourceforge.net/models-1.5/
+		ParserModel model = new ParserModel(modelInParse);
+		
+		//create parse tree
+		Parser parser = ParserFactory.create(model);
+		Parse topParses[] = ParserTool.parseLine(comment, parser, 1);
+		
+		//call subroutine to extract noun phrases
+		for (Parse p : topParses)
+			getNounPhrases(nouns,p);
+		
+		//print noun phrases
+		for (String s : nouns) {
+			toReturn.add(s);
+		}
+		    return toReturn;
+	}
+	private void getNounPhrases(Set<String> nouns, Parse p) {
+		
+	    if (p.getType().equals("NP")) { //NP=noun phrase
+	         nouns.add(p.getCoveredText());
+	    }
+	    for (Parse child : p.getChildren())
+	         getNounPhrases(nouns,child);
+	}
 	private boolean occursAfter(String earlier, String later) {
 		DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 	    sdf.setLenient(false);
