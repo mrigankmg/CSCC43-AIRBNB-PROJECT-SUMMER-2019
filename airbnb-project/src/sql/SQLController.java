@@ -484,7 +484,7 @@ public class SQLController {
 	}
 	public Map<List<String>, List<List<String>>> report10(String cityName) {
 		String query = "SELECT sin, first_name, last_name, start_date, end_date FROM booking NATURAL JOIN user NATURAL JOIN location Where city = '";
-		query += cityName + "' ;";
+		query += cityName + "';";
 		Map<List<String>, List<List<String>>> result = new HashMap<List<String>, List<List<String>>>();
 		try {
 			ResultSet rs = st.executeQuery(query);

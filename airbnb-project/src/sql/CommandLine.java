@@ -1699,7 +1699,7 @@ public class CommandLine {
 			System.out.println("9. Rank renters by number of bookings in date range");
 			System.out.println("10. Rank renters by number of bookings in date range in a city (at least 2 bookings)");
 			System.out.println("11. Top 10 hosts and renters with largest number of cancellations within a year");
-			System.out.println("12. Noun phrases");
+			System.out.println("12. Rank most/least common noun phrases");
 			System.out.println("13. Main Menu");
 			System.out.print("Choose one of the options [0-13]: ");
 			input = sc.nextLine();
@@ -2126,7 +2126,7 @@ public class CommandLine {
 						.collect(
 								Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
 										LinkedHashMap::new));
-				System.out.println("The renters with the most bookings in the date range of " + dates[0] + " to " + dates[1] + " in " + cities.get(i).get(0) + " are:");
+				System.out.println("The renters with the most bookings (at least 2) in the date range of " + dates[0] + " to " + dates[1] + " in " + cities.get(i).get(0) + " are:");
 			} else {
 				sorted = counts
 						.entrySet()
@@ -2135,10 +2135,12 @@ public class CommandLine {
 						.collect(
 								Collectors.toMap(e -> e.getKey(), e -> e.getValue(), (e1, e2) -> e2,
 										LinkedHashMap::new));
-				System.out.println("The renters with the least bookings in the date range of " + dates[0] + " to " + dates[1] + " in " + cities.get(i).get(0) + " are:");
+				System.out.println("The renters with the least bookings (at least 2) in the date range of " + dates[0] + " to " + dates[1] + " in " + cities.get(i).get(0) + " are:");
 			}
 			sorted.entrySet().forEach(entry->{
-			    System.out.println("\t-> " + entry.getKey().get(1) + " " + entry.getKey().get(2) + " with " + entry.getValue() + " bookings.");  
+				if(entry.getValue() > 1) {
+				    System.out.println("\t-> " + entry.getKey().get(1) + " " + entry.getKey().get(2) + " with " + entry.getValue() + " bookings.");
+				}
 			});
 		}
 	}
