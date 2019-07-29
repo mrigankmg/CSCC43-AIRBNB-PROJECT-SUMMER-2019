@@ -116,7 +116,7 @@ public class CommandLine {
 			System.out.println("2. Sign-Up");
 			System.out.println("3. Delete User");
 			System.out.println("4. Generate Reports");
-			System.out.print("Choose one of the options [0-3]: ");
+			System.out.print("Choose one of the options [0-4]: ");
 			input = sc.nextLine();
 			try {
 				choice = Integer.parseInt(input);
@@ -2010,10 +2010,7 @@ public class CommandLine {
 				
 			}
 		}
-		
-		
-		
-		
+
 	}
 	
 	private void report9Display() throws SQLException {
@@ -2029,7 +2026,7 @@ public class CommandLine {
 			dates[1] = sc.nextLine().trim();
 		} while (!isValidEndDate(dates[0], dates[1]));
 		do {
-			System.out.print("Order (1- Most listings, 2- Least listings): ");
+			System.out.print("Order (1- Most bookings, 2- Least bookings): ");
 			order = sc.nextLine().trim();
 			if(order.equals("") || (!order.equals("1") && !order.equals("2"))) {
 				invalidEntry();
@@ -2089,7 +2086,7 @@ public class CommandLine {
 			dates[1] = sc.nextLine().trim();
 		} while (!isValidEndDate(dates[0], dates[1]));
 		do {
-			System.out.print("Order (1- Most listings, 2- Least listings): ");
+			System.out.print("Order (1- Most bookings, 2- Least bookings): ");
 			order = sc.nextLine().trim();
 			if(order.equals("") || (!order.equals("1") && !order.equals("2"))) {
 				invalidEntry();
@@ -2124,7 +2121,7 @@ public class CommandLine {
 						.collect(
 								Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
 										LinkedHashMap::new));
-				System.out.println("The renters with the most bookings in the date range of " + dates[0] + " to " + dates[1] + "in " + cities.get(i).get(0) + " are:");
+				System.out.println("The renters with the most bookings in the date range of " + dates[0] + " to " + dates[1] + " in " + cities.get(i).get(0) + " are:");
 			} else {
 				sorted = counts
 						.entrySet()
