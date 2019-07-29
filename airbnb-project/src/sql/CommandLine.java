@@ -1369,8 +1369,9 @@ public class CommandLine {
 		System.out.println("");
 		System.out.println("Listings: ");
 		Map<List<String>, Integer>fullyFilteredListingsCosts = new HashMap<List<String>, Integer>();
+		Map<String, List<List<String>>>fullyFilteredListingsDates = new HashMap <String, List<List<String>>>();
 		for(List<String> listing : filteredListings) {
-			if(!fullyFilteredListingsCosts.containsKey(Arrays.asList("listing_num", "type", "house_num", "street_name", "city", "country", "suite_num"))) {
+			if(!fullyFilteredListingsCosts.containsKey(Arrays.asList(listing.get(4), listing.get(5), listing.get(6), listing.get(7), listing.get(8), listing.get(9), listing.get(10)))) {
 				if((dates[1].equals("") && (listing.get(0).equals(dates[0]) || occursAfter(dates[0], listing.get(0)))) || (!dates[1].equals("") && (listing.get(0).equals(dates[0]) && listing.get(1).equals(dates[1])) || (listing.get(0).equals(dates[0]) && occursAfter(listing.get(1), dates[1])) || (listing.get(1).equals(dates[1]) && occursAfter(dates[0], listing.get(0))) || (occursAfter(dates[0], listing.get(0)) && occursAfter(listing.get(0), dates[1]) && occursAfter(dates[0], listing.get(1)) && occursAfter(listing.get(1), dates[1])))) {
 					if(search.equals("1")) {
 						double lat_2 = Double.parseDouble(listing.get(2));
@@ -1383,11 +1384,19 @@ public class CommandLine {
 						double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 						if ((6371000 * c)/1000 <= distance) {
 							fullyFilteredListingsCosts.put(Arrays.asList(listing.get(4), listing.get(5), listing.get(6), listing.get(7), listing.get(8), listing.get(9), listing.get(10)), Integer.parseInt(listing.get(11)));
+							List<List<String>> curr = new ArrayList<List<String>> ();
+							curr.add(Arrays.asList(listing.get(0), listing.get(1)));
+							fullyFilteredListingsDates.put(listing.get(4), curr);
 						}
 					} else {
 						fullyFilteredListingsCosts.put(Arrays.asList(listing.get(4), listing.get(5), listing.get(6), listing.get(7), listing.get(8), listing.get(9), listing.get(10)), Integer.parseInt(listing.get(11)));
+						List<List<String>> curr = new ArrayList<List<String>> ();
+						curr.add(Arrays.asList(listing.get(0), listing.get(1)));
+						fullyFilteredListingsDates.put(listing.get(4), curr);
 					}
 				}
+			}  else {
+				fullyFilteredListingsDates.get(listing.get(4)).add(Arrays.asList(listing.get(0), listing.get(1)));
 			}
 		}
 		if(order.equals("1")) {
@@ -1413,6 +1422,9 @@ public class CommandLine {
 				listingInfo += ", Suite No. " + entry.getKey().get(6);
 			}
 			listingInfo += "; Cost per Day: " + entry.getValue();
+			for (List<String> listingDates : fullyFilteredListingsDates.get(entry.getKey().get(0))) {
+				listingInfo += "; From " + listingDates.get(0) + " To: " + listingDates.get(1);
+			}
 			System.out.println(listingInfo);
 		    });
 	}
