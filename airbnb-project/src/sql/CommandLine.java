@@ -2194,7 +2194,7 @@ public class CommandLine {
 		Set<String> nouns = new HashSet<>();
 		InputStream modelInParse = null;
 		List <String> toReturn = new ArrayList<String>();
-		modelInParse = new FileInputStream("from http://opennlp.sourceforge.net/models-1.5/en-parser-chunking.bin"); //from http://opennlp.sourceforge.net/models-1.5/
+		modelInParse = new FileInputStream("en-parser-chunking.bin");
 		ParserModel model = new ParserModel(modelInParse);
 		
 		//create parse tree
