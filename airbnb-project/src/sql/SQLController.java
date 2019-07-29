@@ -483,5 +483,28 @@ public class SQLController {
 		}
 		return result;
 	}
+	public Map<List<String>, List<List<String>>> report10(String cityName) {
+		String query = "SELECT sin, first_name, last_name, start_date, end_date FROM booking NATURAL JOIN user NATURAL JOIN location Where city = '";
+		query += cityName + "' ;";
+		Map<List<String>, List<List<String>>> result = new HashMap<List<String>, List<List<String>>>();
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				List<String> curr = new ArrayList<String>();
+				List<String> key = Arrays.asList(rs.getString("sin"), rs.getString("first_name"), rs.getString("last_name")); 
+				if (!result.containsKey(key)) {
+					result.put(key, new ArrayList<List<String>>());
+				}
+				curr.add(rs.getString("start_date"));
+				curr.add(rs.getString("end_date"));
+				result.get(key).add(curr);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			System.err.println("Exception triggered during select execution!");
+			e.printStackTrace();
+		}
+		return result;
+	}
 
 }
