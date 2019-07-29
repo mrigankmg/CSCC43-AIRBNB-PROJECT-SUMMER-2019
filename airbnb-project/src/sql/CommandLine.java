@@ -1520,8 +1520,8 @@ public class CommandLine {
 
 	private boolean bookByListingNumber(String listingNumber, User CurrUser) throws ParseException, SQLException {
 		boolean toReturn = false;
-		double listingPerDayCost = 1;
-		int numberOfDays = 1;
+		double listingPerDayCost;
+		long numberOfDays = 0;
 		String startDate;
 		Date start;
 		Date stop;
@@ -1541,9 +1541,15 @@ public class CommandLine {
 		if(dates != null && dates.length > 0) {
 			start = isValidDate(startDate);
 			stop = isValidDate(endDate);
-			//numberOfDays = ChronoUnit.DAYS.between(start, stop);
+			SimpleDateFormat new_format = new SimpleDateFormat("yyyy-MM-dd");
+			new_format.applyPattern("yyyy-MM-dd");
+			String newStartDateString = new_format.format(start);
+			String newEndDateString = new_format.format(stop);
+			LocalDate sLocalDate = LocalDate.parse(newStartDateString);
+			LocalDate eLocalDate = LocalDate.parse(newEndDateString);
+			numberOfDays += ChronoUnit.DAYS.between(sLocalDate, eLocalDate);
+			listingPerDayCost = Double.parseDouble(sqlMngr.select("availability", new String [] {"cost_per_day"}, new String [] {"listing_num", "start_date"}, new String [] {listingNumber, startDate}).get(0).get(0));
 			invoice(user, numberOfDays, listingPerDayCost);
-
 			updateAvailability(startDate, endDate, dates, listingNumber, listingPerDayCost);
 			addBooking(listingNumber,startDate, endDate, listingPerDayCost );
 			List<List<String>> bookingNums = sqlMngr.select("booking", new String[] {"booking_num","start_date"}, new String[] {"listing_num"}, new String[] {listingNumber});
@@ -1562,9 +1568,10 @@ public class CommandLine {
 		}
 		return toReturn;
 	}
-	private void invoice(User currUser, int numbDays, double cost) {
+	private void invoice(User currUser, long numbDays, double cost) {
 		double total = cost*numbDays;
-		System.out.print("Dear "+ user.getLastName() + " " + user.getFirstName() +"," + total + " has been deducted from your account");
+		System.out.println("");
+		System.out.print("Dear "+ user.getLastName() + " " + user.getFirstName() +", $" + total + " has been deducted from your account. ");
 	}
 	private void startBookingByListingNumber() throws ParseException, SQLException {
 		System.out.println("");
@@ -1574,12 +1581,7 @@ public class CommandLine {
 			System.out.print("Enter listing number to book: ");
 			listingNumber = sc.nextLine();
 		} while (!checkValidListingNum(listingNumber));
-		if(bookByListingNumber(listingNumber, user)) {
-			System.out.println("");
-			System.out.println("Your booking has been made.");
-			System.out.println("");
-		}
-		else {
+		if(!bookByListingNumber(listingNumber, user)) {
 			System.out.println("");
 			System.out.println("This booking was not successful.");
 			System.out.println("");
