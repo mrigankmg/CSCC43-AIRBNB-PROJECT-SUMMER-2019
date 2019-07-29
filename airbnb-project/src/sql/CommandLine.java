@@ -2185,7 +2185,6 @@ public class CommandLine {
 				invalidEntry();
 			}
 		} while (order.equals("") || (!order.equals("1") && !order.equals("2")));
-		List <String> top = new ArrayList<String>();
 		List<List<String>> listings = sqlMngr.SelectDistinct("booking",new String[] {"listing_num"} , empty, empty);
 		System.out.println("");
 		System.out.println("=========REPORT=========");
@@ -2226,11 +2225,8 @@ public class CommandLine {
 		InputStream modelInParse = null;
 		modelInParse = new FileInputStream("en-parser-chunking.bin");
 		ParserModel model = new ParserModel(modelInParse);
-		//create parse tree
 		Parser parser = ParserFactory.create(model);
 		Parse topParses[] = ParserTool.parseLine(comments, parser, 1);
-	
-		//call subroutine to extract noun phrases
 		for (Parse p : topParses)
 			getNounPhrases(nouns,p);
 	}
